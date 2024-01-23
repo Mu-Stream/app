@@ -1,31 +1,46 @@
+type SignalingPayload = any
+
 export enum MessageType {
   INIT = 'INIT',
-  LOGIN = 'LOGIN',
-  CLOSE = 'CLOSE',
-  CANDIDATE = 'CANDIDATE'
+  CREATE_ROOM = 'CREATE_ROOM',
+  REQUEST_JOIN_ROOM = 'JOIN_ROOM',
+  CONNECT_TO_ROOM = 'CONNECT_TO_ROOM',
+  ACCEPT_ROOM_JOIN = 'ACCEPT_ROOM_JOIN'
 }
 
-export interface SocketLoginMessage {
-  type: MessageType.LOGIN
-  asker: string
-  askee: string
+interface BaseSocetMessage {
+  type: MessageType
 }
 
-export interface SocketInitMessage {
+export interface SocketInitMessage extends BaseSocketMessage {
   type: MessageType.INIT
   uuid: string
 }
 
-export interface SocketCandidateMessage {
-  type: MessageType.CANDIDATE
-  uuid: string
+export interface SocketCreateRoomMessage extends BaseSocketMessage {
+  type: MessageType.CREATE_ROOM
+  peer: SignalingPayload
 }
 
-export interface SocketCloseMessage {
-  type: MessageType.CLOSE
-  uuid: string
-  asker: string
-  askee: string
+export interface SocketJoinRoomMessage extends BaseSocketMessage {
+  type: MessageType.REQUEST_JOIN_ROOM
+  room: string
 }
 
-export type SocketMessage = SocketLoginMessage | SocketInitMessage | SocketCloseMessage
+export interface SocketConnectToRoomMessage extends BaseSocketMessage {
+  type: MessageType.CONNECT_TO_ROOM
+  peer: SignalingPayload
+}
+
+export interface SocketAcceptRoomJoinMessage extends BaseSocketMessage {
+  type: MessageType.ACCEPT_ROOM_JOIN
+  peer: SignalingPayload
+  room: string
+}
+
+export type SocketMessage =
+  | SocketInitMessage
+  | SocketCreateRoomMessage
+  | SocketJoinRoomMessage
+  | SocketConnectToRoomMessage
+  | SocketAcceptRoomJoinMessage
