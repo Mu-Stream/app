@@ -1,46 +1,57 @@
-type SignalingPayload = any
+export type SocketId = string
+export type Signal = any
+export type Peer = { ws: ServerWebSocket<SocketIdentity>; signal: Signal }
 
-export enum MessageType {
-  INIT = 'INIT',
+export interface SocketIdentity {
+  uuid: SocketId
+}
+
+export enum ClientPayloadType {
   CREATE_ROOM = 'CREATE_ROOM',
-  REQUEST_JOIN_ROOM = 'JOIN_ROOM',
-  CONNECT_TO_ROOM = 'CONNECT_TO_ROOM',
-  ACCEPT_ROOM_JOIN = 'ACCEPT_ROOM_JOIN'
+  UPDATE_PEER = 'UPDATE_PEER',
+  JOIN_ROOM = 'JOIN_ROOM'
 }
 
-interface BaseSocetMessage {
-  type: MessageType
+export enum ServerPayloadType {
+  INIT_ROOM = 'INIT_ROOM',
+  CONNECT_TO_ROOM = 'CONNECT_TO_ROOM'
 }
 
-export interface SocketInitMessage extends BaseSocketMessage {
-  type: MessageType.INIT
-  uuid: string
+export interface BaseServerPayload {
+  type: ServerPayloadType
 }
 
-export interface SocketCreateRoomMessage extends BaseSocketMessage {
-  type: MessageType.CREATE_ROOM
-  peer: SignalingPayload
+export interface ServerInitRoomPayload extends BaseServerPayload {
+  type: ServerPayloadType.INIT_ROOM
+  roomId: RoomId
 }
 
-export interface SocketJoinRoomMessage extends BaseSocketMessage {
-  type: MessageType.REQUEST_JOIN_ROOM
-  room: string
+export interface ServerConnectToRoomPayload extends BaseServerPayload {
+  type: ServerPayloadType.CONNECT_TO_ROOM
+  signals: Signal[]
 }
 
-export interface SocketConnectToRoomMessage extends BaseSocketMessage {
-  type: MessageType.CONNECT_TO_ROOM
-  peer: SignalingPayload
+export interface BaseClientPayload {
+  type: ClientPayloadType
 }
 
-export interface SocketAcceptRoomJoinMessage extends BaseSocketMessage {
-  type: MessageType.ACCEPT_ROOM_JOIN
-  peer: SignalingPayload
-  room: string
+export interface ClientCreateRoomPayload extends BaseClientPayload {
+  type: ClientPayloadType.CREATE_ROOM
 }
 
-export type SocketMessage =
-  | SocketInitMessage
-  | SocketCreateRoomMessage
-  | SocketJoinRoomMessage
-  | SocketConnectToRoomMessage
-  | SocketAcceptRoomJoinMessage
+export interface ClientUpdatePeerPayload extends BaseClientPayload {
+  type: ClientPayloadType.UPDATE_PEER
+  signal: Signal
+}
+
+export interface ClientJoinRoomPayload extends BaseClientPayload {
+  type: ClientPayloadType.JOIN_ROOM
+  roomId: RoomId
+}
+
+export type ClientPayload =
+  | ClientCreateRoomPayload
+  | ClientUpdatePeerPayload
+  | ClientJoinRoomPayload
+
+export type ServerPayload = ServerInitRoomPayload | ServerConnectToRoomPayload

@@ -1,12 +1,16 @@
 <script lang="ts">
   import { FileDropzone } from '@skeletonlabs/skeleton'
-  import { createRoom, joinRoom } from '../webrtc'
+  import { me, createMediaSource, createRoom, joinRoom } from '../webrtc'
 
   let files: FileList
-  let uuid: string
+  let roomId: string
 
-  function onChangeHandler(e: Event): void {
+  async function onChangeHandler(e: Event) {
     console.log('file data:', e)
+    const { remote_stream, media_source } = await createMediaSource(files[0])
+    console.log({ me })
+    media_source.start()
+    me.addStream(remote_stream.stream)
   }
 </script>
 
@@ -16,7 +20,7 @@
     <svelte:fragment slot="message">(message)</svelte:fragment>
     <svelte:fragment slot="meta">(meta)</svelte:fragment>
   </FileDropzone>
-  <input class="input" bind:value={uuid} />
+  <input class="input" bind:value={roomId} />
   <button class="btn bg-primary-500" on:click={() => createRoom()}>server</button>
-  <button class="btn bg-primary-500" on:click={() => joinRoom(uuid)}>room</button>
+  <button class="btn bg-primary-500" on:click={() => joinRoom(roomId)}>room</button>
 </div>

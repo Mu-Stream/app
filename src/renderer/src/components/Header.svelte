@@ -3,9 +3,7 @@
 </script>
 
 <div class="bg-primary-500">
-  Mu Stream
-
   {#if $identity}
-    <span>I'm {$identity}</span>
+    <span>{$identity}</span>
   {/if}
 </div>
