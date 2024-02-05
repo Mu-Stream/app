@@ -2,6 +2,7 @@ import { room_id } from '$lib/stores/room_id'
 import { MuPeer } from './peer'
 import { MuWebSocket } from './signaling'
 import { ClientPayloadType, ServerPayloadType } from './types'
+import { P2PPayloadType } from './types/p2p'
 
 // FIXME: For some reason I can't put this in the class
 const peers: Record<string, MuPeer> = {}
@@ -29,7 +30,7 @@ export class MuRoom {
         case ServerPayloadType.JOIN_OK:
           // @eslint-disable-next-line no-case-declarations
           const peer = new MuPeer()
-          peer.init({ ws, on_message: () => {}, remote_peer: payload })
+          peer.init({ ws, on_message: () => {}, remote_peer: payload, roomId: this.roomId! })
           peers[payload.uuid] = peer
           break
       }
@@ -62,7 +63,14 @@ export class MuRoom {
     await me.init({
       roomId,
       ws,
-      on_message: () => {}
+      on_message: (payload) => {
+        console.log(payload)
+        switch (payload.type) {
+          case P2PPayloadType.INIT_ROOM:
+            room_id.set(payload.roomId)
+            break
+        }
+      }
     })
 
     me.onStream((stream) => {

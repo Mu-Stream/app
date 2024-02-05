@@ -28,9 +28,9 @@
 declare module '$env/static/private' {
 	export const SHELL: string;
 	export const npm_command: string;
+	export const npm_package_dependencies_flowbite_svelte_icons: string;
 	export const COLORTERM: string;
 	export const HYPRLAND_CMD: string;
-	export const ZELLIJ_SESSION_NAME: string;
 	export const NVM_INC: string;
 	export const TERM_PROGRAM_VERSION: string;
 	export const WLR_NO_HARDWARE_CURSORS: string;
@@ -43,13 +43,13 @@ declare module '$env/static/private' {
 	export const npm_package_devDependencies_tslib: string;
 	export const WEZTERM_CONFIG_DIR: string;
 	export const npm_package_devDependencies_autoprefixer: string;
+	export const npm_package_devDependencies__skeletonlabs_tw_plugin: string;
 	export const LC_ADDRESS: string;
 	export const npm_package_devDependencies_tailwindcss: string;
 	export const npm_package_scripts_check_watch: string;
 	export const LC_NAME: string;
 	export const XDG_DATA_HOME: string;
 	export const CREDENTIALS_DIRECTORY: string;
-	export const npm_package_dependencies_pino: string;
 	export const npm_package_private: string;
 	export const XDG_CONFIG_HOME: string;
 	export const MEMORY_PRESSURE_WRITE: string;
@@ -107,6 +107,7 @@ declare module '$env/static/private' {
 	export const LC_IDENTIFICATION: string;
 	export const TERM: string;
 	export const npm_package_name: string;
+	export const npm_package_devDependencies__skeletonlabs_skeleton: string;
 	export const npm_package_type: string;
 	export const GOOGLE_CLOUD_SDK_HOME: string;
 	export const USER: string;
@@ -152,13 +153,11 @@ declare module '$env/static/private' {
 	export const __GLX_VENDOR_LIBRARY_NAME: string;
 	export const npm_config_node_gyp: string;
 	export const npm_package_devDependencies__sveltejs_kit: string;
-	export const ZELLIJ: string;
 	export const DBUS_SESSION_BUS_ADDRESS: string;
 	export const npm_package_devDependencies__playwright_test: string;
 	export const MAIL: string;
 	export const NVM_BIN: string;
 	export const npm_config_registry: string;
-	export const npm_package_dependencies_pino_pretty: string;
 	export const npm_package_devDependencies_postcss: string;
 	export const npm_node_execpath: string;
 	export const LC_NUMERIC: string;
@@ -201,9 +200,9 @@ declare module '$env/dynamic/private' {
 	export const env: {
 		SHELL: string;
 		npm_command: string;
+		npm_package_dependencies_flowbite_svelte_icons: string;
 		COLORTERM: string;
 		HYPRLAND_CMD: string;
-		ZELLIJ_SESSION_NAME: string;
 		NVM_INC: string;
 		TERM_PROGRAM_VERSION: string;
 		WLR_NO_HARDWARE_CURSORS: string;
@@ -216,13 +215,13 @@ declare module '$env/dynamic/private' {
 		npm_package_devDependencies_tslib: string;
 		WEZTERM_CONFIG_DIR: string;
 		npm_package_devDependencies_autoprefixer: string;
+		npm_package_devDependencies__skeletonlabs_tw_plugin: string;
 		LC_ADDRESS: string;
 		npm_package_devDependencies_tailwindcss: string;
 		npm_package_scripts_check_watch: string;
 		LC_NAME: string;
 		XDG_DATA_HOME: string;
 		CREDENTIALS_DIRECTORY: string;
-		npm_package_dependencies_pino: string;
 		npm_package_private: string;
 		XDG_CONFIG_HOME: string;
 		MEMORY_PRESSURE_WRITE: string;
@@ -280,6 +279,7 @@ declare module '$env/dynamic/private' {
 		LC_IDENTIFICATION: string;
 		TERM: string;
 		npm_package_name: string;
+		npm_package_devDependencies__skeletonlabs_skeleton: string;
 		npm_package_type: string;
 		GOOGLE_CLOUD_SDK_HOME: string;
 		USER: string;
@@ -325,13 +325,11 @@ declare module '$env/dynamic/private' {
 		__GLX_VENDOR_LIBRARY_NAME: string;
 		npm_config_node_gyp: string;
 		npm_package_devDependencies__sveltejs_kit: string;
-		ZELLIJ: string;
 		DBUS_SESSION_BUS_ADDRESS: string;
 		npm_package_devDependencies__playwright_test: string;
 		MAIL: string;
 		NVM_BIN: string;
 		npm_config_registry: string;
-		npm_package_dependencies_pino_pretty: string;
 		npm_package_devDependencies_postcss: string;
 		npm_node_execpath: string;
 		LC_NUMERIC: string;

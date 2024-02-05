@@ -15,7 +15,7 @@ export class MuPeer {
     on_message: (payload: P2PPayload) => void
     remote_peer?: { uuid: string; signal: Signal }
     ws: MuWebSocket
-    roomId?: string
+    roomId: string
   }) {
     this.peer = remote_peer
       ? new Peer({ initiator: false, trickle: false })
@@ -31,6 +31,9 @@ export class MuPeer {
             type: ClientPayloadType.SIGNAL_REQUESTER,
             signal,
             uuid: remote_peer.uuid
+          })
+          this.peer!.once('connect', () => {
+            this.send({ type: P2PPayloadType.INIT_ROOM, roomId: roomId! })
           })
           resolve()
         })
