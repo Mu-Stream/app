@@ -30,6 +30,7 @@ declare module '$env/static/private' {
 	export const npm_command: string;
 	export const COLORTERM: string;
 	export const HYPRLAND_CMD: string;
+	export const ZELLIJ_SESSION_NAME: string;
 	export const NVM_INC: string;
 	export const TERM_PROGRAM_VERSION: string;
 	export const WLR_NO_HARDWARE_CURSORS: string;
@@ -151,6 +152,7 @@ declare module '$env/static/private' {
 	export const __GLX_VENDOR_LIBRARY_NAME: string;
 	export const npm_config_node_gyp: string;
 	export const npm_package_devDependencies__sveltejs_kit: string;
+	export const ZELLIJ: string;
 	export const DBUS_SESSION_BUS_ADDRESS: string;
 	export const npm_package_devDependencies__playwright_test: string;
 	export const MAIL: string;
@@ -178,7 +180,7 @@ declare module '$env/static/private' {
  * ```
  */
 declare module '$env/static/public' {
-	
+	export const PUBLIC_SIGNALING_SERVER_URL: string;
 }
 
 /**
@@ -201,6 +203,7 @@ declare module '$env/dynamic/private' {
 		npm_command: string;
 		COLORTERM: string;
 		HYPRLAND_CMD: string;
+		ZELLIJ_SESSION_NAME: string;
 		NVM_INC: string;
 		TERM_PROGRAM_VERSION: string;
 		WLR_NO_HARDWARE_CURSORS: string;
@@ -322,6 +325,7 @@ declare module '$env/dynamic/private' {
 		__GLX_VENDOR_LIBRARY_NAME: string;
 		npm_config_node_gyp: string;
 		npm_package_devDependencies__sveltejs_kit: string;
+		ZELLIJ: string;
 		DBUS_SESSION_BUS_ADDRESS: string;
 		npm_package_devDependencies__playwright_test: string;
 		MAIL: string;
@@ -356,6 +360,7 @@ declare module '$env/dynamic/private' {
  */
 declare module '$env/dynamic/public' {
 	export const env: {
+		PUBLIC_SIGNALING_SERVER_URL: string;
 		[key: `PUBLIC_${string}`]: string | undefined;
 	}
 }
