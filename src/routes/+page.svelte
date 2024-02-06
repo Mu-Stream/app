@@ -4,14 +4,7 @@
   import InputRoomCode from '$lib/components/input_room_code.svelte'
   import RoomCode from '$lib/components/room_code.svelte'
   import { Avatar, FileDropzone, ProgressBar } from '@skeletonlabs/skeleton'
-  import {
-    ArrowLeftOutline,
-    ArrowRightAltOutline,
-    ArrowRightOutline,
-    CaretLeftOutline,
-    CaretRightOutline,
-    PauseOutline
-  } from 'flowbite-svelte-icons'
+  import { CaretLeftOutline, CaretRightOutline, PauseOutline } from 'flowbite-svelte-icons'
 
   let files: FileList
 

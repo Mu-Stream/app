@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { room_id } from '$lib/stores/room_id'
   import { room } from '$lib/webrtc/webrtc'
   import { PinInput, Toggle } from 'bits-ui'
   import { EyeSlashOutline, EyeOutline } from 'flowbite-svelte-icons'
@@ -12,6 +13,16 @@
   $: pinInputType = unlocked ? 'text' : 'password'
 
   $: roomId = values?.join('') ?? ''
+
+  async function joinRoom() {
+    const id = await room.joinRoom(roomId)
+    room_id.set(id)
+  }
+
+  async function hostRoom() {
+    const id = await room.hostRoom()
+    room_id.set(id)
+  }
 </script>
 
 <PinInput.Root
@@ -35,7 +46,7 @@
       <EyeSlashOutline />
     {/if}
   </Toggle.Root>
-  <button class="btn" on:click={() => room.joinRoom(roomId)}>Join</button>
+  <button class="btn" on:click={joinRoom}>Join</button>
   <div class="w-[1px] h-[30px] bg-gray-500" />
-  <button class="btn" on:click={room.hostRoom}>Host</button>
+  <button class="btn" on:click={hostRoom}>Host</button>
 </PinInput.Root>
