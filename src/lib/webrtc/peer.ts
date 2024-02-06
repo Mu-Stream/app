@@ -2,6 +2,7 @@ import Peer from 'simple-peer'
 import { ClientPayloadType, type Signal } from './types'
 import type { MuWebSocket } from './signaling'
 import { P2PPayloadType, type P2PPayload } from './types/p2p'
+import { Completer } from '$lib/completer'
 
 export class MuPeer {
   private peer?: Peer.Instance
@@ -21,36 +22,37 @@ export class MuPeer {
       ? new Peer({ initiator: false, trickle: false })
       : new Peer({ initiator: true, trickle: false })
 
+    const init = new Completer<void>()
+
     if (remote_peer) {
       // register peer
       this.peer.signal(remote_peer.signal)
+
       // send back host signal to peer once
-      await new Promise<void>((resolve) => {
-        this.peer!.once('signal', (signal) => {
-          ws.send({
-            type: ClientPayloadType.SIGNAL_REQUESTER,
-            signal,
-            uuid: remote_peer.uuid
-          })
-          this.peer!.once('connect', () => {
-            this.send({ type: P2PPayloadType.INIT_ROOM, roomId: roomId! })
-          })
-          resolve()
+      this.peer!.once('signal', (signal) => {
+        ws.send({
+          type: ClientPayloadType.SIGNAL_REQUESTER,
+          signal,
+          uuid: remote_peer.uuid
         })
+        this.peer!.once('connect', () => {
+          this.send({ type: P2PPayloadType.INIT_ROOM, roomId: roomId! })
+        })
+        init.complete()
       })
     } else {
-      await new Promise<void>((resolve) => {
-        this.peer!.once('signal', (signal) => {
-          console.info('sending Join host request')
-          ws.send({
-            type: ClientPayloadType.JOIN_HOST,
-            roomId: roomId!,
-            signal
-          })
-          resolve()
+      this.peer!.once('signal', (signal) => {
+        console.info('sending Join host request')
+        ws.send({
+          type: ClientPayloadType.JOIN_HOST,
+          roomId: roomId!,
+          signal
         })
+        init.complete()
       })
     }
+
+    await init.future
 
     /// renegociate logic does not need to use signaling server
     /// just use the existing peer connection

@@ -1,3 +1,4 @@
+import { Completer } from '$lib/completer'
 import { MuPeer } from './peer'
 import { MuWebSocket } from './signaling'
 import { ClientPayloadType, ServerPayloadType, type RoomId } from './types'
@@ -17,32 +18,30 @@ export class MuRoom {
   // signaling server wil then return the roomId and forward peers signals that want to join this room to the host
   public async hostRoom(): Promise<RoomId> {
     const ws = new MuWebSocket()
-    let wsInit: Promise<void>
 
-    const id = new Promise<RoomId>((resolve) => {
-      wsInit = ws.init((payload) => {
-        console.debug(payload)
-        switch (payload.type) {
-          /// server accept this peer as host and give it a [roomId]
-          case ServerPayloadType.HOST_OK:
-            this.roomId = payload.roomId
-            resolve(payload.roomId)
-            console.log(payload.roomId)
-            break
-          /// when another peer want to join the room signaling server forward its signal
-          case ServerPayloadType.JOIN_OK:
-            // @eslint-disable-next-line no-case-declarations
-            const peer = new MuPeer()
-            peer.init({ ws, on_message: () => {}, remote_peer: payload, roomId: this.roomId! })
-            peers[payload.uuid] = peer
-            break
-        }
-      })
+    const id = new Completer<string>()
+
+    await ws.init((payload) => {
+      switch (payload.type) {
+        /// server accept this peer as host and give it a [roomId]
+        case ServerPayloadType.HOST_OK:
+          this.roomId = payload.roomId
+          id.complete(payload.roomId)
+          break
+        /// when another peer want to join the room signaling server forward its signal
+        case ServerPayloadType.JOIN_OK:
+          // @eslint-disable-next-line no-case-declarations
+          const peer = new MuPeer()
+          peer.init({ ws, on_message: () => {}, remote_peer: payload, roomId: this.roomId! })
+          peers[payload.uuid] = peer
+          break
+      }
     })
+
     /// initial signal create the room
-    await wsInit!
     ws.send({ type: ClientPayloadType.HOST })
-    return id
+
+    return id.future
   }
 
   public sendStream(stream: MediaStream) {
@@ -65,23 +64,19 @@ export class MuRoom {
       }
     })
 
-    let meInit: Promise<void>
+    const id = new Completer<string>()
 
-    const id = new Promise<RoomId>((resolve) => {
-      meInit = me.init({
-        roomId,
-        ws,
-        on_message: (payload) => {
-          switch (payload.type) {
-            case P2PPayloadType.INIT_ROOM:
-              resolve(payload.roomId)
-              break
-          }
+    await me.init({
+      roomId,
+      ws,
+      on_message: (payload) => {
+        switch (payload.type) {
+          case P2PPayloadType.INIT_ROOM:
+            id.complete(payload.roomId)
+            break
         }
-      })
+      }
     })
-
-    await meInit!
 
     me.onStream((stream) => {
       const audio = new Audio()
@@ -90,6 +85,7 @@ export class MuRoom {
     })
 
     this.client = me
-    return id
+
+    return id.future
   }
 }

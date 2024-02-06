@@ -35,6 +35,7 @@ declare module '$env/static/private' {
 	export const TERM_PROGRAM_VERSION: string;
 	export const WLR_NO_HARDWARE_CURSORS: string;
 	export const npm_package_devDependencies_eslint_plugin_svelte: string;
+	export const NVIM: string;
 	export const XDG_BACKEND: string;
 	export const npm_package_devDependencies_prettier_plugin_tailwindcss: string;
 	export const HISTSIZE: string;
@@ -55,6 +56,7 @@ declare module '$env/static/private' {
 	export const MEMORY_PRESSURE_WRITE: string;
 	export const WEZTERM_EXECUTABLE: string;
 	export const LIBVA_DRIVER_NAME: string;
+	export const NVIM_LOG_FILE: string;
 	export const LC_MONETARY: string;
 	export const XCURSOR_SIZE: string;
 	export const FLUTTER_HOME: string;
@@ -62,6 +64,7 @@ declare module '$env/static/private' {
 	export const npm_package_devDependencies__types_simple_peer: string;
 	export const EDITOR: string;
 	export const npm_package_scripts_test_unit: string;
+	export const MASON: string;
 	export const XDG_SEAT: string;
 	export const PWD: string;
 	export const npm_package_devDependencies_vite: string;
@@ -74,8 +77,8 @@ declare module '$env/static/private' {
 	export const npm_package_devDependencies_eslint_config_prettier: string;
 	export const MOTD_SHOWN: string;
 	export const HOME: string;
-	export const LANG: string;
 	export const LC_PAPER: string;
+	export const LANG: string;
 	export const HISTFILE: string;
 	export const WEZTERM_UNIX_SOCKET: string;
 	export const npm_package_devDependencies_typescript: string;
@@ -84,6 +87,7 @@ declare module '$env/static/private' {
 	export const npm_package_version: string;
 	export const MEMORY_PRESSURE_WATCH: string;
 	export const STARSHIP_SHELL: string;
+	export const VIMRUNTIME: string;
 	export const CLOUDSDK_ROOT_DIR: string;
 	export const npm_package_devDependencies__typescript_eslint_eslint_plugin: string;
 	export const WAYLAND_DISPLAY: string;
@@ -96,6 +100,7 @@ declare module '$env/static/private' {
 	export const INIT_CWD: string;
 	export const STARSHIP_SESSION_KEY: string;
 	export const npm_package_scripts_format: string;
+	export const APPDIR: string;
 	export const npm_package_scripts_preview: string;
 	export const XDG_CACHE_HOME: string;
 	export const CLOUDSDK_PYTHON: string;
@@ -104,8 +109,8 @@ declare module '$env/static/private' {
 	export const npm_package_devDependencies__sveltejs_vite_plugin_svelte: string;
 	export const npm_package_devDependencies_svelte_check: string;
 	export const XDG_SESSION_CLASS: string;
-	export const LC_IDENTIFICATION: string;
 	export const TERM: string;
+	export const LC_IDENTIFICATION: string;
 	export const npm_package_name: string;
 	export const npm_package_devDependencies__skeletonlabs_skeleton: string;
 	export const npm_package_type: string;
@@ -113,6 +118,7 @@ declare module '$env/static/private' {
 	export const USER: string;
 	export const npm_config_frozen_lockfile: string;
 	export const npm_package_devDependencies_vitest: string;
+	export const OWD: string;
 	export const HYPRLAND_INSTANCE_SIGNATURE: string;
 	export const DISPLAY: string;
 	export const npm_lifecycle_event: string;
@@ -133,10 +139,12 @@ declare module '$env/static/private' {
 	export const npm_execpath: string;
 	export const npm_package_devDependencies__sveltejs_adapter_auto: string;
 	export const npm_package_devDependencies_svelte: string;
+	export const APPIMAGE: string;
 	export const npm_package_scripts_test: string;
 	export const npm_package_dependencies_simple_peer: string;
 	export const WEZTERM_CONFIG_FILE: string;
 	export const XDG_RUNTIME_DIR: string;
+	export const MYVIMRC: string;
 	export const npm_package_dependencies_tailwind_variants: string;
 	export const NODE_PATH: string;
 	export const DEBUGINFOD_URLS: string;
@@ -155,8 +163,8 @@ declare module '$env/static/private' {
 	export const npm_package_devDependencies__sveltejs_kit: string;
 	export const DBUS_SESSION_BUS_ADDRESS: string;
 	export const npm_package_devDependencies__playwright_test: string;
-	export const MAIL: string;
 	export const NVM_BIN: string;
+	export const MAIL: string;
 	export const npm_config_registry: string;
 	export const npm_package_devDependencies_postcss: string;
 	export const npm_node_execpath: string;
@@ -207,6 +215,7 @@ declare module '$env/dynamic/private' {
 		TERM_PROGRAM_VERSION: string;
 		WLR_NO_HARDWARE_CURSORS: string;
 		npm_package_devDependencies_eslint_plugin_svelte: string;
+		NVIM: string;
 		XDG_BACKEND: string;
 		npm_package_devDependencies_prettier_plugin_tailwindcss: string;
 		HISTSIZE: string;
@@ -227,6 +236,7 @@ declare module '$env/dynamic/private' {
 		MEMORY_PRESSURE_WRITE: string;
 		WEZTERM_EXECUTABLE: string;
 		LIBVA_DRIVER_NAME: string;
+		NVIM_LOG_FILE: string;
 		LC_MONETARY: string;
 		XCURSOR_SIZE: string;
 		FLUTTER_HOME: string;
@@ -234,6 +244,7 @@ declare module '$env/dynamic/private' {
 		npm_package_devDependencies__types_simple_peer: string;
 		EDITOR: string;
 		npm_package_scripts_test_unit: string;
+		MASON: string;
 		XDG_SEAT: string;
 		PWD: string;
 		npm_package_devDependencies_vite: string;
@@ -246,8 +257,8 @@ declare module '$env/dynamic/private' {
 		npm_package_devDependencies_eslint_config_prettier: string;
 		MOTD_SHOWN: string;
 		HOME: string;
-		LANG: string;
 		LC_PAPER: string;
+		LANG: string;
 		HISTFILE: string;
 		WEZTERM_UNIX_SOCKET: string;
 		npm_package_devDependencies_typescript: string;
@@ -256,6 +267,7 @@ declare module '$env/dynamic/private' {
 		npm_package_version: string;
 		MEMORY_PRESSURE_WATCH: string;
 		STARSHIP_SHELL: string;
+		VIMRUNTIME: string;
 		CLOUDSDK_ROOT_DIR: string;
 		npm_package_devDependencies__typescript_eslint_eslint_plugin: string;
 		WAYLAND_DISPLAY: string;
@@ -268,6 +280,7 @@ declare module '$env/dynamic/private' {
 		INIT_CWD: string;
 		STARSHIP_SESSION_KEY: string;
 		npm_package_scripts_format: string;
+		APPDIR: string;
 		npm_package_scripts_preview: string;
 		XDG_CACHE_HOME: string;
 		CLOUDSDK_PYTHON: string;
@@ -276,8 +289,8 @@ declare module '$env/dynamic/private' {
 		npm_package_devDependencies__sveltejs_vite_plugin_svelte: string;
 		npm_package_devDependencies_svelte_check: string;
 		XDG_SESSION_CLASS: string;
-		LC_IDENTIFICATION: string;
 		TERM: string;
+		LC_IDENTIFICATION: string;
 		npm_package_name: string;
 		npm_package_devDependencies__skeletonlabs_skeleton: string;
 		npm_package_type: string;
@@ -285,6 +298,7 @@ declare module '$env/dynamic/private' {
 		USER: string;
 		npm_config_frozen_lockfile: string;
 		npm_package_devDependencies_vitest: string;
+		OWD: string;
 		HYPRLAND_INSTANCE_SIGNATURE: string;
 		DISPLAY: string;
 		npm_lifecycle_event: string;
@@ -305,10 +319,12 @@ declare module '$env/dynamic/private' {
 		npm_execpath: string;
 		npm_package_devDependencies__sveltejs_adapter_auto: string;
 		npm_package_devDependencies_svelte: string;
+		APPIMAGE: string;
 		npm_package_scripts_test: string;
 		npm_package_dependencies_simple_peer: string;
 		WEZTERM_CONFIG_FILE: string;
 		XDG_RUNTIME_DIR: string;
+		MYVIMRC: string;
 		npm_package_dependencies_tailwind_variants: string;
 		NODE_PATH: string;
 		DEBUGINFOD_URLS: string;
@@ -327,8 +343,8 @@ declare module '$env/dynamic/private' {
 		npm_package_devDependencies__sveltejs_kit: string;
 		DBUS_SESSION_BUS_ADDRESS: string;
 		npm_package_devDependencies__playwright_test: string;
-		MAIL: string;
 		NVM_BIN: string;
+		MAIL: string;
 		npm_config_registry: string;
 		npm_package_devDependencies_postcss: string;
 		npm_node_execpath: string;
