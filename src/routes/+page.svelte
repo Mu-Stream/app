@@ -1,18 +1,23 @@
 <script lang="ts">
   import { room_id } from '$lib/stores/room_id'
-  import { room, createMediaSource } from '$lib/webrtc/webrtc'
+  import { room } from '$lib/webrtc/webrtc'
   import InputRoomCode from '$lib/components/input_room_code.svelte'
   import RoomCode from '$lib/components/room_code.svelte'
   import { Avatar, FileDropzone, ProgressBar } from '@skeletonlabs/skeleton'
   import { CaretLeftOutline, CaretRightOutline, PauseOutline } from 'flowbite-svelte-icons'
+  import {
+    createMediaSource,
+    current_audio_node,
+    current_destination_node
+  } from '$lib/webrtc/music_streamer'
 
   let files: FileList
 
   // FIXME: JUST FOR QUICK TESTING
   const playImediatly = async () => {
-    const { audio_node, audio_destination_node } = await createMediaSource(files[0])
-    audio_node.start()
-    room.sendStream(audio_destination_node.stream)
+    await createMediaSource(files[0])
+    current_audio_node!.start()
+    room.sendStream(current_destination_node!.stream)
   }
 
   let albums = [

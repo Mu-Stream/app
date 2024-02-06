@@ -1,4 +1,5 @@
 import { Completer } from '$lib/completer'
+import { current_destination_node } from './music_streamer'
 import { MuPeer } from './peer'
 import { MuWebSocket } from './signaling'
 import { ClientPayloadType, ServerPayloadType, type RoomId } from './types'
@@ -11,8 +12,6 @@ export class MuRoom {
   public client?: MuPeer
 
   public roomId?: string
-
-  constructor() {}
 
   /// declare intent to host a room to signaling server
   // signaling server wil then return the roomId and forward peers signals that want to join this room to the host
@@ -76,12 +75,6 @@ export class MuRoom {
             break
         }
       }
-    })
-
-    me.onStream((stream) => {
-      const audio = new Audio()
-      audio.srcObject = stream
-      audio.play()
     })
 
     this.client = me

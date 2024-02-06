@@ -30,10 +30,10 @@
   class="min-h-input flex h-full items-center gap-2 variant-filled py-1 px-1.5"
   type={pinInputType}
 >
-  <PinInput.Input class="w-5 text-center" />
-  <PinInput.Input class="w-5 text-center" />
-  <PinInput.Input class="w-5 text-center" />
-  <PinInput.Input class="w-5 text-center" />
+  <PinInput.Input class="w-5 text-center border border-gray-500 rounded-lg" />
+  <PinInput.Input class="w-5 text-center border border-gray-500 rounded-lg" />
+  <PinInput.Input class="w-5 text-center border border-gray-500 rounded-lg" />
+  <PinInput.Input class="w-5 text-center border border-gray-500 rounded-lg" />
   <PinInput.HiddenInput />
   <Toggle.Root
     aria-label="toggle code visibility"

@@ -155,6 +155,7 @@ declare module '$env/static/private' {
 	export const XDG_DATA_DIRS: string;
 	export const npm_package_dependencies_tailwind_merge: string;
 	export const npm_package_scripts_check: string;
+	export const npm_package_dependencies_mp3tag_js: string;
 	export const BROWSER: string;
 	export const PATH: string;
 	export const npm_package_devDependencies__types_eslint: string;
@@ -335,6 +336,7 @@ declare module '$env/dynamic/private' {
 		XDG_DATA_DIRS: string;
 		npm_package_dependencies_tailwind_merge: string;
 		npm_package_scripts_check: string;
+		npm_package_dependencies_mp3tag_js: string;
 		BROWSER: string;
 		PATH: string;
 		npm_package_devDependencies__types_eslint: string;

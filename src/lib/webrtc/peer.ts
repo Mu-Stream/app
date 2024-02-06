@@ -3,9 +3,16 @@ import { ClientPayloadType, type Signal } from './types'
 import type { MuWebSocket } from './signaling'
 import { P2PPayloadType, type P2PPayload } from './types/p2p'
 import { Completer } from '$lib/completer'
+import { current_destination_node } from './music_streamer'
 
 export class MuPeer {
   private peer?: Peer.Instance
+
+  private _setupRenegociation() {
+    this.peer!.on('signal', (signal) => {
+      this.send({ type: P2PPayloadType.RENEGOCIATE, signal })
+    })
+  }
 
   public async init({
     on_message,
@@ -37,6 +44,10 @@ export class MuPeer {
         })
         this.peer!.once('connect', () => {
           this.send({ type: P2PPayloadType.INIT_ROOM, roomId: roomId! })
+          // FIXME: FIND BETTER WAY TO DO ALL THIS STUFF
+          if (current_destination_node) {
+            this.addStream(current_destination_node.stream)
+          }
         })
         init.complete()
       })
@@ -50,15 +61,17 @@ export class MuPeer {
         })
         init.complete()
       })
+      this.onStream((stream) => {
+        console.log('recived stream')
+        const audio = new Audio()
+        audio.srcObject = stream
+        audio.play()
+      })
     }
 
     await init.future
 
-    /// renegociate logic does not need to use signaling server
-    /// just use the existing peer connection
-    this.peer.on('signal', (signal) => {
-      this.send({ type: P2PPayloadType.RENEGOCIATE, signal })
-    })
+    this._setupRenegociation()
 
     this.peer.on('data', (data) => {
       const payload: P2PPayload = JSON.parse(data)
@@ -67,7 +80,6 @@ export class MuPeer {
       }
       on_message(payload)
     })
-    ////
   }
 
   public send(payload: P2PPayload) {
