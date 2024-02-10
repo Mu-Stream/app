@@ -1,9 +1,10 @@
 import { Completer } from '$lib/completer';
+import { v4 } from 'uuid'
 import SimplePeer from 'simple-peer'
 import { P2PPayloadType, type P2PPayload } from './types/p2p';
 
 export class Peer {
-  private _unique_identifier = crypto.randomUUID()
+  private _unique_identifier = v4()
   private _peer: SimplePeer.Instance;
   private _first_signal: Completer<SimplePeer.SignalData>
   private _is_connected: Completer<boolean>
@@ -19,6 +20,7 @@ export class Peer {
     this._peer = new SimplePeer({ initiator, trickle: false })
     this._first_signal = new Completer()
     this._is_connected = new Completer()
+
 
     this._peer.once("signal", signal => this._first_signal.complete(signal))
     this._peer.once("connect", () => this._is_connected.complete(true))
@@ -85,6 +87,9 @@ export class Peer {
     this._peer.on("data", this._current_data_listener)
   }
 
+  public onClose(handlder: () => void) {
+    this._peer.on("close", handlder);
+  }
 
   public signal(signal: SimplePeer.SignalData) {
     this._peer.signal(signal)

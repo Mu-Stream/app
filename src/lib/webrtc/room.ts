@@ -37,6 +37,7 @@ class Room {
           await peer.isConnected
           peer.send({ type: P2PPayloadType.INIT_ROOM, roomId: this._room_id! })
           this._peers.push(peer)
+          peer.onClose(() => this._peers = this._peers.filter(p => p.id === peer.id))
           if (this._media_manager.media_stream) {
             peer.addStream(this._media_manager.media_stream)
           }
