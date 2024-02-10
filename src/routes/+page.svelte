@@ -4,15 +4,14 @@
   import RoomCode from '$lib/components/room_code.svelte'
   import { Avatar, FileDropzone, ProgressBar } from '@skeletonlabs/skeleton'
   import { CaretLeftOutline, CaretRightOutline, PauseOutline } from 'flowbite-svelte-icons'
+  import { room } from '$lib/webrtc/room'
 
   let files: FileList
 
   // FIXME: JUST FOR QUICK TESTING
-  // const playImediatly = async () => {
-  //   await mediaManager.initMediaSource(files[0])
-  //   mediaManager.play()
-  //   room.sendStream(mediaManager.media_stream!)
-  // }
+  const playImediatly = async () => {
+    room.addFileToPlaylist(files[0])
+  }
 
   let albums = [
     {
@@ -102,7 +101,7 @@
     }
   ]
 
-  // $: files && playImediatly()
+  $: files && playImediatly()
 </script>
 
 <div class="grid overflow-hidden h-screen w-screen grid-cols-[10fr_2fr] grid-rows-[11fr_1fr]">

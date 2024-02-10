@@ -1,16 +1,22 @@
 import { Completer } from '$lib/completer'
 
-class MuMediaManager {
+
+class MediaManager {
+
+}
+
+export class MuMediaManager {
   current_audio_node?: AudioBufferSourceNode
   current_destination_node?: MediaStreamAudioDestinationNode
   remote_media_stream?: MediaStream
-  audio_context = new AudioContext()
+  audio_context?: AudioContext
 
 
   public get media_stream() { return this.current_destination_node?.stream ?? this.remote_media_stream }
 
 
   public async initMediaSource(file: File) {
+    this.audio_context ??= new AudioContext()
     if (this.current_audio_node || this.current_destination_node) {
       this.current_audio_node?.stop()
       this.current_destination_node?.disconnect()
@@ -24,7 +30,7 @@ class MuMediaManager {
     const buffer = new Completer<AudioBuffer>()
 
     file_reader.onload = (event) => {
-      this.audio_context.decodeAudioData(event.target!.result! as ArrayBuffer, (b) => {
+      this.audio_context!.decodeAudioData(event.target!.result! as ArrayBuffer, (b) => {
         buffer.complete(b)
       })
     }
@@ -54,9 +60,6 @@ class MuMediaManager {
     }
   }
 }
-
-
-export let mediaManager = new MuMediaManager()
 
 //
 // export async function createMediaSource(file: File) {

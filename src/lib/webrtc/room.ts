@@ -1,16 +1,17 @@
-import { ClientPayloadType, ServerPayloadType, type ServerInitRoomPayload, type ServerPayload, type ServerSignalRequesterPayload, type ServerConnectToRoomPayload } from "./types";
+import { ClientPayloadType, ServerPayloadType, type ServerInitRoomPayload, type ServerSignalRequesterPayload } from "./types";
 import { P2PPayloadType, type P2PInitRoomPayload } from "./types/p2p";
 import { Peer } from "./peer";
 import { SignalingScoket } from "./signaling";
+import { MuMediaManager } from "./music_streamer";
 
-const peers: Peer[] = []
 
 
 class Room {
   private _socket = new SignalingScoket()
   private _room_id?: string;
   private _peer?: Peer
-
+  private _peers: Peer[] = []
+  private _media_manager: MuMediaManager = new MuMediaManager()
 
   public get id() { return this._room_id }
 
@@ -35,11 +36,14 @@ class Room {
           this._socket.send({ type: ClientPayloadType.SIGNAL_REQUESTER, signal, uuid: payload.uuid })
           await peer.isConnected
           peer.send({ type: P2PPayloadType.INIT_ROOM, roomId: this._room_id! })
-          peers.push(peer)
-          // TODO: add current muic stream && handle peer music stream
+          this._peers.push(peer)
+          if (this._media_manager.media_stream) {
+            peer.addStream(this._media_manager.media_stream)
+          }
           break
       }
     })
+    // TODO: handle peer music stream
   }
 
   public async join(roomId: string) {
@@ -57,11 +61,33 @@ class Room {
     const signal_res = await this._socket.waitForPayload<ServerSignalRequesterPayload>(ServerPayloadType.SIGNAL_REQUESTER);
     peer.signal(signal_res.signal)
 
-    const init_room_res = await peer.waitPayload<P2PInitRoomPayload>(P2PPayloadType.INIT_ROOM)
+    const init_room_res = await peer.waitForPayload<P2PInitRoomPayload>(P2PPayloadType.INIT_ROOM)
 
     this._room_id = init_room_res.roomId
 
+    peer.onstream(stream => {
+      // FIXME: temp code to test things out
+      const audio = new Audio()
+      audio.srcObject = stream
+      audio.play()
+    })
+
     this._peer = peer
+  }
+
+  public _sendStreamToParicipants() {
+    if (!this._media_manager.media_stream) throw new Error('no track to stream')
+
+    for (const peer of this._peers) {
+      peer.addStream(this._media_manager.media_stream)
+    }
+  }
+
+  public async addFileToPlaylist(file: File) {
+    // FIXME: temp code to test things out
+    await this._media_manager.initMediaSource(file);
+    this._media_manager.play()
+    this._sendStreamToParicipants()
   }
 }
 
