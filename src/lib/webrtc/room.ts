@@ -37,7 +37,6 @@ class Room {
           await peer.isConnected
           peer.send({ type: P2PPayloadType.INIT_ROOM, roomId: this._room_id! })
           this._peers.push(peer)
-          peer.onClose(() => this._peers = this._peers.filter(p => p.id === peer.id))
           if (this._media_manager.media_stream) {
             peer.addStream(this._media_manager.media_stream)
           }
@@ -86,8 +85,14 @@ class Room {
     if (!this._media_manager.media_stream) throw new Error('no track to stream')
 
     for (const peer of this._peers) {
-      if (!exclude.includes(peer.id))
-        peer.addStream(this._media_manager.media_stream)
+      if (!exclude.includes(peer.id)) {
+        try {
+          // if this fail we assume peer got disconnected
+          peer.addStream(this._media_manager.media_stream)
+        } catch (e) {
+          this._peers = this._peers.filter(p => p.id !== peer.id)
+        }
+      }
     }
   }
 
