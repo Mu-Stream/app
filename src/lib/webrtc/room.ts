@@ -1,84 +1,68 @@
-import { Completer } from '$lib/completer'
-import { current_destination_node } from './music_streamer'
-import { MuPeer } from './peer'
-import { MuWebSocket } from './signaling'
-import { ClientPayloadType, ServerPayloadType, type RoomId } from './types'
-import { P2PPayloadType } from './types/p2p'
+import { ClientPayloadType, ServerPayloadType, type ServerInitRoomPayload, type ServerPayload, type ServerSignalRequesterPayload, type ServerConnectToRoomPayload } from "./types";
+import { P2PPayloadType, type P2PInitRoomPayload } from "./types/p2p";
+import { Peer } from "./peer";
+import { SignalingScoket } from "./signaling";
 
-// FIXME: For some reason I can't put this in the class
-const peers: Record<string, MuPeer> = {}
+const peers: Peer[] = []
 
-export class MuRoom {
-  public client?: MuPeer
 
-  public roomId?: string
+class Room {
+  private _socket = new SignalingScoket()
+  private _room_id?: string;
+  private _peer?: Peer
 
-  /// declare intent to host a room to signaling server
-  // signaling server wil then return the roomId and forward peers signals that want to join this room to the host
-  public async hostRoom(): Promise<RoomId> {
-    const ws = new MuWebSocket()
 
-    const id = new Completer<string>()
+  public get id() { return this._room_id }
 
-    await ws.init((payload) => {
+  public async host() {
+    const opened = await this._socket.isOpened
+
+    if (!opened) throw new Error('signaling server is not reachable')
+
+    this._socket.send({ type: ClientPayloadType.HOST })
+
+    const res = await this._socket.waitForPayload<ServerInitRoomPayload>(ServerPayloadType.HOST_OK);
+
+    this._room_id = res.roomId;
+
+    /// accepts peers that want to join
+    this._socket.onmessage(async (payload) => {
       switch (payload.type) {
-        /// server accept this peer as host and give it a [roomId]
-        case ServerPayloadType.HOST_OK:
-          this.roomId = payload.roomId
-          id.complete(payload.roomId)
-          break
-        /// when another peer want to join the room signaling server forward its signal
         case ServerPayloadType.JOIN_OK:
-          // @eslint-disable-next-line no-case-declarations
-          const peer = new MuPeer()
-          peer.init({ ws, on_message: () => {}, remote_peer: payload, roomId: this.roomId! })
-          peers[payload.uuid] = peer
+          const peer = new Peer(false)
+          peer.signal(payload.signal)
+          const signal = await peer.firstSignal
+          this._socket.send({ type: ClientPayloadType.SIGNAL_REQUESTER, signal, uuid: payload.uuid })
+          await peer.isConnected
+          peer.send({ type: P2PPayloadType.INIT_ROOM, roomId: this._room_id! })
+          peers.push(peer)
+          // TODO: add current muic stream && handle peer music stream
           break
       }
     })
-
-    /// initial signal create the room
-    ws.send({ type: ClientPayloadType.HOST })
-
-    return id.future
   }
 
-  public sendStream(stream: MediaStream) {
-    for (const peer of Object.values(peers)) {
-      peer.addStream(stream)
-    }
-  }
+  public async join(roomId: string) {
+    const opened = await this._socket.isOpened
 
-  public async joinRoom(roomId: string): Promise<RoomId> {
-    const ws = new MuWebSocket()
+    if (!opened) throw new Error('signaling server is not reachable')
 
-    const me = new MuPeer()
+    const peer = new Peer()
 
-    await ws.init((payload) => {
-      console.log(payload)
-      switch (payload.type) {
-        case ServerPayloadType.SIGNAL_REQUESTER:
-          console.log('got signal requester', payload)
-          me.signal(payload.signal)
-      }
-    })
+    const signal = await peer.firstSignal
 
-    const id = new Completer<string>()
+    this._socket.send({ type: ClientPayloadType.JOIN_HOST, roomId, signal })
 
-    await me.init({
-      roomId,
-      ws,
-      on_message: (payload) => {
-        switch (payload.type) {
-          case P2PPayloadType.INIT_ROOM:
-            id.complete(payload.roomId)
-            break
-        }
-      }
-    })
 
-    this.client = me
+    const signal_res = await this._socket.waitForPayload<ServerSignalRequesterPayload>(ServerPayloadType.SIGNAL_REQUESTER);
+    peer.signal(signal_res.signal)
 
-    return id.future
+    const init_room_res = await peer.waitPayload<P2PInitRoomPayload>(P2PPayloadType.INIT_ROOM)
+
+    this._room_id = init_room_res.roomId
+
+    this._peer = peer
   }
 }
+
+export const room: Room = new Room()

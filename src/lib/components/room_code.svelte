@@ -1,4 +1,4 @@
-<script Lang="ts">
+<script lang="ts">
   import { EyeOutline, EyeSlashOutline, FileCopyOutline } from 'flowbite-svelte-icons'
   import { room_id } from '$lib/stores/room_id'
   import { Toggle } from 'bits-ui'

@@ -1,6 +1,6 @@
 <script lang="ts">
   import { room_id } from '$lib/stores/room_id'
-  import { room } from '$lib/webrtc/webrtc'
+  import { room } from '$lib/webrtc/room'
   import { PinInput, Toggle } from 'bits-ui'
   import { EyeSlashOutline, EyeOutline } from 'flowbite-svelte-icons'
 
@@ -15,13 +15,13 @@
   $: roomId = values?.join('') ?? ''
 
   async function joinRoom() {
-    const id = await room.joinRoom(roomId)
-    room_id.set(id)
+    const id = await room.join(roomId)
+    room_id.set(room.id!)
   }
 
   async function hostRoom() {
-    const id = await room.hostRoom()
-    room_id.set(id)
+    const id = await room.host()
+    room_id.set(room.id!)
   }
 </script>
 

@@ -1,33 +1,39 @@
-import type { ClientPayload, ServerPayload } from './types'
-import { PUBLIC_SIGNALING_SERVER_URL } from '$env/static/public'
-import { Completer } from '$lib/completer'
+import { PUBLIC_SIGNALING_SERVER_URL } from "$env/static/public"
+import { Completer } from "$lib/completer"
+import type { ClientPayload, ServerInitRoomPayload, ServerPayload, ServerPayloadType } from "./types";
 
-export class MuWebSocket {
-  private ws?: WebSocket
+export class SignalingScoket {
+  private _ws: WebSocket = new WebSocket(PUBLIC_SIGNALING_SERVER_URL)
+  private _is_opened = new Completer<boolean>();
 
-  public async init(on_message: (payload: ServerPayload) => void) {
-    const ws = new WebSocket(PUBLIC_SIGNALING_SERVER_URL)
-    const init = new Completer<void>()
+  constructor() {
+    this._ws.onopen = () => this._is_opened.complete(true)
+    this._ws.onerror = () => this._is_opened.complete(false)
+  }
 
-    ws.onopen = () => {
-      console.info(`ws connection established`)
-      init.complete()
+  public get isOpened() { return this._is_opened.future }
+
+  public async waitForPayload<T extends ServerPayload>(type: ServerPayloadType) {
+
+    const opened = await this.isOpened;
+    if (!opened) throw new Error('Socket did not open correclty')
+
+
+    const p = new Completer<T>();
+
+    this._ws.onmessage = ({ data }) => {
+      const payload: T = JSON.parse(data);
+      if (payload.type === type) p.complete(payload)
     }
 
-    ws.onerror = (err) => {
-      console.error(`ws error ${err}`)
-    }
-
-    ws.onmessage = ({ data }) => {
-      on_message(JSON.parse(data))
-    }
-
-    this.ws = ws
-
-    return init.future
+    return p.future
   }
 
   public send(payload: ClientPayload) {
-    this.ws!.send(JSON.stringify(payload))
+    this._ws!.send(JSON.stringify(payload))
+  }
+
+  public onmessage(handler: (payload: ServerPayload) => void) {
+    this._ws.onmessage = ({ data }) => handler(JSON.parse(data));
   }
 }

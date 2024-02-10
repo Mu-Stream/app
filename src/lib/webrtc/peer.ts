@@ -1,100 +1,64 @@
-import Peer from 'simple-peer'
-import { ClientPayloadType, type Signal } from './types'
-import type { MuWebSocket } from './signaling'
-import { P2PPayloadType, type P2PPayload } from './types/p2p'
-import { Completer } from '$lib/completer'
-import { current_destination_node } from './music_streamer'
+import { Completer } from '$lib/completer';
+import SimplePeer from 'simple-peer'
+import { P2PPayloadType, type P2PPayload } from './types/p2p';
 
-export class MuPeer {
-  private peer?: Peer.Instance
+export class Peer {
+  private _peer: SimplePeer.Instance;
+  private _first_signal: Completer<SimplePeer.SignalData>
+  private _is_connected: Completer<boolean>
 
-  private _setupRenegociation() {
-    this.peer!.on('signal', (signal) => {
-      this.send({ type: P2PPayloadType.RENEGOCIATE, signal })
+
+  get firstSignal() { return this._first_signal.future }
+  get isConnected() { return this._is_connected.future }
+
+  constructor(initiator: boolean = true) {
+    this._peer = new SimplePeer({ initiator, trickle: false })
+    this._first_signal = new Completer()
+    this._is_connected = new Completer()
+
+    this._peer.once("signal", signal => this._first_signal.complete(signal))
+    this._peer.once("connect", () => this._is_connected.complete(true))
+
+    /// init renegociation process
+    this._is_connected.future.then(() => {
+      this._peer.on("signal", signal => this.send({ type: P2PPayloadType.RENEGOCIATE, signal }))
+      this.onData();
     })
   }
 
-  public async init({
-    on_message,
-    remote_peer,
-    ws,
-    roomId
-  }: {
-    on_message: (payload: P2PPayload) => void
-    remote_peer?: { uuid: string; signal: Signal }
-    ws: MuWebSocket
-    roomId: string
-  }) {
-    this.peer = remote_peer
-      ? new Peer({ initiator: false, trickle: false })
-      : new Peer({ initiator: true, trickle: false })
+  public onstream(handler: (stream: MediaStream) => void) {
+    this._peer.on("stream", handler)
+  }
 
-    const init = new Completer<void>()
+  public send(payload: P2PPayload) {
+    this._peer!.send(JSON.stringify(payload))
+  }
 
-    if (remote_peer) {
-      // register peer
-      this.peer.signal(remote_peer.signal)
+  public waitPayload<T extends P2PPayload>(type: P2PPayloadType) {
+    const p = new Completer<T>()
 
-      // send back host signal to peer once
-      this.peer!.once('signal', (signal) => {
-        ws.send({
-          type: ClientPayloadType.SIGNAL_REQUESTER,
-          signal,
-          uuid: remote_peer.uuid
-        })
-        this.peer!.once('connect', () => {
-          this.send({ type: P2PPayloadType.INIT_ROOM, roomId: roomId! })
-          // FIXME: FIND BETTER WAY TO DO ALL THIS STUFF
-          if (current_destination_node) {
-            this.addStream(current_destination_node.stream)
-          }
-        })
-        init.complete()
-      })
-    } else {
-      this.peer!.once('signal', (signal) => {
-        console.info('sending Join host request')
-        ws.send({
-          type: ClientPayloadType.JOIN_HOST,
-          roomId: roomId!,
-          signal
-        })
-        init.complete()
-      })
-      this.onStream((stream) => {
-        console.log('recived stream')
-        const audio = new Audio()
-        audio.srcObject = stream
-        audio.play()
-      })
-    }
+    this.onData(payload => {
+      if (payload.type === type)
+        p.complete(payload as T)
+    })
 
-    await init.future
+    return p.future;
+  }
 
-    this._setupRenegociation()
 
-    this.peer.on('data', (data) => {
+  public onData(handler?: (payload: P2PPayload) => void) {
+    this._peer.on("data", data => {
+      /// handle renegociation should always be present
       const payload: P2PPayload = JSON.parse(data)
       if (payload.type === P2PPayloadType.RENEGOCIATE) {
         this.signal(payload.signal)
       }
-      on_message(payload)
+      handler && handler(payload)
     })
   }
 
-  public send(payload: P2PPayload) {
-    this.peer!.send(JSON.stringify(payload))
-  }
 
-  public signal(signal: Signal) {
-    this.peer!.signal(signal)
-  }
-
-  public onStream(on_stream: (stream: MediaStream) => void) {
-    this.peer!.on('stream', on_stream)
-  }
-
-  public addStream(stream: MediaStream) {
-    this.peer!.addStream(stream)
+  public signal(signal: SimplePeer.SignalData) {
+    this._peer.signal(signal)
   }
 }

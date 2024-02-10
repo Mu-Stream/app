@@ -1,24 +1,18 @@
 <script lang="ts">
   import { room_id } from '$lib/stores/room_id'
-  import { room } from '$lib/webrtc/webrtc'
   import InputRoomCode from '$lib/components/input_room_code.svelte'
   import RoomCode from '$lib/components/room_code.svelte'
   import { Avatar, FileDropzone, ProgressBar } from '@skeletonlabs/skeleton'
   import { CaretLeftOutline, CaretRightOutline, PauseOutline } from 'flowbite-svelte-icons'
-  import {
-    createMediaSource,
-    current_audio_node,
-    current_destination_node
-  } from '$lib/webrtc/music_streamer'
 
   let files: FileList
 
   // FIXME: JUST FOR QUICK TESTING
-  const playImediatly = async () => {
-    await createMediaSource(files[0])
-    current_audio_node!.start()
-    room.sendStream(current_destination_node!.stream)
-  }
+  // const playImediatly = async () => {
+  //   await mediaManager.initMediaSource(files[0])
+  //   mediaManager.play()
+  //   room.sendStream(mediaManager.media_stream!)
+  // }
 
   let albums = [
     {
@@ -108,7 +102,7 @@
     }
   ]
 
-  $: files && playImediatly()
+  // $: files && playImediatly()
 </script>
 
 <div class="grid overflow-hidden h-screen w-screen grid-cols-[10fr_2fr] grid-rows-[11fr_1fr]">
