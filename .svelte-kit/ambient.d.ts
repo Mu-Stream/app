@@ -81,6 +81,7 @@ declare module '$env/static/private' {
 	export const npm_package_devDependencies_typescript: string;
 	export const _JAVA_AWT_WM_NONREPARENTING: string;
 	export const XDG_CURRENT_DESKTOP: string;
+	export const npm_package_dependencies_uuid: string;
 	export const npm_package_version: string;
 	export const MEMORY_PRESSURE_WATCH: string;
 	export const STARSHIP_SHELL: string;
@@ -137,6 +138,7 @@ declare module '$env/static/private' {
 	export const npm_package_dependencies_simple_peer: string;
 	export const WEZTERM_CONFIG_FILE: string;
 	export const XDG_RUNTIME_DIR: string;
+	export const npm_package_devDependencies__types_uuid: string;
 	export const npm_package_dependencies_tailwind_variants: string;
 	export const NODE_PATH: string;
 	export const DEBUGINFOD_URLS: string;
@@ -254,6 +256,7 @@ declare module '$env/dynamic/private' {
 		npm_package_devDependencies_typescript: string;
 		_JAVA_AWT_WM_NONREPARENTING: string;
 		XDG_CURRENT_DESKTOP: string;
+		npm_package_dependencies_uuid: string;
 		npm_package_version: string;
 		MEMORY_PRESSURE_WATCH: string;
 		STARSHIP_SHELL: string;
@@ -310,6 +313,7 @@ declare module '$env/dynamic/private' {
 		npm_package_dependencies_simple_peer: string;
 		WEZTERM_CONFIG_FILE: string;
 		XDG_RUNTIME_DIR: string;
+		npm_package_devDependencies__types_uuid: string;
 		npm_package_dependencies_tailwind_variants: string;
 		NODE_PATH: string;
 		DEBUGINFOD_URLS: string;

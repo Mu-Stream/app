@@ -1,10 +1,9 @@
-import { ClientPayloadType, ServerPayloadType, type ServerInitRoomPayload, type ServerSignalRequesterPayload } from "./types";
 import { P2PPayloadType, type P2PInitRoomPayload } from "./types/p2p";
 import { Peer } from "./peer";
 import { SignalingScoket } from "./signaling";
 import { MuMediaManager } from "./music_streamer";
-
-
+import { ClientPayloadType } from "./types/client";
+import { ServerPayloadType, type ServerInitRoomPayload, type ServerSignalRequesterPayload } from "./types/server";
 
 class Room {
   private _socket = new SignalingScoket()
@@ -30,7 +29,7 @@ class Room {
     this._socket.onmessage(async (payload) => {
       switch (payload.type) {
         case ServerPayloadType.JOIN_OK:
-          const peer = new Peer(false)
+          const peer = new Peer({ initiator: false })
           peer.signal(payload.signal)
           const signal = await peer.firstSignal
           this._socket.send({ type: ClientPayloadType.SIGNAL_REQUESTER, signal, uuid: payload.uuid })
@@ -57,7 +56,7 @@ class Room {
 
     if (!opened) throw new Error('signaling server is not reachable')
 
-    const peer = new Peer()
+    const peer = new Peer({ initiator: true })
 
     const signal = await peer.firstSignal
 

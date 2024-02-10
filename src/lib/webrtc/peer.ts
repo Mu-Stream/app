@@ -16,7 +16,7 @@ export class Peer {
   get isConnected() { return this._is_connected.future }
   get id() { return this._unique_identifier }
 
-  constructor(initiator: boolean = true) {
+  constructor({ initiator }: { initiator: boolean }) {
     this._peer = new SimplePeer({ initiator, trickle: false })
     this._first_signal = new Completer()
     this._is_connected = new Completer()
@@ -56,7 +56,8 @@ export class Peer {
 
     const listener = (data: any) => {
       const payload: T = JSON.parse(data)
-      p.complete(payload)
+      if (payload.type === type)
+        p.complete(payload)
     }
 
     this._peer.on("data", listener)

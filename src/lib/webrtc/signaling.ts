@@ -1,6 +1,7 @@
 import { PUBLIC_SIGNALING_SERVER_URL } from "$env/static/public"
 import { Completer } from "$lib/completer"
-import type { ClientPayload, ServerInitRoomPayload, ServerPayload, ServerPayloadType } from "./types";
+import type { ClientPayload } from "./types/client";
+import type { ServerPayload, ServerPayloadType } from "./types/server";
 
 export class SignalingScoket {
   private _ws: WebSocket = new WebSocket(PUBLIC_SIGNALING_SERVER_URL)
