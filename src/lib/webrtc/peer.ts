@@ -3,6 +3,7 @@ import SimplePeer from 'simple-peer'
 import { P2PPayloadType, type P2PPayload } from './types/p2p';
 
 export class Peer {
+  private _unique_identifier = crypto.randomUUID()
   private _peer: SimplePeer.Instance;
   private _first_signal: Completer<SimplePeer.SignalData>
   private _is_connected: Completer<boolean>
@@ -12,6 +13,7 @@ export class Peer {
 
   get firstSignal() { return this._first_signal.future }
   get isConnected() { return this._is_connected.future }
+  get id() { return this._unique_identifier }
 
   constructor(initiator: boolean = true) {
     this._peer = new SimplePeer({ initiator, trickle: false })

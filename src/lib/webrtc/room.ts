@@ -40,10 +40,16 @@ class Room {
           if (this._media_manager.media_stream) {
             peer.addStream(this._media_manager.media_stream)
           }
+          peer.onstream(stream => {
+            this._media_manager.remote_media_stream = stream
+            this._sendStreamToParicipants([peer.id])
+            const audio = new Audio()
+            audio.srcObject = stream
+            audio.play()
+          })
           break
       }
     })
-    // TODO: handle peer music stream
   }
 
   public async join(roomId: string) {
@@ -75,11 +81,12 @@ class Room {
     this._peer = peer
   }
 
-  public _sendStreamToParicipants() {
+  public _sendStreamToParicipants(exclude: string[] = []) {
     if (!this._media_manager.media_stream) throw new Error('no track to stream')
 
     for (const peer of this._peers) {
-      peer.addStream(this._media_manager.media_stream)
+      if (!exclude.includes(peer.id))
+        peer.addStream(this._media_manager.media_stream)
     }
   }
 
@@ -87,7 +94,11 @@ class Room {
     // FIXME: temp code to test things out
     await this._media_manager.initMediaSource(file);
     this._media_manager.play()
-    this._sendStreamToParicipants()
+    // ugly but this permit to send the stream to the 'hoster' who will rebroadcast
+    if (this._media_manager.remote_media_stream)
+      this._sendStreamToParicipants()
+    else
+      this._peer?.addStream(this._media_manager.media_stream!)
   }
 }
 
