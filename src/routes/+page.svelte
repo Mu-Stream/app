@@ -10,7 +10,7 @@
 
   // FIXME: JUST FOR QUICK TESTING
   const playImediatly = async () => {
-    room.addFileToPlaylist(files[0])
+    room.playFile(files[0])
   }
 
   let albums = [

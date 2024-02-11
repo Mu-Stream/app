@@ -1,7 +1,7 @@
 import { P2PPayloadType, type P2PInitRoomPayload } from "./types/p2p";
 import { Peer } from "./peer";
 import { SignalingScoket } from "./signaling";
-import { MuMediaManager } from "./music_streamer";
+import { MediaManager } from "./music_streamer";
 import { ClientPayloadType } from "./types/client";
 import { ServerPayloadType, type ServerInitRoomPayload, type ServerSignalRequesterPayload } from "./types/server";
 
@@ -10,7 +10,7 @@ class Room {
   private _room_id?: string;
   private _peer?: Peer
   private _peers: Peer[] = []
-  private _media_manager: MuMediaManager = new MuMediaManager()
+  private _media_manager: MediaManager = new MediaManager()
 
   public get id() { return this._room_id }
 
@@ -36,15 +36,15 @@ class Room {
           await peer.isConnected
           peer.send({ type: P2PPayloadType.INIT_ROOM, roomId: this._room_id! })
           this._peers.push(peer)
-          if (this._media_manager.media_stream) {
-            peer.addStream(this._media_manager.media_stream)
+          // there is a current music playing, send it to the new client
+          if (this._media_manager.stream) {
+            peer.addStream(this._media_manager.stream)
           }
           peer.onstream(stream => {
-            this._media_manager.remote_media_stream = stream
+            console.log('recived stream from client')
+            // 'client' sent us a stream so we play it and rebroadcast to other clients
+            this._media_manager.play(stream)
             this._sendStreamToParicipants([peer.id])
-            const audio = new Audio()
-            audio.srcObject = stream
-            audio.play()
           })
           break
       }
@@ -71,23 +71,20 @@ class Room {
     this._room_id = init_room_res.roomId
 
     peer.onstream(stream => {
-      // FIXME: temp code to test things out
-      const audio = new Audio()
-      audio.srcObject = stream
-      audio.play()
+      this._media_manager.play(stream)
     })
 
     this._peer = peer
   }
 
   public _sendStreamToParicipants(exclude: string[] = []) {
-    if (!this._media_manager.media_stream) throw new Error('no track to stream')
+    if (!this._media_manager.stream) throw new Error('no track to stream')
 
     for (const peer of this._peers) {
       if (!exclude.includes(peer.id)) {
         try {
           // if this fail we assume peer got disconnected
-          peer.addStream(this._media_manager.media_stream)
+          peer.addStream(this._media_manager.stream)
         } catch (e) {
           this._peers = this._peers.filter(p => p.id !== peer.id)
         }
@@ -95,15 +92,17 @@ class Room {
     }
   }
 
-  public async addFileToPlaylist(file: File) {
+  public async playFile(file: File) {
     // FIXME: temp code to test things out
-    await this._media_manager.initMediaSource(file);
+    await this._media_manager.createMediaStreamFromFile(file);
     this._media_manager.play()
-    // ugly but this permit to send the stream to the 'hoster' who will rebroadcast
-    if (this._media_manager.remote_media_stream)
+    if (this._peer) {
+      /// we are a 'client', send stream to 'host' who will rebroadcast to all client
+      this._peer?.addStream(this._media_manager.stream!)
+    } else {
+      /// we are the 'host', just send the stream to everyone
       this._sendStreamToParicipants()
-    else
-      this._peer?.addStream(this._media_manager.media_stream!)
+    }
   }
 }
 

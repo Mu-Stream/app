@@ -1,94 +1,75 @@
 import { Completer } from '$lib/completer'
 
 
-class MediaManager {
+export class MediaManager {
+  private _context?: AudioContext
 
-}
+  /// both of those are used when it's you that is streaming the current song
+  private _node?: AudioBufferSourceNode
+  private _destination?: MediaStreamAudioDestinationNode
 
-export class MuMediaManager {
-  current_audio_node?: AudioBufferSourceNode
-  current_destination_node?: MediaStreamAudioDestinationNode
-  remote_media_stream?: MediaStream
-  audio_context?: AudioContext
+  /// this one is used to store the stream recived from host that the host rebroadcast to others
+  private _remote?: MediaStreamAudioSourceNode
 
+  /// getter to get the current stream playing either if its you that created it or got by a remote
+  get stream() { return this._destination?.stream ?? this._remote?.mediaStream }
 
-  public get media_stream() { return this.current_destination_node?.stream ?? this.remote_media_stream }
-
-
-  public async initMediaSource(file: File) {
-    this.audio_context ??= new AudioContext()
-    if (this.current_audio_node || this.current_destination_node) {
-      this.current_audio_node?.stop()
-      this.current_destination_node?.disconnect()
+  private _stopMediaStreamFromFile() {
+    /// cancel previous media thaht we were streaming if any
+    if (this._node) {
+      this._node.stop()
+      this._destination?.disconnect()
+      this._node = undefined
+      this._destination = undefined
     }
+  }
 
-    const gain = this.audio_context.createGain()
+  async createMediaStreamFromFile(file: File) {
 
-    gain.connect(this.audio_context.destination)
+    this._stopMediaStreamFromFile()
 
-    const file_reader = new FileReader()
+    this._context ??= new AudioContext()
+    const reader = new FileReader()
     const buffer = new Completer<AudioBuffer>()
 
-    file_reader.onload = (event) => {
-      this.audio_context!.decodeAudioData(event.target!.result! as ArrayBuffer, (b) => {
-        buffer.complete(b)
-      })
+    reader.onload = event =>
+      this._context?.decodeAudioData(event.target?.result as ArrayBuffer, b => buffer.complete(b))
+
+    reader.readAsArrayBuffer(file)
+    this._node = this._context.createBufferSource()
+    this._node.buffer = await buffer.future
+    this._destination = this._context.createMediaStreamDestination()
+    this._node.connect(this._context.destination)
+    this._node.connect(this._destination)
+  }
+
+
+  public play(remote_destination?: MediaStream) {
+    this._context ??= new AudioContext()
+
+    if (this._remote) {
+      this._remote.disconnect()
+      this._remote = undefined
     }
 
-    file_reader.readAsArrayBuffer(file)
-    const audio_node = this.audio_context.createBufferSource()
-    audio_node.buffer = await buffer.future
-    audio_node.connect(gain)
-    const audio_destination_node = this.audio_context.createMediaStreamDestination()
-    audio_node.connect(audio_destination_node)
+    // if we play a local media
+    if (!remote_destination && this._node) {
+      console.log('playing a local stream')
+      this._node!.start()
+      return;
+    }
 
-    this.current_audio_node = audio_node
-    this.current_destination_node = audio_destination_node
-    console.log('audio stream created')
-  }
-
-  public broadcastRemoteStream(stream: MediaStream) {
-    this.remote_media_stream = stream;
-  }
-
-  public play() {
-    if (this.current_audio_node) {
-      console.log('start stream current audio node')
-      this.current_audio_node!.start()
-    } else if (this.remote_media_stream) {
-      /// TODO send p2p play message
+    /// if we play a remote media
+    if (remote_destination) {
+      this._stopMediaStreamFromFile()
+      console.log('playing a remote stream')
+      // connect the new stream to the audio context
+      this._remote = this._context.createMediaStreamSource(remote_destination);
+      this._remote.connect(this._context!.destination)
+      // this hack is needed to make audio play as the action is not done by trusted user interaction
+      const hack = new Audio()
+      hack.srcObject = this._remote.mediaStream
+      return
     }
   }
 }
-
-//
-// export async function createMediaSource(file: File) {
-//   if (current_audio_node || current_destination_node) {
-//     current_audio_node?.stop()
-//     current_destination_node?.disconnect()
-//   }
-//
-//   const audio_context = new AudioContext()
-//   const gain = audio_context.createGain()
-//
-//   gain.connect(audio_context.destination)
-//
-//   const file_reader = new FileReader()
-//   const buffer = new Completer<AudioBuffer>()
-//
-//   file_reader.onload = (event) => {
-//     audio_context.decodeAudioData(event.target!.result! as ArrayBuffer, (b) => {
-//       buffer.complete(b)
-//     })
-//   }
-//
-//   file_reader.readAsArrayBuffer(file)
-//   const audio_node = audio_context.createBufferSource()
-//   audio_node.buffer = await buffer.future
-//   audio_node.connect(gain)
-//   const audio_destination_node = audio_context.createMediaStreamDestination()
-//   audio_node.connect(audio_destination_node)
-//
-//   current_audio_node = audio_node
-//   current_destination_node = audio_destination_node
-// }
