@@ -2,6 +2,7 @@ import { Completer } from '$lib/completer';
 import { v4 } from 'uuid'
 import SimplePeer from 'simple-peer'
 import { P2PPayloadType, type P2PPayload } from './types/p2p';
+import type { Emotes } from './types/emotes';
 
 export class Peer {
   private _unique_identifier = v4()
@@ -29,7 +30,6 @@ export class Peer {
       /// init renegociation process
       this._is_connected.future.then(() => {
         this._peer.on("signal", signal => this.send({ type: P2PPayloadType.RENEGOCIATE, signal }))
-        this.onData();
       })
     })
   }

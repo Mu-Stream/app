@@ -1,9 +1,10 @@
-import { P2PPayloadType, type P2PInitRoomPayload } from "./types/p2p";
+import { P2PPayloadType, type P2PInitRoomPayload, type P2PEmotePayload } from "./types/p2p";
 import { Peer } from "./peer";
 import { SignalingScoket } from "./signaling";
 import { MediaManager } from "./music_streamer";
 import { ClientPayloadType } from "./types/client";
 import { ServerPayloadType, type ServerInitRoomPayload, type ServerSignalRequesterPayload } from "./types/server";
+import type { Emotes } from "./types/emotes";
 
 class Room {
   private _socket = new SignalingScoket()
@@ -11,6 +12,16 @@ class Room {
   private _peer?: Peer
   private _peers: Peer[] = []
   private _media_manager: MediaManager = new MediaManager()
+  private currentEmote?: Emotes
+  private emoteChangedFunction? : (emote: Emotes) => void
+
+  public set emoteChanged(emoteChanged : (emote: Emotes) => void) { this.emoteChangedFunction = emoteChanged}
+
+  public get emote() { return this.currentEmote!}
+  public set emote(emote: Emotes) {
+    this.currentEmote = emote
+    this.emoteChangedFunction!(emote)
+  }
 
   public get id() { return this._room_id }
 
@@ -46,6 +57,12 @@ class Room {
             this._media_manager.play(stream)
             this._sendStreamToParicipants([peer.id])
           })
+          peer.onData(data => {
+            console.log('recived data from client')
+            if(data.type === P2PPayloadType.EMOTE){
+              this._sendEmoticonToParicipants(data, [peer.id])
+            }
+          })
           break
       }
     })
@@ -74,6 +91,11 @@ class Room {
       this._media_manager.play(stream)
     })
 
+    peer.onData(data => {
+      if(data.type === P2PPayloadType.EMOTE)
+        this.emote = data.emote
+    })
+
     this._peer = peer
   }
 
@@ -87,6 +109,25 @@ class Room {
           peer.addStream(this._media_manager.stream)
         } catch (e) {
           this._peers = this._peers.filter(p => p.id !== peer.id)
+        }
+      }
+    }
+  }
+
+  public _sendEmoticonToParicipants(emote: P2PEmotePayload, exclude: string[] = []) {
+    this.emote = emote.emote
+    if (this._peer) {
+      this._peer.send(emote)
+    }
+    else{
+      for (const peer of this._peers) {
+        if (!exclude.includes(peer.id)) {
+          try {
+            // if this fail we assume peer got disconnected
+            peer.send(emote)
+          } catch (e) {
+            this._peers = this._peers.filter(p => p.id !== peer.id)
+          }
         }
       }
     }
