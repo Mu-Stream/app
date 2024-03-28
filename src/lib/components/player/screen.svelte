@@ -3,6 +3,7 @@
 	import SongProgress from "./mobile_song_progress.svelte";
 	import clsx from "clsx";
 	import SongControls from "./mobile_song_controls.svelte";
+	import UserActions from "$lib/components/user_actions.svelte";
 	const fakeUrl =
 		"https://lh3.googleusercontent.com/IMHL2k6RwTNd67kckwLmxBmSw9Fb3ABSckIPcIV_UASrUBrkOf4dsu_HeH3_D_PbvCHkoIxFDb77R-k=w544-h544-l90-rj";
 </script>
@@ -26,7 +27,15 @@
 		width="w-full md:w-96"
 	/>
 
-	<div class={clsx("md:hidden", "flex", "flex-col", "w-full")}>
+	<div
+		class={clsx(
+			"md:hidden",
+			"flex",
+			"flex-col",
+			"w-full",
+			"relative",
+		)}
+	>
 		<div class={clsx("space-y-2")}>
 			<h1 class={clsx("text-3xl", "font-bold")}>Test name</h1>
 			<h4 class={clsx("text-sm")}>Test artist</h4>
@@ -34,5 +43,6 @@
 
 		<SongProgress current={78} max={97} />
 		<SongControls />
+		<UserActions />
 	</div>
 </div>

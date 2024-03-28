@@ -3,6 +3,7 @@
 	import { RangeSlider } from "@skeletonlabs/skeleton";
 	import clsx from "clsx";
 	import { formatSeconds } from "$lib/duration_formatter";
+	import UserActions from "$lib/components/user_actions.svelte";
 </script>
 
 <div class={clsx("py-2")}>
@@ -18,5 +19,7 @@
 		<div class={clsx("flex", "justify-between")}>
 			<h5>{`${formatSeconds(78)} / ${formatSeconds(97)}`}</h5>
 		</div>
+		<div class={clsx("flex-1")}></div>
+		<UserActions />
 	</div>
 </div>

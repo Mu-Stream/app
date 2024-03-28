@@ -1,15 +1,11 @@
 <script lang="ts">
 	import clsx from "clsx";
 	import User from "./user.svelte";
-
-	const fakeUsers = [
-		{ id: 1, name: "John Doe" },
-		{ id: 2, name: "Jane Doe" },
-	];
+	import { users } from "$lib/stores/users";
 </script>
 
 <div class={clsx("space-y-2")}>
-	{#each fakeUsers as user}
+	{#each $users as user}
 		<User {user} />
 	{/each}
 </div>

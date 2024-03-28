@@ -4,6 +4,7 @@ import { SignalingScoket } from "./signaling";
 import { MediaManager } from "./music_streamer";
 import { ClientPayloadType } from "./types/client";
 import { ServerPayloadType, type ServerInitRoomPayload, type ServerSignalRequesterPayload } from "./types/server";
+import { updateUsers } from "$lib/stores/users";
 
 class Room {
 	private _socket = new SignalingScoket()
@@ -13,6 +14,10 @@ class Room {
 	private _media_manager: MediaManager = new MediaManager()
 
 	public get id() { return this._room_id }
+
+	public get users() {
+		return [...this._peers.map(p => ({ id: p.id, name: p.id })), { id: 'host', name: 'host' }]
+	}
 
 	public async host(): Promise<string> {
 		const opened = await this._socket.isOpened
@@ -36,6 +41,9 @@ class Room {
 					await peer.isConnected
 					peer.send({ type: P2PPayloadType.INIT_ROOM, roomId: this._room_id! })
 					this._peers.push(peer)
+					// TODO: find a way to not have hard dependencies on svelte stores
+					// maybe send custom signal or smth
+					updateUsers(this.users);
 					// there is a current music playing, send it to the new client
 					if (this._media_manager.stream) {
 						peer.addStream(this._media_manager.stream)
