@@ -29,7 +29,7 @@
 	</Tab>
 	<Tab
 		bind:group={$navigation}
-		value={0}
+		value={1}
 		name="player"
 		flex="items-center justify-center"
 	>
@@ -37,7 +37,7 @@
 	</Tab>
 	<Tab
 		bind:group={$navigation}
-		value={0}
+		value={2}
 		name="player"
 		flex="items-center justify-center"
 	>
@@ -45,7 +45,7 @@
 	</Tab>
 	<Tab
 		bind:group={$navigation}
-		value={0}
+		value={3}
 		name="player"
 		flex="items-center justify-center"
 	>

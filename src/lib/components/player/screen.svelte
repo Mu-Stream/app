@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { room } from "$lib/webrtc/room";
 	import StyledCover from "$lib/components/styled_cover.svelte";
 	import SongProgress from "./mobile_song_progress.svelte";
 	import clsx from "clsx";

@@ -115,9 +115,9 @@
 						"bg-black",
 					)}
 				/>
-				<span class={clsx("px-4", "text-black")}
-					>OU</span
-				>
+				<span class={clsx("px-4", "text-black")}>
+					OU
+				</span>
 				<div
 					class={clsx(
 						"h-[1px]",

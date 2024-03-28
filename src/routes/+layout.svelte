@@ -2,7 +2,6 @@
 	import {
 		AppShell,
 		Modal,
-		getModalStore,
 		initializeStores,
 		type ModalComponent,
 		Toast,
@@ -14,8 +13,9 @@
 	import Playlist from "$lib/components/playlist/playlist.svelte";
 	import ConnectToRoom from "$lib/components/modals/connect_to_room.svelte";
 	import WaitingScreen from "$lib/components/waiting/screen.svelte";
-	import { room_id } from "$lib/stores/room_id";
 	import clsx from "clsx";
+	import { room_id } from "$lib/stores/room_id";
+	import UsersList from "$lib/components/users/users_list.svelte";
 
 	initializeStores();
 
@@ -48,12 +48,37 @@
 			<div
 				class={clsx(
 					"hidden",
-					"md:block",
+					"md:flex",
 					"bg-tertiary-300",
 					"h-full",
+					"flex-col",
 				)}
 			>
-				<Playlist />
+				<div class={clsx("h-full", "space-y-2")}>
+					<h3
+						class={clsx(
+							"text-xl",
+							"font-bold",
+							"text-center",
+						)}
+					>
+						Playlist
+					</h3>
+					<Playlist />
+				</div>
+
+				<div class={clsx("h-full", "space-y-2")}>
+					<h3
+						class={clsx(
+							"text-xl",
+							"font-bold",
+							"text-center",
+						)}
+					>
+						Participants
+					</h3>
+					<UsersList />
+				</div>
 			</div>
 		</svelte:fragment>
 	</AppShell>
