@@ -3,6 +3,6 @@
 	import Playlist from "./playlist.svelte";
 </script>
 
-<div class={clsx("w-full", "h-full", "pt-4", "px-4")}>
+<div class={clsx("w-full", "h-full", "p-4")}>
 	<Playlist />
 </div>

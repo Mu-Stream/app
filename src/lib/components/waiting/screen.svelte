@@ -8,6 +8,7 @@
 	import { room } from "$lib/webrtc/room";
 	import clsx from "clsx";
 	import { room_id } from "$lib/stores/room_id";
+	import { outline_style, shape_style } from "$lib/global_styles";
 	const modalStore = getModalStore();
 	const toastStore = getToastStore();
 	let connected_room_id: Completer<string> | undefined = undefined;
@@ -74,6 +75,7 @@
 			"md:card",
 			"md:p-4",
 			"md:variant-filled-surface",
+			shape_style,
 		)}
 	>
 		<h1 class={clsx("text-3xl", "text-center")}>
@@ -89,8 +91,7 @@
 					"btn",
 					"btn-lg",
 					"variant-filled-tertiary",
-					"border-b-4",
-					"border-b-black",
+					outline_style,
 				)}
 			>
 				{#if connected_room_id !== undefined}
@@ -134,8 +135,7 @@
 					"btn",
 					"btn-lg",
 					"variant-filled-tertiary",
-					"border-b-4",
-					"border-b-black",
+					outline_style,
 				)}
 			>
 				{#if connected_room_id !== undefined}

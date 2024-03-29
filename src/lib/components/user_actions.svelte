@@ -3,6 +3,7 @@
 	import clsx from "clsx";
 	import { showOpenFilePicker } from "file-system-access";
 	import { FileMusicSolid } from "flowbite-svelte-icons";
+	import { outline_style } from "$lib/global_styles";
 
 	async function pick_songs() {
 		const test = await showOpenFilePicker();
@@ -21,24 +22,12 @@
 		"px-4",
 	)}
 >
-	<button
-		class={clsx(
-			"btn",
-			"variant-filled-tertiary",
-			"border-b-4",
-			"border-black",
-		)}
-	>
+	<button class={clsx("btn", "variant-filled-tertiary", outline_style)}>
 		<span>😁</span>
 		<span class="hidden md:inline">réagir</span>
 	</button>
 	<button
-		class={clsx(
-			"btn",
-			"variant-filled-tertiary",
-			"border-b-4",
-			"border-black",
-		)}
+		class={clsx("btn", "variant-filled-tertiary", outline_style)}
 		on:click={pick_songs}
 	>
 		<FileMusicSolid />

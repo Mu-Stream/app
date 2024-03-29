@@ -2,13 +2,14 @@
 	import clsx from "clsx";
 	import StyledCover from "../styled_cover.svelte";
 	import { DotsVerticalOutline } from "flowbite-svelte-icons";
-	export let song: any;
+	import type { Song } from "$lib/webrtc/types/general";
+	export let song: Song;
 </script>
 
 <div class="flex space-x-2 px-2 items-center">
 	<StyledCover
 		alt={`cover-${song.title}`}
-		src={song.img}
+		src={song.cover}
 		height="h-14"
 		width="w-full max-w-16"
 		thiccness="medium"
