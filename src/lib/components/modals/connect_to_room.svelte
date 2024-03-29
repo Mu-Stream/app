@@ -21,6 +21,8 @@
 			$modal_store[0].response(values!.join(""));
 		modal_store.close();
 	}
+
+	const input_style = clsx("w-5", "text-center", "border", "rounded-lg");
 </script>
 
 {#if $modal_store[0]}
@@ -41,38 +43,10 @@
 					"px-1.5",
 				)}
 			>
-				<PinInput.Input
-					class={clsx(
-						"w-5",
-						"text-center",
-						"border",
-						"rounded-lg",
-					)}
-				/>
-				<PinInput.Input
-					class={clsx(
-						"w-5",
-						"text-center",
-						"border",
-						"rounded-lg",
-					)}
-				/>
-				<PinInput.Input
-					class={clsx(
-						"w-5",
-						"text-center",
-						"border",
-						"rounded-lg",
-					)}
-				/>
-				<PinInput.Input
-					class={clsx(
-						"w-5",
-						"text-center",
-						"border",
-						"rounded-lg",
-					)}
-				/>
+				<PinInput.Input class={input_style} />
+				<PinInput.Input class={input_style} />
+				<PinInput.Input class={input_style} />
+				<PinInput.Input class={input_style} />
 				<Toggle.Root
 					aria-label="Toggle Room code visibility"
 					class={clsx(
