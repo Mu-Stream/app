@@ -1,40 +1,51 @@
 import { PUBLIC_SIGNALING_SERVER_URL } from "$env/static/public"
 import { Completer } from "$lib/completer"
+import { Notifier } from "$lib/i_notifier";
+import type SimplePeer from "simple-peer";
 import type { ClientPayload } from "./types/client";
-import type { ServerPayload, ServerPayloadType } from "./types/server";
+import { None, Some } from "bakutils-catcher";
 
-export class SignalingScoket {
-  private _ws: WebSocket = new WebSocket(PUBLIC_SIGNALING_SERVER_URL)
-  private _is_opened = new Completer<boolean>();
+export enum ServerPayloadType {
+	HOST_OK = 'HOST_OK',
+	JOIN_OK = 'JOIN_OK',
+	SIGNAL_REQUESTER = 'SIGNAL_REQUESTER'
+}
 
-  constructor() {
-    this._ws.onopen = () => this._is_opened.complete(true)
-    this._ws.onerror = () => this._is_opened.complete(false)
-  }
+export type ServerPayload = {
+	[ServerPayloadType.SIGNAL_REQUESTER]: {
+		type: ServerPayloadType.SIGNAL_REQUESTER;
+		uuid: string;
+		signal: SimplePeer.SignalData;
+		username: string;
+	},
+	[ServerPayloadType.HOST_OK]: {
+		type: ServerPayloadType.HOST_OK;
+		roomId: string;
+	},
+	[ServerPayloadType.JOIN_OK]: {
+		type: ServerPayloadType.JOIN_OK;
+		signal: SimplePeer.SignalData;
+		uuid: string;
+		username: string;
+	}
+}
 
-  public get isOpened() { return this._is_opened.future }
+export class SignalingServerNotifier extends Notifier<ServerPayloadType, ServerPayload> {
 
-  public async waitForPayload<T extends ServerPayload>(type: ServerPayloadType) {
+	private _is_opened = new Completer<boolean>({ timeout: Some(5000) });
 
-    const opened = await this.isOpened;
-    if (!opened) throw new Error('Socket did not open correclty')
+	private _ws: WebSocket = new WebSocket(PUBLIC_SIGNALING_SERVER_URL)
 
+	constructor() {
+		super()
+		this._ws.onopen = () => this._is_opened.complete(Some(true))
+		this._ws.onerror = () => this._is_opened.complete(None)
+		this._ws.onmessage = ({ data }) => this._notify(JSON.parse(data))
+	}
 
-    const p = new Completer<T>();
+	public send(payload: ClientPayload) {
+		this._ws!.send(JSON.stringify(payload))
+	}
 
-    this._ws.onmessage = ({ data }) => {
-      const payload: T = JSON.parse(data);
-      if (payload.type === type) p.complete(payload)
-    }
-
-    return p.future
-  }
-
-  public send(payload: ClientPayload) {
-    this._ws!.send(JSON.stringify(payload))
-  }
-
-  public onmessage(handler: (payload: ServerPayload) => void) {
-    this._ws.onmessage = ({ data }) => handler(JSON.parse(data));
-  }
+	public get is_opened() { return this._is_opened.future }
 }

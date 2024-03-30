@@ -47,6 +47,7 @@
   },
   "type": "module",
   "dependencies": {
+    "bakutils-catcher": "^3.5.0",
     "bits-ui": "^0.16.0",
     "clsx": "^2.1.0",
     "file-system-access": "^1.0.4",

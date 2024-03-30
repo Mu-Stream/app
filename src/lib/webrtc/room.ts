@@ -1,13 +1,16 @@
 import { P2PPayloadType, type P2PInitRoomPayload } from "./types/p2p";
 import { Peer } from "./peer";
-import { SignalingScoket } from "./signaling";
+import { SignalingServerNotifier, type ServerPayload } from "./signaling";
 import { MediaManager } from "./music_streamer";
 import { ClientPayloadType } from "./types/client";
-import { ServerPayloadType, type ServerInitRoomPayload, type ServerSignalRequesterPayload } from "./types/server";
-import { updateUsers } from "$lib/stores/users";
+import { ServerPayloadType } from "./types/server";
+import { Err, Ok, type Result } from "bakutils-catcher";
+import { ListenerError } from "$lib/i_notifier";
+
+class UnableToRetrivePeerSignal extends ListenerError { }
 
 class Room {
-	private _socket = new SignalingScoket()
+	private _socket = new SignalingServerNotifier()
 	private _room_id?: string;
 	private _peer?: Peer
 	private _peers: Peer[] = []
@@ -19,71 +22,92 @@ class Room {
 		return [...this._peers.map(p => ({ id: p.id, name: p.id })), { id: 'host', name: 'host' }]
 	}
 
-	public async host(): Promise<string> {
-		const opened = await this._socket.isOpened
+	private async _registerNewPeer(payload: ServerPayload[ServerPayloadType.JOIN_OK]): Promise<Result<null, ListenerError>> {
+		const peer = new Peer({ initiator: false })
 
-		if (!opened) throw new Error('signaling server is not reachable')
+		peer.signal(payload.signal)
+
+		const signal = await peer.firstSignal
+
+		if (signal.isNone()) return Err(new UnableToRetrivePeerSignal);
+
+		this._socket.send({ type: ClientPayloadType.SIGNAL_REQUESTER, signal: signal.unwrap(), uuid: payload.uuid })
+
+		await peer.isConnected
+
+		peer.send({ type: P2PPayloadType.INIT_ROOM, roomId: this._room_id! })
+
+		this._peers.push(peer)
+
+		// there is a current music playing, send it to the new client
+		if (this._media_manager.stream) {
+			peer.addStream(this._media_manager.stream)
+		}
+
+		peer.onstream(stream => {
+			console.log('recived stream from client')
+			// 'client' sent us a stream so we play it and rebroadcast to other clients
+			this._media_manager.play(stream)
+			this._sendStreamToParicipants([peer.id])
+		})
+
+		return Ok(null)
+	}
+
+	public async host(): Promise<Result<string, string>> {
+		const opened = await this._socket.is_opened;
+
+		if (opened.isNone()) return Err("Unable to connect to signaling server");
 
 		this._socket.send({ type: ClientPayloadType.HOST })
 
-		const res = await this._socket.waitForPayload<ServerInitRoomPayload>(ServerPayloadType.HOST_OK);
+		const payload = await this._socket.singleSubscribe(ServerPayloadType.HOST_OK);
 
-		this._room_id = res.roomId;
+		if (payload.isErr()) return Err("Unable to get HOST_OK from signaling server");
 
-		/// accepts peers that want to join
-		this._socket.onmessage(async (payload) => {
-			switch (payload.type) {
-				case ServerPayloadType.JOIN_OK:
-					const peer = new Peer({ initiator: false })
-					peer.signal(payload.signal)
-					const signal = await peer.firstSignal
-					this._socket.send({ type: ClientPayloadType.SIGNAL_REQUESTER, signal, uuid: payload.uuid })
-					await peer.isConnected
-					peer.send({ type: P2PPayloadType.INIT_ROOM, roomId: this._room_id! })
-					this._peers.push(peer)
-					// TODO: find a way to not have hard dependencies on svelte stores
-					// maybe send custom signal or smth
-					updateUsers(this.users);
-					// there is a current music playing, send it to the new client
-					if (this._media_manager.stream) {
-						peer.addStream(this._media_manager.stream)
-					}
-					peer.onstream(stream => {
-						console.log('recived stream from client')
-						// 'client' sent us a stream so we play it and rebroadcast to other clients
-						this._media_manager.play(stream)
-						this._sendStreamToParicipants([peer.id])
-					})
-					break
-			}
-		})
-		return this._room_id;
+		this._room_id = payload.unwrap().roomId;
+
+		this._socket.subscribe(ServerPayloadType.JOIN_OK, this._registerNewPeer)
+
+		return Ok(this._room_id!);
 	}
 
-	public async join(roomId: string) {
-		const opened = await this._socket.isOpened
+	public async join(roomId: string): Promise<Result<string, string>> {
+		const opened = await this._socket.is_opened;
 
-		if (!opened) throw new Error('signaling server is not reachable')
+		if (opened.isNone()) return Err("Unable to connect to signaling server");
 
 		const peer = new Peer({ initiator: true })
 
 		const signal = await peer.firstSignal
 
-		this._socket.send({ type: ClientPayloadType.JOIN_HOST, roomId, signal })
+		if (signal.isNone()) return Err("Unable to get SIGNAL_REQUESTER from signaling server")
 
+		this._socket.send({
+			type: ClientPayloadType.JOIN_HOST,
+			roomId,
+			signal: signal.unwrap()
+		})
 
-		const signal_res = await this._socket.waitForPayload<ServerSignalRequesterPayload>(ServerPayloadType.SIGNAL_REQUESTER);
-		peer.signal(signal_res.signal)
+		const signal_res = await this._socket.singleSubscribe(ServerPayloadType.SIGNAL_REQUESTER);
+
+		if (signal_res.isErr()) return Err("Unable to get SIGNAL_REQUESTER from signaling server");
+
+		peer.signal(signal_res.unwrap().signal)
 
 		const init_room_res = await peer.waitForPayload<P2PInitRoomPayload>(P2PPayloadType.INIT_ROOM)
 
-		this._room_id = init_room_res.roomId
+		if (init_room_res.isNone()) return Err("Unable to get INIT_ROOM from signaling server");
+
+		this._room_id = init_room_res.unwrap().roomId;
 
 		peer.onstream(stream => {
 			this._media_manager.play(stream)
 		})
 
 		this._peer = peer
+
+		return Ok(this._room_id!)
 	}
 
 	public _sendStreamToParicipants(exclude: string[] = []) {
