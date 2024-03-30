@@ -1,5 +1,4 @@
 import { type SignalData } from 'simple-peer'
-import type { User } from './general'
 
 export enum P2PPayloadType {
 	RENEGOCIATE = 'RENEGOCIATE',

@@ -1,103 +1,91 @@
 import { Completer } from '$lib/completer';
 import { v4 } from 'uuid'
 import SimplePeer from 'simple-peer'
-import { P2PPayloadType, type P2PPayload } from './types/p2p';
-import { Some } from 'bakutils-catcher';
+import { Err, Ok, type Result } from 'bakutils-catcher';
+import { Notifier, NotifierError } from '$lib/i_notifier';
 
-export class Peer {
-	private _unique_identifier = v4()
+export enum PeerPayloadType {
+	RENEGOCIATE = 'RENEGOCIATE',
+	INIT_ROOM = 'INIT_ROOM',
+	ADD_STREAM = 'ADD_STREAM',
+}
+
+export type PeerPayloads = {
+	[PeerPayloadType.INIT_ROOM]: {
+		type: PeerPayloadType.INIT_ROOM;
+		room_id: string;
+	},
+	[PeerPayloadType.RENEGOCIATE]: {
+		type: PeerPayloadType.RENEGOCIATE;
+		signal: SimplePeer.SignalData;
+	},
+	[PeerPayloadType.ADD_STREAM]: {
+		type: PeerPayloadType.ADD_STREAM;
+		stream: MediaStream;
+	}
+}
+
+export class PeerNotifier extends Notifier<PeerPayloadType, PeerPayloads> {
+	private _id = v4();
 	private _peer: SimplePeer.Instance;
-	private _first_signal: Completer<SimplePeer.SignalData>
-	private _is_connected: Completer<true>
-	private _current_data_listener?: (data: any) => void;
-	private _current_stream_listener?: (stream: MediaStream) => void;
 
+	private _initial_signal: Completer<SimplePeer.SignalData> = new Completer()
+	private _link_done: Completer<true> = new Completer()
 
-	get firstSignal() { return this._first_signal.future }
-	get isConnected() { return this._is_connected.future }
-	get id() { return this._unique_identifier }
+	public get id() { return this._id }
+	public get initial_signal() { return this._initial_signal.future }
+	public get link_done() { return this._link_done.future }
 
 	constructor({ initiator }: { initiator: boolean }) {
-		this._peer = new SimplePeer({ initiator, trickle: false })
-		this._first_signal = new Completer({ timeout: Some(15000) })
-		this._is_connected = new Completer({ timeout: Some(15000) })
+		super()
+		this._peer = new SimplePeer({ initiator, trickle: false });
+		this._peer.once("signal", (singal) => this._initial_signal.completeValue(singal))
+		this._peer.once("connect", () => this._link_done.completeValue(true))
 
+		// when first connection is established
+		this._link_done.future.then(done =>
+			done.match({
+				Some: _ => {
 
-		this._peer.once("signal", (signal: SimplePeer.SignalData) => this._first_signal.complete(Some(signal)))
+					// setup renegociation flow
+					this._peer.on("signal", signal => this.send({
+						type: PeerPayloadType.RENEGOCIATE,
+						signal
+					}));
+					this.subscribe(PeerPayloadType.RENEGOCIATE, async payload => {
+						this._peer.signal(payload.signal);
+						return Ok(null)
+					})
 
-		this._peer.once("connect", () => {
-			console.debug("connected to peer")
-			return this._is_connected.completeValue(true);
-		})
+					// start notifying Peer to Peer text payload
+					this._peer.on("data", data => this._notify(JSON.parse(data)))
 
-		this.isConnected.then(() => {
-			/// init renegociation process
-			this._is_connected.future.then(() => {
-				this._peer.on("signal", signal => this.send({ type: P2PPayloadType.RENEGOCIATE, signal }))
-				this.onData();
+					// handle incoming Peer to Peer stream payload
+					this._peer.on("stream", stream => this._notify({
+						type: PeerPayloadType.ADD_STREAM,
+						stream
+					}));
+				},
+				None: () => { throw new Error("TBD") }
 			})
-		})
-	}
-
-	public onstream(handler: (stream: MediaStream) => void) {
-		if (this._current_stream_listener)
-			this._peer.removeListener("stream", this._current_stream_listener)
-
-		this._current_stream_listener = handler
-
-		this._peer.on("stream", this._current_stream_listener)
-	}
-
-	public addStream(stream: MediaStream) {
-		this._peer.addStream(stream)
-	}
-
-	public send(payload: P2PPayload) {
-		this._peer!.send(JSON.stringify(payload))
-	}
-
-	public async waitForPayload<T extends P2PPayload>(type: P2PPayloadType) {
-		const p = new Completer<T>({ timeout: Some(5000) })
-
-		const listener = (data: any) => {
-			const payload: T = JSON.parse(data)
-			if (payload.type === type)
-				p.completeValue(payload)
-		}
-
-		this._peer.on("data", listener)
-
-		await p.future
-
-		this._peer.removeListener("data", listener)
-
-		return p.future;
-	}
-
-
-	public onData(handler?: (payload: P2PPayload) => void) {
-		// we need to store the last handler else they cumulate
-		if (this._current_data_listener)
-			this._peer.removeListener("data", this._current_data_listener)
-
-		this._current_data_listener = data => {
-			/// handle renegociation should always be present
-			const payload: P2PPayload = JSON.parse(data)
-			if (payload.type === P2PPayloadType.RENEGOCIATE) {
-				console.info('renegociating...')
-				this.signal(payload.signal)
-			}
-			handler && handler(payload)
-		}
-
-		this._peer.on("data", this._current_data_listener)
-	}
-
-	public onClose(handlder: () => void) {
-		this._peer.on("close", handlder);
+		)
 	}
 
 	public signal(signal: SimplePeer.SignalData) {
-		this._peer.signal(signal)
+		this._peer.signal(signal);
+	}
+
+	public send(payload: PeerPayloads[PeerPayloadType]): Result<null, NotifierError> {
+		try {
+			// handle special ADD_STREAM payload as it's not a text payload 
+			if (payload.type === PeerPayloadType.ADD_STREAM) {
+				this._peer.addStream(payload.stream);
+				return Ok(null);
+			}
+			this._peer!.send(JSON.stringify(payload))
+			return Ok(null)
+		} catch (err) {
+			return Err(new NotifierError((err as Error).message))
+		}
 	}
 }

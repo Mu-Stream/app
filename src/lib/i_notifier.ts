@@ -7,13 +7,13 @@ export class ListenerError extends Error {
 	}
 }
 
-class NotiferError extends Error {
+export class NotifierError extends Error {
 	constructor(message?: string) {
 		super(message ?? 'An unexpected error occurred in the notifier');
 	}
 }
 
-class PayloadTimeout extends NotiferError {
+class PayloadTimeout extends NotifierError {
 	constructor() {
 		super('Timeout reached while waiting for a payload');
 	}
@@ -34,7 +34,7 @@ export abstract class Notifier<EventType extends string, Payload extends Payload
 	/**
 	* Subscribe one time to an event type as a promise and return the payload
 	*/
-	public async singleSubscribe<T extends EventType>(type: T): Promise<Result<Payload[T], PayloadTimeout>> {
+	public async once<T extends EventType>(type: T): Promise<Result<Payload[T], PayloadTimeout>> {
 		const completer = new Completer<Payload[T]>();
 		const handler: Listener<Payload[EventType]> = async (payload) => {
 			completer.completeValue(payload as Payload[T]);
@@ -65,6 +65,8 @@ export abstract class Notifier<EventType extends string, Payload extends Payload
 			this._subscribers.set(type, listeners.filter(l => l !== handler));
 		}
 	}
+
+	public abstract send(payload: Payload[EventType]): Result<null, NotifierError>;
 
 	/**
     * Handle the notify logic.
