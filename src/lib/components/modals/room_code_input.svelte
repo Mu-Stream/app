@@ -1,12 +1,12 @@
 <script lang="ts">
-	import type { SvelteComponent } from "svelte";
+	//	import type { SvelteComponent } from "svelte";
 
 	import { getModalStore } from "@skeletonlabs/skeleton";
 	import { PinInput, Toggle } from "bits-ui";
 	import clsx from "clsx";
 	import { EyeOutline, EyeSlashOutline } from "flowbite-svelte-icons";
 
-	export let parent: SvelteComponent;
+	// export let parent: SvelteComponent;
 
 	const modal_store = getModalStore();
 

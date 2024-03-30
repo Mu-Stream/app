@@ -1,20 +1,42 @@
 import { P2PPayloadType, type P2PInitRoomPayload } from "./types/p2p";
 import { Peer } from "./peer";
-import { SignalingServerNotifier, type ServerPayload } from "./signaling";
+import {
+	SignalingGetPayloadType,
+	type SignalingGetPayloads,
+	signaling_server_notifier,
+	SignalingServerNotifier,
+} from "./signaling";
+
 import { MediaManager } from "./music_streamer";
 import { ClientPayloadType } from "./types/client";
-import { ServerPayloadType } from "./types/server";
 import { Err, Ok, type Result } from "bakutils-catcher";
 import { ListenerError } from "$lib/i_notifier";
 
-class UnableToRetrivePeerSignal extends ListenerError { }
+class UnableToRetrivePeerSignal extends ListenerError {
+	constructor() { super('Unable to retrieve peer signal') }
+}
+
+
+class RoomError extends Error {
+	constructor(message?: string) {
+		super(message ?? 'Unexpected error in room');
+	}
+}
+
+class SignalingServerNotReady extends RoomError {
+	constructor() { super('Signaling server not ready') }
+}
+
+class SignalingServerPayloadTimeout extends RoomError {
+	constructor() { super('Signaling server payload retrival timed out') }
+}
 
 class Room {
-	private _socket = new SignalingServerNotifier()
 	private _room_id?: string;
 	private _peer?: Peer
 	private _peers: Peer[] = []
 	private _media_manager: MediaManager = new MediaManager()
+	private _signaling_server_notifier: SignalingServerNotifier;
 
 	public get id() { return this._room_id }
 
@@ -22,7 +44,12 @@ class Room {
 		return [...this._peers.map(p => ({ id: p.id, name: p.id })), { id: 'host', name: 'host' }]
 	}
 
-	private async _registerNewPeer(payload: ServerPayload[ServerPayloadType.JOIN_OK]): Promise<Result<null, ListenerError>> {
+	constructor({ signaling_server_notifier }: { signaling_server_notifier: SignalingServerNotifier }) {
+		this._signaling_server_notifier = signaling_server_notifier;
+
+	}
+
+	private async _registerNewPeer(payload: SignalingGetPayloads[SignalingGetPayloadType.JOIN_OK]): Promise<Result<null, ListenerError>> {
 		const peer = new Peer({ initiator: false })
 
 		peer.signal(payload.signal)
@@ -31,9 +58,13 @@ class Room {
 
 		if (signal.isNone()) return Err(new UnableToRetrivePeerSignal);
 
-		this._socket.send({ type: ClientPayloadType.SIGNAL_REQUESTER, signal: signal.unwrap(), uuid: payload.uuid })
+		this._signaling_server_notifier.send({
+			type: ClientPayloadType.SIGNAL_REQUESTER,
+			signal: signal.unwrap(),
+			uuid: payload.uuid
+		})
 
-		await peer.isConnected
+		if ((await peer.isConnected).isNone()) return Err(new ListenerError('Unable to connect to peer'));
 
 		peer.send({ type: P2PPayloadType.INIT_ROOM, roomId: this._room_id! })
 
@@ -54,50 +85,48 @@ class Room {
 		return Ok(null)
 	}
 
-	public async host(): Promise<Result<string, string>> {
-		const opened = await this._socket.is_opened;
+	public async host(): Promise<Result<string, RoomError>> {
+		if ((await this._signaling_server_notifier.is_opened).isNone()) return Err(new SignalingServerNotReady);
 
-		if (opened.isNone()) return Err("Unable to connect to signaling server");
+		this._signaling_server_notifier.send({ type: ClientPayloadType.HOST })
 
-		this._socket.send({ type: ClientPayloadType.HOST })
+		const payload = await this._signaling_server_notifier.singleSubscribe(SignalingGetPayloadType.HOST_OK);
 
-		const payload = await this._socket.singleSubscribe(ServerPayloadType.HOST_OK);
-
-		if (payload.isErr()) return Err("Unable to get HOST_OK from signaling server");
+		if (payload.isErr()) return Err(new SignalingServerPayloadTimeout);
 
 		this._room_id = payload.unwrap().roomId;
 
-		this._socket.subscribe(ServerPayloadType.JOIN_OK, this._registerNewPeer)
+		this._signaling_server_notifier.subscribe(SignalingGetPayloadType.JOIN_OK, (p) => this._registerNewPeer(p))
 
 		return Ok(this._room_id!);
 	}
 
-	public async join(roomId: string): Promise<Result<string, string>> {
-		const opened = await this._socket.is_opened;
+	public async join(roomId: string): Promise<Result<string, RoomError>> {
+		const opened = await this._signaling_server_notifier.is_opened;
 
-		if (opened.isNone()) return Err("Unable to connect to signaling server");
+		if (opened.isNone()) return Err(new SignalingServerNotReady);
 
 		const peer = new Peer({ initiator: true })
 
-		const signal = await peer.firstSignal
+		const own_signal = await peer.firstSignal
 
-		if (signal.isNone()) return Err("Unable to get SIGNAL_REQUESTER from signaling server")
+		if (own_signal.isNone()) return Err(new RoomError('Unable to get own peer signal'));
 
-		this._socket.send({
+		this._signaling_server_notifier.send({
 			type: ClientPayloadType.JOIN_HOST,
 			roomId,
-			signal: signal.unwrap()
+			signal: own_signal.unwrap()
 		})
 
-		const signal_res = await this._socket.singleSubscribe(ServerPayloadType.SIGNAL_REQUESTER);
+		const host_signal = await this._signaling_server_notifier.singleSubscribe(SignalingGetPayloadType.SIGNAL_REQUESTER);
 
-		if (signal_res.isErr()) return Err("Unable to get SIGNAL_REQUESTER from signaling server");
+		if (host_signal.isErr()) return Err(new SignalingServerPayloadTimeout);
 
-		peer.signal(signal_res.unwrap().signal)
+		peer.signal(host_signal.unwrap().signal)
 
 		const init_room_res = await peer.waitForPayload<P2PInitRoomPayload>(P2PPayloadType.INIT_ROOM)
 
-		if (init_room_res.isNone()) return Err("Unable to get INIT_ROOM from signaling server");
+		if (init_room_res.isNone()) return Err(new SignalingServerPayloadTimeout);
 
 		this._room_id = init_room_res.unwrap().roomId;
 
@@ -139,4 +168,4 @@ class Room {
 	}
 }
 
-export const room: Room = new Room()
+export const room: Room = new Room({ signaling_server_notifier })

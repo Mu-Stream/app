@@ -5,32 +5,32 @@ import type SimplePeer from "simple-peer";
 import type { ClientPayload } from "./types/client";
 import { None, Some } from "bakutils-catcher";
 
-export enum ServerPayloadType {
+export enum SignalingGetPayloadType {
 	HOST_OK = 'HOST_OK',
 	JOIN_OK = 'JOIN_OK',
 	SIGNAL_REQUESTER = 'SIGNAL_REQUESTER'
 }
 
-export type ServerPayload = {
-	[ServerPayloadType.SIGNAL_REQUESTER]: {
-		type: ServerPayloadType.SIGNAL_REQUESTER;
+export type SignalingGetPayloads = {
+	[SignalingGetPayloadType.SIGNAL_REQUESTER]: {
+		type: SignalingGetPayloadType.SIGNAL_REQUESTER;
 		uuid: string;
 		signal: SimplePeer.SignalData;
 		username: string;
 	},
-	[ServerPayloadType.HOST_OK]: {
-		type: ServerPayloadType.HOST_OK;
+	[SignalingGetPayloadType.HOST_OK]: {
+		type: SignalingGetPayloadType.HOST_OK;
 		roomId: string;
 	},
-	[ServerPayloadType.JOIN_OK]: {
-		type: ServerPayloadType.JOIN_OK;
+	[SignalingGetPayloadType.JOIN_OK]: {
+		type: SignalingGetPayloadType.JOIN_OK;
 		signal: SimplePeer.SignalData;
 		uuid: string;
 		username: string;
 	}
 }
 
-export class SignalingServerNotifier extends Notifier<ServerPayloadType, ServerPayload> {
+export class SignalingServerNotifier extends Notifier<SignalingGetPayloadType, SignalingGetPayloads> {
 
 	private _is_opened = new Completer<boolean>({ timeout: Some(5000) });
 
@@ -49,3 +49,5 @@ export class SignalingServerNotifier extends Notifier<ServerPayloadType, ServerP
 
 	public get is_opened() { return this._is_opened.future }
 }
+
+export const signaling_server_notifier = new SignalingServerNotifier()

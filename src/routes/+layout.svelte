@@ -10,7 +10,7 @@
 	import Header from "$lib/components/header.svelte";
 	import MobileNavbar from "$lib/components/mobile_navbar.svelte";
 	import DesktopSongProgress from "$lib/components/player/desktop_song_progress.svelte";
-	import ConnectToRoom from "$lib/components/modals/connect_to_room.svelte";
+	import RoomCodeInput from "$lib/components/modals/room_code_input.svelte";
 	import WaitingScreen from "$lib/components/waiting/screen.svelte";
 	import { room_id } from "$lib/stores/room_id";
 	import SidebarRight from "$lib/components/sidebar_right.svelte";
@@ -18,7 +18,7 @@
 	initializeStores();
 
 	const custom_modal_registery: Record<string, ModalComponent> = {
-		connect_to_room: { ref: ConnectToRoom },
+		room_code_input: { ref: RoomCodeInput },
 	};
 </script>
 

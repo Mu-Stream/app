@@ -1,16 +1,28 @@
 import { Err, Ok, type Result } from "bakutils-catcher";
 import { Completer } from "./completer";
 
+export class ListenerError extends Error {
+	constructor(message?: string) {
+		super(message ?? 'An unexpected error occurred during a listener call');
+	}
+}
 
-export class ListenerError extends Error { }
+class NotiferError extends Error {
+	constructor(message?: string) {
+		super(message ?? 'An unexpected error occurred in the notifier');
+	}
+}
+
+class PayloadTimeout extends NotiferError {
+	constructor() {
+		super('Timeout reached while waiting for a payload');
+	}
+}
 
 export type Listener<Payload> = (payload: Payload) => Promise<Result<null, ListenerError>>;
 
 export type Payloads<EventType extends string> = { [key in EventType]: { type: EventType } }
 
-class NotiferError extends Error { }
-
-class PayloadTimeout extends NotiferError { }
 
 /**
 * Notifier class that can be used to notify subscribers of a given event type
@@ -59,12 +71,33 @@ export abstract class Notifier<EventType extends string, Payload extends Payload
 	* Call this method with the recived playload from your source
 	* It will trigger all the registered listeners
     */
-	protected async _notify(payload: Payload[EventType]): Promise<Result<null, ListenerError>> {
+	protected async _notify(payload: Payload[EventType]): Promise<Result<null, ListenerError[]>> {
+		const errors: ListenerError[] = []
 		const listeners = this._subscribers.get(payload.type) || []
+
+		// c rigolo eheh
+		console.debug(
+			`%c ${this.constructor.name} %c %c ${payload.type} %c subs ${listeners.length}`,
+			'color:black; background: #bada55; font-weight: bold;',
+			'',
+			'color:black; background: #ffda55; font-weight: bold;',
+			``
+		)
 		for (const listener of listeners) {
 			const res = await listener(payload);
-			if (res.isErr()) return Err(res.error)
+			if (res.isErr()) {
+				console.error(
+					`%c ${this.constructor.name} %c %c ${payload.type} %c %c ERROR %c ${res.error.message}`,
+					'color:black; background: #bada55; font-weight: bold;',
+					'',
+					'color:black; background: #ffda55; font-weight: bold;',
+					'',
+					'color:black; background: red; font-weight: bold;',
+					'',
+				)
+				errors.push(res.error)
+			};
 		}
-		return Ok(null)
+		return errors.length ? Err(errors) : Ok(null)
 	}
 }
