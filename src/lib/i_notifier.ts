@@ -31,7 +31,14 @@ export type Subscription<Payload> = Listener<Payload>;
  * That emits an payload, all your payloads should contain a type field
  */
 export abstract class Notifier<K extends string, E extends Event<K>> {
+
+	private _readable_default_values: Partial<Events<K, E>> = {};
+
 	private _subscribers = new Map<K, Listener<E[K]>[]>();
+
+	constructor({ readable_default_values }: { readable_default_values?: Partial<Events<K, E>> } = {}) {
+		this._readable_default_values = readable_default_values ?? {}
+	}
 
 
 	/**
@@ -110,14 +117,33 @@ export abstract class Notifier<K extends string, E extends Event<K>> {
 		return errors.length ? Err(errors) : Ok(null)
 	}
 
-	public getSvelteReadable(event: E[K]): Readable<E[K]> {
-		return readable(event, (set) => {
-			const sub = this.subscribe(event.type, async payload => {
+	private _readable_instances: Map<K, Readable<E[K]>> = new Map;
+
+	/**
+	* Return a svelte readable subcribable store for the given event type
+	* if already existing, it will return the existing one
+	*/
+	public readable<T extends K>(type: T): Readable<E[T]> {
+		const existing = this._readable_instances.get(type);
+		if (existing) return existing as Readable<E[T]>;
+
+		if (!this._readable_default_values[type]) {
+			throw new Error(`${type} is not configured as a readable event type in ${this.constructor.name}`);
+		}
+
+		const new_one = readable(this._readable_default_values[type], (set) => {
+			const sub = this.subscribe(type, async payload => {
 				set(payload);
 				return Ok(null);
 			});
-			return () => this.unsubscribe(sub as Subscription<E[K]>)
+			return () => {
+				// when no listener left remove internal subscribition and remove from readable store cache
+				this.unsubscribe(sub as Subscription<E[K]>)
+				this._readable_instances.delete(type);
+			}
 		});
+		this._readable_instances.set(type, new_one as Readable<E[K]>);
+		return new_one as Readable<E[T]>
 	}
 
 	public abstract send(payload: E[K]): Result<null, NotifierError>;

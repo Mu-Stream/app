@@ -42,6 +42,8 @@ export type SignalingEvent = Events<
 >
 
 export class SignalingServer extends Notifier<SignalingEventType, SignalingEvent> {
+	protected _readable_default_values: Partial<SignalingEvent> = {}
+
 	private _is_opened = new Completer<boolean>({ timeout: Some(5000) });
 	private _ws: WebSocket = new WebSocket(PUBLIC_SIGNALING_SERVER_URL)
 

@@ -2,8 +2,9 @@
 	import { ProgressBar } from "@skeletonlabs/skeleton";
 	import clsx from "clsx";
 	import { formatSeconds } from "$lib/duration_formatter";
-	import { Room } from "$lib/webrtc/room";
-	const song_progress = Room.instance.song_progress;
+	import { MediaManager } from "$lib/webrtc/music_streamer";
+	const song_progress =
+		MediaManager.instance.readable("CURRENTLY_PLAYING");
 </script>
 
 <div>

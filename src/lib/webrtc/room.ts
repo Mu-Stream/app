@@ -7,7 +7,6 @@ import {
 import { MediaManager, type MediaManagerEvents } from "./music_streamer";
 import { Err, Ok, type Result } from "bakutils-catcher";
 import { ListenerError, type Listener } from "$lib/i_notifier";
-import type { Readable } from "svelte/store";
 
 class UnableToRetrivePeerSignal extends ListenerError {
 	constructor() { super('Unable to retrieve peer signal') }
@@ -31,10 +30,8 @@ export class Room {
 	private _room_id?: string;
 	private _peer?: Peer
 	private _peers: Peer[] = []
-	private _song_progress: Readable<MediaManagerEvents['CURRENTLY_PLAYING']>
 
 	public get id() { return this._room_id }
-	public get song_progress() { return this._song_progress }
 
 	public get users() {
 		return [...this._peers.map(p => ({ id: p.id, name: p.id })), { id: 'host', name: 'host' }]
@@ -46,14 +43,7 @@ export class Room {
 
 	public static get instance() { return this._instance ?? (this._instance = new Room()) }
 
-	private constructor() {
-		this._song_progress = MediaManager.instance.getSvelteReadable(
-			{
-				type: 'CURRENTLY_PLAYING',
-				total_time: 0,
-				current_time: 0,
-			});
-	}
+	private constructor() { }
 
 	private _listenerSongProgress: Listener<MediaManagerEvents['CURRENTLY_PLAYING']> = async payload => {
 		const cast_payload = payload as unknown as PeerEvents['CURRENTLY_PLAYING'];

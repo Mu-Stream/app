@@ -18,7 +18,19 @@ export class MediaManager extends Notifier<MediaManagerEventsType, MediaManagerE
 
 	public static get instance() { return this._instance ??= new MediaManager() }
 
-	private constructor() { super() }
+	private constructor() {
+		super(
+			{
+				readable_default_values: {
+					CURRENTLY_PLAYING: {
+						type: 'CURRENTLY_PLAYING',
+						current_time: 0,
+						total_time: 0,
+					}
+				}
+			}
+		)
+	}
 
 	public send(payload: MediaManagerEvents[keyof MediaManagerEvents]): Result<null, NotifierError> {
 		this._notify(payload)
