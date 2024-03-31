@@ -50,10 +50,7 @@
 				</h4>
 			</div>
 
-			<SongProgress
-				current={current_song.current_time}
-				max={current_song.total_time}
-			/>
+			<SongProgress />
 			<SongControls />
 			<UserActions />
 		</div>

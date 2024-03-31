@@ -4,28 +4,27 @@ import SimplePeer from 'simple-peer'
 import { Err, Ok, type Result } from 'bakutils-catcher';
 import { Notifier, NotifierError } from '$lib/i_notifier';
 
-export enum PeerPayloadType {
-	RENEGOCIATE = 'RENEGOCIATE',
-	INIT_ROOM = 'INIT_ROOM',
-	ADD_STREAM = 'ADD_STREAM',
-}
-
 export type PeerPayloads = {
-	[PeerPayloadType.INIT_ROOM]: {
-		type: PeerPayloadType.INIT_ROOM;
+	INIT_ROOM: {
+		type: 'INIT_ROOM';
 		room_id: string;
 	},
-	[PeerPayloadType.RENEGOCIATE]: {
-		type: PeerPayloadType.RENEGOCIATE;
+	RENEGOCIATE: {
+		type: 'RENEGOCIATE';
 		signal: SimplePeer.SignalData;
 	},
-	[PeerPayloadType.ADD_STREAM]: {
-		type: PeerPayloadType.ADD_STREAM;
+	ADD_STREAM: {
+		type: 'ADD_STREAM';
 		stream: MediaStream;
+	},
+	CURRENTLY_PLAYING: {
+		type: 'CURRENTLY_PLAYING',
+		current_time: number,
+		total_time: number,
 	}
 }
 
-export class PeerNotifier extends Notifier<PeerPayloadType, PeerPayloads> {
+export class PeerNotifier extends Notifier<PeerPayloads> {
 	private _id = v4();
 	private _peer: SimplePeer.Instance;
 
@@ -49,10 +48,10 @@ export class PeerNotifier extends Notifier<PeerPayloadType, PeerPayloads> {
 
 					// setup renegociation flow
 					this._peer.on("signal", signal => this.send({
-						type: PeerPayloadType.RENEGOCIATE,
+						type: 'RENEGOCIATE',
 						signal
 					}));
-					this.subscribe(PeerPayloadType.RENEGOCIATE, async payload => {
+					this.subscribe('RENEGOCIATE', async payload => {
 						this._peer.signal(payload.signal);
 						return Ok(null)
 					})
@@ -62,7 +61,7 @@ export class PeerNotifier extends Notifier<PeerPayloadType, PeerPayloads> {
 
 					// handle incoming Peer to Peer stream payload
 					this._peer.on("stream", stream => this._notify({
-						type: PeerPayloadType.ADD_STREAM,
+						type: 'ADD_STREAM',
 						stream
 					}));
 				},
@@ -75,10 +74,10 @@ export class PeerNotifier extends Notifier<PeerPayloadType, PeerPayloads> {
 		this._peer.signal(signal);
 	}
 
-	public send(payload: PeerPayloads[PeerPayloadType]): Result<null, NotifierError> {
+	public send(payload: PeerPayloads[keyof PeerPayloads]): Result<null, NotifierError> {
 		try {
 			// handle special ADD_STREAM payload as it's not a text payload 
-			if (payload.type === PeerPayloadType.ADD_STREAM) {
+			if (payload.type === 'ADD_STREAM') {
 				this._peer.addStream(payload.stream);
 				return Ok(null);
 			}

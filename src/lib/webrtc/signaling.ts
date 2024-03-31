@@ -1,36 +1,38 @@
 import { PUBLIC_SIGNALING_SERVER_URL } from "$env/static/public"
 import { Completer } from "$lib/completer"
-import { Notifier } from "$lib/i_notifier";
+import { Notifier, NotifierError } from "$lib/i_notifier";
 import type SimplePeer from "simple-peer";
-import type { ClientPayload } from "./types/client";
-import { None, Some } from "bakutils-catcher";
+import { None, Ok, Some, type Result } from "bakutils-catcher";
 
-export enum SignalingGetPayloadType {
-	HOST_OK = 'HOST_OK',
-	JOIN_OK = 'JOIN_OK',
-	SIGNAL_REQUESTER = 'SIGNAL_REQUESTER'
-}
 
-export type SignalingGetPayloads = {
-	[SignalingGetPayloadType.SIGNAL_REQUESTER]: {
-		type: SignalingGetPayloadType.SIGNAL_REQUESTER;
+export type SignalingEvent = {
+	SIGNAL_REQUESTER: {
+		type: 'SIGNAL_REQUESTER';
 		uuid: string;
 		signal: SimplePeer.SignalData;
 		username: string;
 	},
-	[SignalingGetPayloadType.HOST_OK]: {
-		type: SignalingGetPayloadType.HOST_OK;
+	HOST_OK: {
+		type: 'HOST_OK';
 		roomId: string;
 	},
-	[SignalingGetPayloadType.JOIN_OK]: {
-		type: SignalingGetPayloadType.JOIN_OK;
+	JOIN_OK: {
+		type: 'JOIN_OK';
 		signal: SimplePeer.SignalData;
 		uuid: string;
 		username: string;
+	},
+	HOST: {
+		type: 'HOST',
+	},
+	JOIN_HOST: {
+		type: 'JOIN_HOST',
+		roomId: string;
+		signal: SimplePeer.SignalData;
 	}
 }
 
-export class SignalingServerNotifier extends Notifier<SignalingGetPayloadType, SignalingGetPayloads> {
+export class SignalingServerNotifier extends Notifier<SignalingEvent> {
 
 	private _is_opened = new Completer<boolean>({ timeout: Some(5000) });
 
@@ -43,8 +45,9 @@ export class SignalingServerNotifier extends Notifier<SignalingGetPayloadType, S
 		this._ws.onmessage = ({ data }) => this._notify(JSON.parse(data))
 	}
 
-	public send(payload: ClientPayload) {
+	public send(payload: SignalingEvent[keyof SignalingEvent]): Result<null, NotifierError> {
 		this._ws!.send(JSON.stringify(payload))
+		return Ok(null)
 	}
 
 	public get is_opened() { return this._is_opened.future }
