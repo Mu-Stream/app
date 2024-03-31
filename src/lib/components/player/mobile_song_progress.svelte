@@ -2,7 +2,7 @@
 	import { ProgressBar } from "@skeletonlabs/skeleton";
 	import clsx from "clsx";
 	import { formatSeconds } from "$lib/duration_formatter";
-	import { MediaManager } from "$lib/webrtc/music_streamer";
+	import { MediaManager } from "$lib/webrtc/media_manager";
 	const song_progress =
 		MediaManager.instance.readable("CURRENTLY_PLAYING");
 </script>

@@ -6,8 +6,7 @@
 	import UserActions from "$lib/components/user_actions.svelte";
 	import { playlist } from "$lib/stores/playlist";
 	import type { Song } from "$lib/webrtc/types/general";
-	import { Room } from "$lib/webrtc/room";
-	import { MediaManager } from "$lib/webrtc/music_streamer";
+	import { MediaManager } from "$lib/webrtc/media_manager";
 	let current_song: Song | undefined =
 		$playlist !== undefined ? $playlist[0] : undefined;
 	$: current_song = $playlist !== undefined ? $playlist[0] : undefined;

@@ -28,46 +28,50 @@ export type PeerEvents = Events<PeerEventTypes, {
 
 export class Peer extends Notifier<PeerEventTypes, PeerEvents> {
 	private _id = v4();
+	private _username: string;
 	private _peer: SimplePeer.Instance;
 
 	private _initial_signal: Completer<SimplePeer.SignalData> = new Completer()
 	private _link_done: Completer<true> = new Completer()
 
 	public get id() { return this._id }
+	public get username() { return this._username }
 	public get initial_signal() { return this._initial_signal.future }
 	public get link_done() { return this._link_done.future }
 
-	constructor({ initiator }: { initiator: boolean }) {
+	constructor({ initiator, username }: { initiator: boolean, username: string }) {
 		super()
+		this._username = username;
 		this._peer = new SimplePeer({ initiator, trickle: false });
 		this._peer.once("signal", (singal) => this._initial_signal.completeValue(singal))
 		this._peer.once("connect", () => this._link_done.completeValue(true))
 
 		// when first connection is established
-		this._link_done.future.then(done =>
-			done.match({
-				Some: _ => {
-					// setup renegociation flow
-					this._peer.on("signal", signal => this.send({
-						type: 'RENEGOCIATE',
-						signal
-					}));
-					this.subscribe('RENEGOCIATE', async payload => {
-						this._peer.signal(payload.signal);
-						return Ok(null)
-					})
+		this._link_done.future.then(
+			done =>
+				done.match({
+					Some: _ => {
+						// setup renegociation flow
+						this._peer.on("signal", signal => this.send({
+							type: 'RENEGOCIATE',
+							signal
+						}));
+						this.subscribe('RENEGOCIATE', async payload => {
+							this._peer.signal(payload.signal);
+							return Ok(null)
+						})
 
-					// start notifying Peer to Peer text payload
-					this._peer.on("data", data => this._notify(JSON.parse(data)))
+						// start notifying Peer to Peer text payload
+						this._peer.on("data", data => this._notify(JSON.parse(data)))
 
-					// handle incoming Peer to Peer stream payload
-					this._peer.on("stream", stream => this._notify({
-						type: 'ADD_STREAM',
-						stream
-					}));
-				},
-				None: () => { throw new Error("TBD") }
-			})
+						// handle incoming Peer to Peer stream payload
+						this._peer.on("stream", stream => this._notify({
+							type: 'ADD_STREAM',
+							stream
+						}));
+					},
+					None: () => { throw new Error("Peer setup failed") }
+				})
 		)
 	}
 

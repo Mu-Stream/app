@@ -147,4 +147,13 @@ export abstract class Notifier<K extends string, E extends Event<K>> {
 	}
 
 	public abstract send(payload: E[K]): Result<null, NotifierError>;
+
+	/** use this to bind an external subscribtion with the same type to this notifier who will also notify it */
+	public bind: Listener<E[K]> = async event => {
+		const res = await this._notify(event)
+		if (res.isErr()) {
+			return Err(new NotifierError)
+		}
+		return Ok(null)
+	}
 }

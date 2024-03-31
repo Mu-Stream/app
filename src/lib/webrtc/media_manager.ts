@@ -37,7 +37,8 @@ export class MediaManager extends Notifier<MediaManagerEventsType, MediaManagerE
 		return Ok(null)
 	}
 
-	private _context?: AudioContext
+	private _context: AudioContext = new AudioContext()
+	private _audio = new Audio()
 
 	/// both of those are used when it's you that is streaming the current song
 	private _node?: AudioBufferSourceNode
@@ -49,21 +50,7 @@ export class MediaManager extends Notifier<MediaManagerEventsType, MediaManagerE
 	/// getter to get the current stream playing either if its you that created it or got by a remote
 	get stream() { return this._destination?.stream ?? this._remote?.mediaStream }
 
-	private _stopMediaStreamFromFile() {
-		/// cancel previous media thaht we were streaming if any
-		if (this._node) {
-			this._node.stop()
-			this._destination?.disconnect()
-			this._node = undefined
-			this._destination = undefined
-		}
-	}
-
-	async createMediaStreamFromFile(file: File): Promise<Result<null, Error>> {
-
-		this._stopMediaStreamFromFile()
-
-		this._context ??= new AudioContext()
+	public async prepareLocalStream(file: File): Promise<Result<null, Error>> {
 		const reader = new FileReader()
 		const buffer = new Completer<AudioBuffer>()
 
@@ -81,45 +68,47 @@ export class MediaManager extends Notifier<MediaManagerEventsType, MediaManagerE
 		return Ok(null)
 	}
 
+	public stop() {
+		this._remote?.disconnect()
+		this._node?.stop()
+		this._node?.stop()
+		this._destination?.disconnect()
+		this._node = undefined
+		this._destination = undefined
+	}
 
-	public play(remote_destination?: MediaStream) {
-		this._context ??= new AudioContext()
+	public playRemote(stream: MediaStream) {
+		this.stop()
+		this._remote = this._context.createMediaStreamSource(stream);
+		this._remote.connect(this._context!.destination)
+		this._audio.srcObject = this._remote.mediaStream
+	}
 
-		if (this._remote) {
-			this._remote.disconnect()
-			this._remote = undefined
-		}
+	private _current_time: number = 0;
 
-		// if we play a local media
-		if (!remote_destination && this._node) {
-			console.log('playing a local stream')
-			this._node!.start()
-			let current_time = 0
-			const interval = setInterval(() => {
-				this._notify(
-					{
-						type: 'CURRENTLY_PLAYING',
-						total_time: this._node!.buffer!.duration,
-						current_time: ++current_time,
-					}
-				);
-			}, 1000);
-			this._node.onended = () => clearInterval(interval);
-			this._node.connect
-			return;
-		}
+	private _media_timer: NodeJS.Timeout | undefined = undefined;
 
-		/// if we play a remote media
-		if (remote_destination) {
-			this._stopMediaStreamFromFile()
-			console.log('playing a remote stream')
-			// connect the new stream to the audio context
-			this._remote = this._context.createMediaStreamSource(remote_destination);
-			this._remote.connect(this._context!.destination)
-			// this hack is needed to make audio play as the action is not done by trusted user interaction
-			const hack = new Audio()
-			hack.srcObject = this._remote.mediaStream
-			return
-		}
+	public async playLocal(file: File) {
+		this.stop()
+
+		await this.prepareLocalStream(file);
+		this._node!.start()
+
+		// setup current time interval to synchronize song progress
+		this._current_time = 0
+		this._media_timer = setInterval(() => {
+			this._notify({
+				type: 'CURRENTLY_PLAYING',
+				total_time: this._node!.buffer!.duration,
+				current_time: ++this._current_time,
+			});
+		}, 1000);
+
+		/// clear it once music stops
+		this._node!.onended = () => {
+			if (this._media_timer) clearInterval(this._media_timer);
+		};
+
+		return;
 	}
 }
