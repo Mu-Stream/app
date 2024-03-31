@@ -5,11 +5,10 @@
 		getModalStore,
 		getToastStore,
 	} from "@skeletonlabs/skeleton";
-	import { room } from "$lib/webrtc/room";
+	import { Room } from "$lib/webrtc/room";
 	import clsx from "clsx";
 	import { room_id } from "$lib/stores/room_id";
 	import { outline_style, shape_style } from "$lib/global_styles";
-	import { None, Some } from "bakutils-catcher";
 	const modalStore = getModalStore();
 	const toastStore = getToastStore();
 	let loading: boolean = false;
@@ -31,7 +30,7 @@
 			return;
 		}
 
-		const join_res = await room.join(res.unwrap());
+		const join_res = await Room.instance.join(res.unwrap());
 
 		join_res.match({
 			Ok: (id) => room_id.set(id),
@@ -49,7 +48,7 @@
 	async function host() {
 		loading = true;
 
-		const res = await room.host();
+		const res = await Room.instance.host();
 
 		res.match({
 			Ok: (id) => room_id.set(id),

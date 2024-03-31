@@ -20,7 +20,9 @@ class PayloadTimeout extends NotifierError {
 	}
 }
 
-export type Payloads = Record<string, { type: string }>;
+type Event<K extends string> = Record<K, { type: K }>;
+
+export type Events<K extends string, E extends Event<K>> = E;
 export type Listener<Payload> = (payload: Payload) => Promise<Result<null, ListenerError>>;
 export type Subscription<Payload> = Listener<Payload>;
 
@@ -28,18 +30,18 @@ export type Subscription<Payload> = Listener<Payload>;
  * Notifier class that can be used to notify subscribers of a given event type
  * That emits an payload, all your payloads should contain a type field
  */
-export abstract class Notifier<P extends Payloads> {
-	private _subscribers = new Map<keyof P, Listener<P[keyof P]>[]>();
+export abstract class Notifier<K extends string, E extends Event<K>> {
+	private _subscribers = new Map<K, Listener<E[K]>[]>();
 
 
 	/**
 	 * Subscribe to an event type registering a handler
 	 */
-	public subscribe<T extends keyof P = keyof P>(type: T, listener: Listener<P[T]>): Subscription<P[T]> {
+	public subscribe<T extends K = K>(type: T, listener: Listener<E[T]>): Subscription<E[T]> {
 		const listeners = this._subscribers.get(type) || [];
 		this._subscribers.set(type, [
 			...listeners,
-			listener as Listener<P[keyof P]>
+			listener as Listener<E[K]>
 		]);
 		return listener
 	}
@@ -47,7 +49,7 @@ export abstract class Notifier<P extends Payloads> {
 	/**
 	* Unsubscribe a listener via it's ref 
 	*/
-	public unsubscribe(subscription: Subscription<P[keyof P]>): void {
+	public unsubscribe<T extends K = K>(subscription: Subscription<E[T]>): void {
 		for (const [type, listeners] of this._subscribers) {
 			const index = listeners.findIndex(s => s === subscription)
 			if (index !== -1) {
@@ -60,14 +62,14 @@ export abstract class Notifier<P extends Payloads> {
 	/**
 	* Subscribe one time to an event type as a promise and return the payload
 	*/
-	public async once<T extends keyof P = keyof P>(type: T): Promise<Result<P[T], PayloadTimeout>> {
-		const completer = new Completer<P[T]>();
+	public async once<T extends K = K>(type: T): Promise<Result<E[T], PayloadTimeout>> {
+		const completer = new Completer<E[T]>();
 		const sub = this.subscribe(type, async (payload) => {
 			completer.completeValue(payload);
 			return Ok(null);
 		});
 		await completer.future;
-		this.unsubscribe(sub as Subscription<P[keyof P]>);
+		this.unsubscribe(sub as Subscription<E[K]>);
 		return (await completer.future).okOr(new PayloadTimeout);
 	}
 
@@ -78,23 +80,23 @@ export abstract class Notifier<P extends Payloads> {
 	* Call this method with the recived playload from your source
 	* It will trigger all the registered listeners
     */
-	protected async _notify(payload: P[keyof P]): Promise<Result<null, ListenerError[]>> {
+	protected async _notify(event: E[K]): Promise<Result<null, ListenerError[]>> {
 		const errors: ListenerError[] = []
-		const listeners = this._subscribers.get(payload.type) || []
+		const listeners = this._subscribers.get(event.type) || []
 
 		// c rigolo eheh
 		console.debug(
-			`%c ${this.constructor.name} %c %c ${payload.type} %c subs ${listeners.length}`,
+			`%c ${this.constructor.name} %c %c ${event.type} %c subs ${listeners.length}`,
 			'color:black; background: #bada55; font-weight: bold;',
 			'',
 			'color:black; background: #ffda55; font-weight: bold;',
 			``
 		)
 		for (const listener of listeners) {
-			const res = await listener(payload);
+			const res = await listener(event);
 			if (res.isErr()) {
 				console.error(
-					`%c ${this.constructor.name} %c %c ${payload.type} %c %c ERROR %c ${res.error.message}`,
+					`%c ${this.constructor.name} %c %c ${event.type} %c %c ERROR %c ${res.error.message}`,
 					'color:black; background: #bada55; font-weight: bold;',
 					'',
 					'color:black; background: #ffda55; font-weight: bold;',
@@ -108,17 +110,15 @@ export abstract class Notifier<P extends Payloads> {
 		return errors.length ? Err(errors) : Ok(null)
 	}
 
-	public getSvelteReadable<T extends keyof P = keyof P>(value: P[T]): Readable<P[T]> {
-		return readable(value, (set) => {
-			const sub = this.subscribe(value.type as T, async payload => {
+	public getSvelteReadable(event: E[K]): Readable<E[K]> {
+		return readable(event, (set) => {
+			const sub = this.subscribe(event.type, async payload => {
 				set(payload);
 				return Ok(null);
 			});
-			return () => this.unsubscribe(sub as Subscription<P[keyof P]>)
+			return () => this.unsubscribe(sub as Subscription<E[K]>)
 		});
-
 	}
 
-	public abstract send(payload: P[keyof P]): Result<null, NotifierError>;
+	public abstract send(payload: E[K]): Result<null, NotifierError>;
 }
-

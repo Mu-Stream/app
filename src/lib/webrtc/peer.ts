@@ -2,9 +2,11 @@ import { Completer } from '$lib/completer';
 import { v4 } from 'uuid'
 import SimplePeer from 'simple-peer'
 import { Err, Ok, type Result } from 'bakutils-catcher';
-import { Notifier, NotifierError } from '$lib/i_notifier';
+import { Notifier, NotifierError, type Events } from '$lib/i_notifier';
 
-export type PeerPayloads = {
+export type PeerEventTypes = "INIT_ROOM" | "RENEGOCIATE" | "ADD_STREAM" | "CURRENTLY_PLAYING"
+
+export type PeerEvents = Events<PeerEventTypes, {
 	INIT_ROOM: {
 		type: 'INIT_ROOM';
 		room_id: string;
@@ -22,9 +24,9 @@ export type PeerPayloads = {
 		current_time: number,
 		total_time: number,
 	}
-}
+}>
 
-export class PeerNotifier extends Notifier<PeerPayloads> {
+export class Peer extends Notifier<PeerEventTypes, PeerEvents> {
 	private _id = v4();
 	private _peer: SimplePeer.Instance;
 
@@ -45,7 +47,6 @@ export class PeerNotifier extends Notifier<PeerPayloads> {
 		this._link_done.future.then(done =>
 			done.match({
 				Some: _ => {
-
 					// setup renegociation flow
 					this._peer.on("signal", signal => this.send({
 						type: 'RENEGOCIATE',
@@ -74,7 +75,7 @@ export class PeerNotifier extends Notifier<PeerPayloads> {
 		this._peer.signal(signal);
 	}
 
-	public send(payload: PeerPayloads[keyof PeerPayloads]): Result<null, NotifierError> {
+	public send(payload: PeerEvents[keyof PeerEvents]): Result<null, NotifierError> {
 		try {
 			// handle special ADD_STREAM payload as it's not a text payload 
 			if (payload.type === 'ADD_STREAM') {

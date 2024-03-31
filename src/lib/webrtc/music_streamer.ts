@@ -1,16 +1,24 @@
 import { Completer } from '$lib/completer'
-import { Notifier, NotifierError } from '$lib/i_notifier'
+import { Notifier, NotifierError, type Events } from '$lib/i_notifier'
 import { Err, Ok, type Result } from 'bakutils-catcher'
 
-export type MediaManagerEvents = {
+type MediaManagerEventsType = 'CURRENTLY_PLAYING'
+
+export type MediaManagerEvents = Events<MediaManagerEventsType, {
 	CURRENTLY_PLAYING: {
 		type: 'CURRENTLY_PLAYING',
 		current_time: number,
 		total_time: number,
 	}
-}
+}>
 
-export class MediaManager extends Notifier<MediaManagerEvents> {
+export class MediaManager extends Notifier<MediaManagerEventsType, MediaManagerEvents> {
+
+	private static _instance: MediaManager
+
+	public static get instance() { return this._instance ??= new MediaManager() }
+
+	private constructor() { super() }
 
 	public send(payload: MediaManagerEvents[keyof MediaManagerEvents]): Result<null, NotifierError> {
 		this._notify(payload)

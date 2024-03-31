@@ -2,9 +2,8 @@
 	import { ProgressBar } from "@skeletonlabs/skeleton";
 	import clsx from "clsx";
 	import { formatSeconds } from "$lib/duration_formatter";
-	import { room } from "$lib/webrtc/room";
-	const song_progress = room.song_progress;
-	console.log($song_progress);
+	import { Room } from "$lib/webrtc/room";
+	const song_progress = Room.instance.song_progress;
 </script>
 
 <div>

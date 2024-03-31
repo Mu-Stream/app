@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { room } from "$lib/webrtc/room";
+	import { Room } from "$lib/webrtc/room";
 	import clsx from "clsx";
 	import { showOpenFilePicker } from "file-system-access";
 	import { FileMusicSolid } from "flowbite-svelte-icons";
@@ -8,7 +8,7 @@
 	async function pick_songs() {
 		const test = await showOpenFilePicker();
 		const song = await test[0].getFile();
-		room.playFile(song);
+		Room.instance.playFile(song);
 	}
 </script>
 

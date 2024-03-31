@@ -6,12 +6,12 @@
 	import UserActions from "$lib/components/user_actions.svelte";
 	import { playlist } from "$lib/stores/playlist";
 	import type { Song } from "$lib/webrtc/types/general";
-	import { room } from "$lib/webrtc/room";
+	import { Room } from "$lib/webrtc/room";
 	let current_song: Song | undefined =
 		$playlist !== undefined ? $playlist[0] : undefined;
 	$: current_song = $playlist !== undefined ? $playlist[0] : undefined;
 
-	const song_progress = room.song_progress;
+	const song_progress = Room.instance.song_progress;
 </script>
 
 <div class={clsx("p-2", "space-x-4", "space-y-2")}>

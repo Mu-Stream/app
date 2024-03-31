@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { room } from "$lib/webrtc/room";
+	import { Room } from "$lib/webrtc/room";
 	import { navigation } from "$lib/stores/navigation";
 	import PlayerScreen from "$lib/components/player/screen.svelte";
 	import PlaylistScreen from "$lib/components/playlist/screen.svelte";
@@ -9,7 +9,7 @@
 
 	// FIXME: JUST FOR QUICK TESTING
 	const playImediatly = async () => {
-		room.playFile(files[0]);
+		Room.instance.playFile(files[0]);
 	};
 
 	$: files && playImediatly();
