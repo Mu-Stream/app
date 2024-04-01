@@ -1,9 +1,9 @@
 <script lang="ts">
-	import { Room } from "$lib/webrtc/room";
 	import clsx from "clsx";
 	import { showOpenFilePicker } from "file-system-access";
 	import { FileMusicSolid } from "flowbite-svelte-icons";
 	import { outline_style } from "$lib/global_styles";
+	import { Room } from "$lib/notifier/room";
 
 	async function pick_songs() {
 		const test = await showOpenFilePicker();

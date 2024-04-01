@@ -1,29 +1,11 @@
+import { Completer } from "$lib/completer";
 import { Err, Ok, type Result } from "bakutils-catcher";
-import { Completer } from "./completer";
 import { readable, type Readable } from "svelte/store";
-
-export class ListenerError extends Error {
-	constructor(message?: string) {
-		super(message ?? 'An unexpected error occurred during a listener call');
-	}
-}
-
-export class NotifierError extends Error {
-	constructor(message?: string) {
-		super(message ?? 'An unexpected error occurred in the notifier');
-	}
-}
-
-class PayloadTimeout extends NotifierError {
-	constructor() {
-		super('Timeout reached while waiting for a payload');
-	}
-}
 
 type Event<K extends string> = Record<K, { type: K }>;
 
 export type Events<K extends string, E extends Event<K>> = E;
-export type Listener<Payload> = (payload: Payload) => Promise<Result<null, ListenerError>>;
+export type Listener<Payload> = (payload: Payload) => Promise<Result<null, Error>>;
 export type Subscription<Payload> = Listener<Payload>;
 
 /**
@@ -60,7 +42,6 @@ export abstract class Notifier<K extends string, E extends Event<K>> {
 		for (const [type, listeners] of this._subscribers) {
 			const index = listeners.findIndex(s => s === subscription)
 			if (index !== -1) {
-				console.log(`Unsubscribing from ${type.toString()}`);
 				this._subscribers.set(type, listeners.filter(s => s === listeners[index]));
 			}
 		}
@@ -69,7 +50,7 @@ export abstract class Notifier<K extends string, E extends Event<K>> {
 	/**
 	* Subscribe one time to an event type as a promise and return the payload
 	*/
-	public async once<T extends K = K>(type: T): Promise<Result<E[T], PayloadTimeout>> {
+	public async once<T extends K = K>(type: T): Promise<Result<E[T], Error>> {
 		const completer = new Completer<E[T]>();
 		const sub = this.subscribe(type, async (payload) => {
 			completer.completeValue(payload);
@@ -77,18 +58,16 @@ export abstract class Notifier<K extends string, E extends Event<K>> {
 		});
 		await completer.future;
 		this.unsubscribe(sub as Subscription<E[K]>);
-		return (await completer.future).okOr(new PayloadTimeout);
+		return (await completer.future).okOr(new Error);
 	}
-
-
 
 	/**
     * Handle the notify logic.
 	* Call this method with the recived playload from your source
 	* It will trigger all the registered listeners
     */
-	protected async _notify(event: E[K]): Promise<Result<null, ListenerError[]>> {
-		const errors: ListenerError[] = []
+	protected async _notify(event: E[K]): Promise<Result<null, Error[]>> {
+		const errors: Error[] = []
 		const listeners = this._subscribers.get(event.type) || []
 
 		// c rigolo eheh
@@ -146,13 +125,13 @@ export abstract class Notifier<K extends string, E extends Event<K>> {
 		return new_one as Readable<E[T]>
 	}
 
-	public abstract send(payload: E[K]): Result<null, NotifierError>;
+	public abstract send(payload: E[K]): Result<null, Error>;
 
 	/** use this to bind an external subscribtion with the same type to this notifier who will also notify it */
 	public bind: Listener<E[K]> = async event => {
 		const res = await this._notify(event)
 		if (res.isErr()) {
-			return Err(new NotifierError)
+			return Err(new Error(res.error.map(e => e.message).join('\n')))
 		}
 		return Ok(null)
 	}

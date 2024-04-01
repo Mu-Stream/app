@@ -10,7 +10,6 @@ export class Completer<T> {
 		this.future = new Promise<Option<T>>((resolve, _) => {
 			const tm = timeout.map((ms) =>
 				setTimeout(() => {
-					console.log('timeout complete')
 					resolve(None);
 				}, ms)
 			)

@@ -2,8 +2,7 @@
 	import clsx from "clsx";
 	import StyledCover from "../styled_cover.svelte";
 	import { DotsVerticalOutline } from "flowbite-svelte-icons";
-	import type { Song } from "$lib/webrtc/types/general";
-	export let song: Song;
+	export let song: any;
 </script>
 
 <div class="flex space-x-2 px-2 items-center">

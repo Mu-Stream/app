@@ -5,8 +5,7 @@
 	import SongControls from "./mobile_song_controls.svelte";
 	import UserActions from "$lib/components/user_actions.svelte";
 	import { playlist } from "$lib/stores/playlist";
-	import type { Song } from "$lib/webrtc/types/general";
-	let current_song: Song | undefined =
+	let current_song: any | undefined =
 		$playlist !== undefined ? $playlist[0] : undefined;
 
 	$: current_song = $playlist !== undefined ? $playlist[0] : undefined;
@@ -33,13 +32,7 @@
 		/>
 
 		<div
-			class={clsx(
-				"md:hidden",
-				"flex",
-				"flex-col",
-				"w-full",
-				"relative",
-			)}
+			class={clsx("md:hidden", "flex", "flex-col", "w-full", "relative")}
 		>
 			<div class={clsx("space-y-2")}>
 				<h1 class={clsx("text-3xl", "font-bold")}>

@@ -11,6 +11,7 @@
 	const modal_store = getModalStore();
 
 	let unlocked: boolean = false;
+	let username: string = "";
 	let values: string[] | undefined = ["", "", "", ""];
 	let input_type: "text" | "password" = "password";
 
@@ -18,7 +19,10 @@
 
 	function submit() {
 		if ($modal_store[0].response)
-			$modal_store[0].response(values!.join(""));
+			$modal_store[0].response({
+				room_id: values!.join(""),
+				username,
+			});
 		modal_store.close();
 	}
 
@@ -31,6 +35,11 @@
 			<h1 class={clsx("text-2xl")}>Entrer Votre Code</h1>
 		</header>
 		<section class={clsx("flex", "justify-center", "align-center")}>
+			<input
+				type="text"
+				class={clsx("input", "w-full")}
+				bind:value={username}
+			/>
 			<PinInput.Root
 				bind:value={values}
 				class={clsx(

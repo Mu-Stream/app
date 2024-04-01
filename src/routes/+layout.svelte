@@ -12,10 +12,12 @@
 	import DesktopSongProgress from "$lib/components/player/desktop_song_progress.svelte";
 	import RoomCodeInput from "$lib/components/modals/room_code_input.svelte";
 	import WaitingScreen from "$lib/components/waiting/screen.svelte";
-	import { room_id } from "$lib/stores/room_id";
 	import SidebarRight from "$lib/components/sidebar_right.svelte";
+	import { Room } from "$lib/notifier/room";
 
 	initializeStores();
+
+	const room_id = Room.instance.readable("ROOM_ID");
 
 	const custom_modal_registery: Record<string, ModalComponent> = {
 		room_code_input: { ref: RoomCodeInput },
@@ -25,7 +27,7 @@
 <Modal components={custom_modal_registery} />
 <Toast />
 
-{#if $room_id}
+{#if $room_id.id}
 	<AppShell>
 		<svelte:fragment slot="header">
 			<Header />

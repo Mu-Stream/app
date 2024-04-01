@@ -2,9 +2,9 @@ import { Completer } from '$lib/completer';
 import { v4 } from 'uuid'
 import SimplePeer from 'simple-peer'
 import { Err, Ok, type Result } from 'bakutils-catcher';
-import { Notifier, NotifierError, type Events } from '$lib/i_notifier';
+import { Notifier, type Events } from './i_notifier';
 
-export type PeerEventTypes = "INIT_ROOM" | "RENEGOCIATE" | "ADD_STREAM" | "CURRENTLY_PLAYING"
+export type PeerEventTypes = "INIT_ROOM" | "RENEGOCIATE" | "ADD_STREAM" | "CURRENTLY_PLAYING" | "PAUSE" | "RESUME"
 
 export type PeerEvents = Events<PeerEventTypes, {
 	INIT_ROOM: {
@@ -23,7 +23,10 @@ export type PeerEvents = Events<PeerEventTypes, {
 		type: 'CURRENTLY_PLAYING',
 		current_time: number,
 		total_time: number,
-	}
+		status: 'PLAYING' | 'PAUSED',
+	},
+	PAUSE: { type: 'PAUSE' },
+	RESUME: { type: 'RESUME' },
 }>
 
 export class Peer extends Notifier<PeerEventTypes, PeerEvents> {
@@ -79,7 +82,7 @@ export class Peer extends Notifier<PeerEventTypes, PeerEvents> {
 		this._peer.signal(signal);
 	}
 
-	public send(payload: PeerEvents[keyof PeerEvents]): Result<null, NotifierError> {
+	public send(payload: PeerEvents[keyof PeerEvents]): Result<null, Error> {
 		try {
 			// handle special ADD_STREAM payload as it's not a text payload 
 			if (payload.type === 'ADD_STREAM') {
@@ -89,7 +92,7 @@ export class Peer extends Notifier<PeerEventTypes, PeerEvents> {
 			this._peer!.send(JSON.stringify(payload))
 			return Ok(null)
 		} catch (err) {
-			return Err(new NotifierError((err as Error).message))
+			return Err(err as Error)
 		}
 	}
 }

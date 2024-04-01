@@ -1,9 +1,9 @@
 <script lang="ts">
-	import { Room } from "$lib/webrtc/room";
 	import { navigation } from "$lib/stores/navigation";
 	import PlayerScreen from "$lib/components/player/screen.svelte";
 	import PlaylistScreen from "$lib/components/playlist/screen.svelte";
 	import UsersListScreen from "$lib/components/users/screen.svelte";
+	import { Room } from "$lib/notifier/room";
 
 	let files: FileList;
 

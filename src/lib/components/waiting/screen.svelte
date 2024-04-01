@@ -5,41 +5,52 @@
 		getModalStore,
 		getToastStore,
 	} from "@skeletonlabs/skeleton";
-	import { Room } from "$lib/webrtc/room";
 	import clsx from "clsx";
-	import { room_id } from "$lib/stores/room_id";
 	import { outline_style, shape_style } from "$lib/global_styles";
+	import { CommandManager } from "$lib/commands/command_manager";
+	import { JoinRoomCommand } from "$lib/commands/join";
+	import { HostCommand } from "$lib/commands/host";
+
 	const modalStore = getModalStore();
 	const toastStore = getToastStore();
 	let loading: boolean = false;
 
 	async function join(): Promise<void> {
 		loading = true;
-		const completer = new Completer<string>();
+
+		const completer = new Completer<{
+			room_id: string;
+			username: string;
+		}>();
 
 		modalStore.trigger({
 			type: "component",
 			component: "room_code_input",
-			response: (id?: string) => completer.completeValue(id),
+			response: (infos: { room_id: string; username: string }) =>
+				completer.completeValue(infos),
 		});
 
-		const res = await completer.future;
+		const infos = await completer.future;
 
-		if (res.isNone()) {
+		if (infos.isNone()) {
 			loading = false;
 			return;
 		}
 
-		const join_res = await Room.instance.join(res.unwrap());
+		const command = await CommandManager.instance.execute(
+			new JoinRoomCommand(
+				infos.unwrap().room_id,
+				infos.unwrap().username,
+			),
+		);
 
-		join_res.match({
-			Ok: (id) => room_id.set(id),
-			Err: (err) => {
+		command.match({
+			Err: (e) =>
 				toastStore.trigger({
-					message: err.toString(),
+					message: e.message,
 					background: "variant-filled-error",
-				});
-			},
+				}),
+			Ok: (_) => {},
 		});
 
 		loading = false;
@@ -48,10 +59,12 @@
 	async function host() {
 		loading = true;
 
-		const res = await Room.instance.host();
+		const command = await CommandManager.instance.execute(
+			new HostCommand(),
+		);
 
-		res.match({
-			Ok: (id) => room_id.set(id),
+		command.match({
+			Ok: (_) => {},
 			Err: (err) => {
 				toastStore.trigger({
 					message: err.toString(),
@@ -122,23 +135,9 @@
 					"px-4",
 				)}
 			>
-				<div
-					class={clsx(
-						"h-[1px]",
-						"w-full",
-						"bg-black",
-					)}
-				/>
-				<span class={clsx("px-4", "text-black")}>
-					OU
-				</span>
-				<div
-					class={clsx(
-						"h-[1px]",
-						"w-full",
-						"bg-black",
-					)}
-				/>
+				<div class={clsx("h-[1px]", "w-full", "bg-black")} />
+				<span class={clsx("px-4", "text-black")}> OU </span>
+				<div class={clsx("h-[1px]", "w-full", "bg-black")} />
 			</div>
 			<button
 				type="button"

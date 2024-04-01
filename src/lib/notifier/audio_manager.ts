@@ -1,6 +1,6 @@
 import { Completer } from '$lib/completer'
-import { Notifier, NotifierError, type Events } from '$lib/i_notifier'
 import { Err, Ok, type Result } from 'bakutils-catcher'
+import { Notifier, type Events } from './i_notifier'
 
 type MediaManagerEventsType = 'CURRENTLY_PLAYING'
 
@@ -9,14 +9,15 @@ export type MediaManagerEvents = Events<MediaManagerEventsType, {
 		type: 'CURRENTLY_PLAYING',
 		current_time: number,
 		total_time: number,
-	}
+		status: 'PLAYING' | 'PAUSED'
+	},
 }>
 
-export class MediaManager extends Notifier<MediaManagerEventsType, MediaManagerEvents> {
+export class AudioManager extends Notifier<MediaManagerEventsType, MediaManagerEvents> {
 
-	private static _instance: MediaManager
+	private static _instance: AudioManager
 
-	public static get instance() { return this._instance ??= new MediaManager() }
+	public static get instance() { return this._instance ??= new AudioManager() }
 
 	private constructor() {
 		super(
@@ -26,13 +27,14 @@ export class MediaManager extends Notifier<MediaManagerEventsType, MediaManagerE
 						type: 'CURRENTLY_PLAYING',
 						current_time: 0,
 						total_time: 0,
-					}
+						status: 'PAUSED',
+					},
 				}
 			}
 		)
 	}
 
-	public send(payload: MediaManagerEvents[keyof MediaManagerEvents]): Result<null, NotifierError> {
+	public send(payload: MediaManagerEvents[keyof MediaManagerEvents]): Result<null, Error> {
 		this._notify(payload)
 		return Ok(null)
 	}
@@ -84,6 +86,28 @@ export class MediaManager extends Notifier<MediaManagerEventsType, MediaManagerE
 		this._audio.srcObject = this._remote.mediaStream
 	}
 
+	public async resume() {
+		if (!this._node) return;
+		await this._context.resume()
+		this._notify({
+			type: 'CURRENTLY_PLAYING',
+			total_time: this._node!.buffer!.duration,
+			current_time: this._current_time,
+			status: 'PLAYING'
+		});
+	}
+
+	public async pause() {
+		if (!this._node) return;
+		await this._context.suspend();
+		this._notify({
+			type: 'CURRENTLY_PLAYING',
+			total_time: this._node!.buffer!.duration,
+			current_time: this._current_time,
+			status: 'PAUSED'
+		});
+	}
+
 	private _current_time: number = 0;
 
 	private _media_timer: NodeJS.Timeout | undefined = undefined;
@@ -96,17 +120,19 @@ export class MediaManager extends Notifier<MediaManagerEventsType, MediaManagerE
 
 		// setup current time interval to synchronize song progress
 		this._current_time = 0
-		this._media_timer = setInterval(() => {
-			this._notify({
-				type: 'CURRENTLY_PLAYING',
-				total_time: this._node!.buffer!.duration,
-				current_time: ++this._current_time,
-			});
-		}, 1000);
+		// this._media_timer = setInterval(() => {
+		// 	this._notify({
+		// 		type: 'CURRENTLY_PLAYING',
+		// 		total_time: this._node!.buffer!.duration,
+		// 		current_time: ++this._current_time,
+		// 		status: 'PLAYING'
+		// 	});
+		// }, 1000);
 
 		/// clear it once music stops
 		this._node!.onended = () => {
 			if (this._media_timer) clearInterval(this._media_timer);
+			this._current_time = 0;
 		};
 
 		return;

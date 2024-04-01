@@ -1,8 +1,8 @@
 import { PUBLIC_SIGNALING_SERVER_URL } from "$env/static/public"
 import { Completer } from "$lib/completer"
-import { Notifier, NotifierError, type Events } from "$lib/i_notifier";
 import type SimplePeer from "simple-peer";
 import { None, Ok, Some, type Result } from "bakutils-catcher";
+import { Notifier, type Events } from "./i_notifier";
 
 
 type SignalingEventType =
@@ -57,7 +57,7 @@ export class SignalingServer extends Notifier<SignalingEventType, SignalingEvent
 		this._ws.onmessage = ({ data }) => this._notify(JSON.parse(data))
 	}
 
-	public send(payload: SignalingEvent[keyof SignalingEvent]): Result<null, NotifierError> {
+	public send(payload: SignalingEvent[keyof SignalingEvent]): Result<null, Error> {
 		this._ws!.send(JSON.stringify(payload))
 		return Ok(null)
 	}
