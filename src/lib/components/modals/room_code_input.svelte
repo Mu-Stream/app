@@ -34,7 +34,14 @@
 		<header>
 			<h1 class={clsx("text-2xl")}>Entrer Votre Code</h1>
 		</header>
-		<section class={clsx("flex", "justify-center", "align-center")}>
+		<section
+			class={clsx(
+				"flex",
+				"justify-center",
+				"align-center",
+				"flex-col",
+			)}
+		>
 			<input
 				type="text"
 				class={clsx("input", "w-full")}

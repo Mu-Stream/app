@@ -111,17 +111,13 @@ export abstract class Notifier<K extends string, E extends Event<K>> {
 		}
 
 		const new_one = readable(this._readable_default_values[type], (set) => {
-			const sub = this.subscribe(type, async payload => {
-				set(payload);
-				return Ok(null);
-			});
-			return () => {
-				// when no listener left remove internal subscribition and remove from readable store cache
-				this.unsubscribe(sub as Subscription<E[K]>)
-				this._readable_instances.delete(type);
-			}
+			const sub = this.subscribe(type, async payload => { set(payload); return Ok(null); });
+			// when no listener left remove internal subscribition and remove from readable store cache
+			return () => { this.unsubscribe(sub as Subscription<E[K]>); this._readable_instances.delete(type); }
 		});
+
 		this._readable_instances.set(type, new_one as Readable<E[K]>);
+
 		return new_one as Readable<E[T]>
 	}
 
@@ -130,9 +126,8 @@ export abstract class Notifier<K extends string, E extends Event<K>> {
 	/** use this to bind an external subscribtion with the same type to this notifier who will also notify it */
 	public bind: Listener<E[K]> = async event => {
 		const res = await this.notify(event)
-		if (res.isErr()) {
+		if (res.isErr())
 			return Err(new Error(res.error.map(e => e.message).join('\n')))
-		}
 		return Ok(null)
 	}
 }

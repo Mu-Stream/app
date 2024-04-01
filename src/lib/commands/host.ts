@@ -20,7 +20,6 @@ export class HostCommand extends Command {
 
 		this._signaling_server.subscribe('JOIN_OK', this._registerPeer)
 
-
 		return Ok(null)
 	}
 
@@ -55,6 +54,7 @@ export class HostCommand extends Command {
 			this._peer.subscribe('PAUSE', this._handlePause)
 			this._peer.subscribe('RESUME', this._handleResume)
 			this._peer.subscribe('CURRENTLY_PLAYING', this._handleSongProgressPeer);
+
 			this._peer.subscribe('CURRENTLY_PLAYING', this._room.bind)
 
 			return Ok(null)
