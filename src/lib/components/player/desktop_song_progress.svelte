@@ -5,12 +5,13 @@
 	import { formatSeconds } from "$lib/duration_formatter";
 	import UserActions from "$lib/components/user_actions.svelte";
 	import { playlist } from "$lib/stores/playlist";
-	import { Room } from "$lib/notifier/room";
+	import { App } from "$lib/app";
 	let current_song: any | undefined =
 		$playlist !== undefined ? $playlist[0] : undefined;
 	$: current_song = $playlist !== undefined ? $playlist[0] : undefined;
 
-	const song_progress = Room.instance.readable("CURRENTLY_PLAYING");
+	const song_progress =
+		App.instance.context["room"].readable("CURRENTLY_PLAYING");
 </script>
 
 <div class={clsx("p-2", "space-x-4", "space-y-2")}>

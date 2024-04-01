@@ -1,8 +1,7 @@
 <script lang="ts">
-	import { CommandManager } from "$lib/commands/command_manager";
+	import { App } from "$lib/app";
 	import { PauseCommand } from "$lib/commands/pause";
 	import { ResumeCommand } from "$lib/commands/resume";
-	import { Room } from "$lib/notifier/room";
 	import { getToastStore } from "@skeletonlabs/skeleton";
 	import clsx from "clsx";
 	import {
@@ -14,10 +13,11 @@
 
 	const toastStore = getToastStore();
 
-	const song_progress = Room.instance.readable("CURRENTLY_PLAYING");
+	const song_progress =
+		App.instance.context["room"].readable("CURRENTLY_PLAYING");
 
 	async function pause() {
-		const res = await CommandManager.instance.execute(
+		const res = await App.instance.executeCommand(
 			new PauseCommand(),
 		);
 		res.match({
@@ -27,7 +27,7 @@
 	}
 
 	async function resume() {
-		const res = await CommandManager.instance.execute(
+		const res = await App.instance.executeCommand(
 			new ResumeCommand(),
 		);
 		res.match({

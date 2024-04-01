@@ -13,11 +13,11 @@
 	import RoomCodeInput from "$lib/components/modals/room_code_input.svelte";
 	import WaitingScreen from "$lib/components/waiting/screen.svelte";
 	import SidebarRight from "$lib/components/sidebar_right.svelte";
-	import { Room } from "$lib/notifier/room";
+	import { App } from "$lib/app";
 
 	initializeStores();
 
-	const room_id = Room.instance.readable("ROOM_ID");
+	const room_id = App.instance.context["room"].readable("ROOM_ID");
 
 	const custom_modal_registery: Record<string, ModalComponent> = {
 		room_code_input: { ref: RoomCodeInput },

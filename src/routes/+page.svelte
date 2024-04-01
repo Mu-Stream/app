@@ -3,13 +3,13 @@
 	import PlayerScreen from "$lib/components/player/screen.svelte";
 	import PlaylistScreen from "$lib/components/playlist/screen.svelte";
 	import UsersListScreen from "$lib/components/users/screen.svelte";
-	import { Room } from "$lib/notifier/room";
+	import { App } from "$lib/app";
 
 	let files: FileList;
 
 	// FIXME: JUST FOR QUICK TESTING
 	const playImediatly = async () => {
-		Room.instance.playFile(files[0]);
+		App.instance.context["room"].playFile(files[0]);
 	};
 
 	$: files && playImediatly();

@@ -46,11 +46,7 @@ export class SignalingServer extends Notifier<SignalingEventType, SignalingEvent
 
 	private _ws: WebSocket = new WebSocket(PUBLIC_SIGNALING_SERVER_URL)
 
-	private static _instance: SignalingServer;
-
-	public static get instance() { return SignalingServer._instance ??= new SignalingServer() }
-
-	private constructor() {
+	constructor() {
 		super()
 		this._ws.onopen = () => this._is_opened.complete(Some(true))
 		this._ws.onerror = () => this._is_opened.complete(None)

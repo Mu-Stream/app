@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { Room } from "$lib/notifier/room";
+	import { App } from "$lib/app";
 	import clsx from "clsx";
 
-	const room_id = Room.instance.readable("ROOM_ID");
+	const room_id = App.instance.context["room"].readable("ROOM_ID");
 </script>
 
 <div

@@ -5,9 +5,9 @@
 		FileCopyOutline,
 	} from "flowbite-svelte-icons";
 	import { Toggle } from "bits-ui";
-	import { Room } from "$lib/webrtc/room";
+	import { App } from "$lib/app";
 
-	const room_id = Room.instance.readable("ROOM_ID");
+	const room_id = App.instance.context["room"].readable("ROOM_ID");
 
 	let unlocked = false;
 

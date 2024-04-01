@@ -1,13 +1,9 @@
 import { Completer } from '$lib/completer'
 import { Err, Ok, type Result } from 'bakutils-catcher'
-import { CommandManager } from '$lib/commands/command_manager'
 import { SyncCurrentlyPlaying } from '$lib/commands/send_currently_playing'
+import { App } from '$lib/app'
 
 export class AudioManager {
-
-	private static _instance: AudioManager
-
-	public static get instance() { return this._instance ??= new AudioManager() }
 
 	private _context: AudioContext = new AudioContext()
 	private _audio = new Audio()
@@ -62,7 +58,7 @@ export class AudioManager {
 	public async resume() {
 		if (!this._node) return;
 		await this._context.resume()
-		CommandManager.instance.execute(
+		App.instance.executeCommand(
 			new SyncCurrentlyPlaying({
 				type: 'CURRENTLY_PLAYING',
 				total_time: this._node!.buffer!.duration,
@@ -76,7 +72,7 @@ export class AudioManager {
 		if (!this._node) return;
 
 		await this._context.suspend();
-		CommandManager.instance.execute(
+		App.instance.executeCommand(
 			new SyncCurrentlyPlaying({
 				type: 'CURRENTLY_PLAYING',
 				total_time: this._node!.buffer!.duration,
@@ -88,7 +84,7 @@ export class AudioManager {
 
 	private _setupCurrentlyPlayingPeriodicPing() {
 		this._media_timer = setInterval(() => {
-			CommandManager.instance.execute(
+			App.instance.executeCommand(
 				new SyncCurrentlyPlaying({
 					type: 'CURRENTLY_PLAYING',
 					total_time: this._node!.buffer!.duration,

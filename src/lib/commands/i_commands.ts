@@ -1,7 +1,6 @@
-import { AudioManager } from "$lib/notifier/audio_manager";
-import { Room } from "$lib/notifier/room";
-import { SignalingServer } from "$lib/notifier/signaling";
-import { DefaultCatch, type Result } from "bakutils-catcher";
+import type { Result } from "bakutils-catcher";
+import { type AppContext } from "$lib/app"
+import type { Listener } from "$lib/notifier/i_notifier";
 
 export const prettyError = (e: Error) => console.error(
 	`%c ${e.constructor.name} %c %c ERROR %c ${e.message}`,
@@ -11,15 +10,7 @@ export const prettyError = (e: Error) => console.error(
 )
 
 export abstract class Command {
-	protected _room: Room;
-	protected _audio_manager: AudioManager;
-	protected _signaling_server: SignalingServer;
-
-	constructor() {
-		this._room = Room.instance;
-		this._audio_manager = AudioManager.instance;
-		this._signaling_server = SignalingServer.instance;
-	}
-
-	public abstract execute(): Promise<Result<null, Error>>;
+	public abstract execute(context: AppContext): Promise<Result<null, Error>>;
 }
+
+export type WrappedListener<T, P> = (value: T) => Listener<P>;

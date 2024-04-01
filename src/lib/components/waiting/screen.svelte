@@ -7,9 +7,9 @@
 	} from "@skeletonlabs/skeleton";
 	import clsx from "clsx";
 	import { outline_style, shape_style } from "$lib/global_styles";
-	import { CommandManager } from "$lib/commands/command_manager";
 	import { JoinRoomCommand } from "$lib/commands/join";
 	import { HostCommand } from "$lib/commands/host";
+	import { App } from "$lib/app";
 
 	const modalStore = getModalStore();
 	const toastStore = getToastStore();
@@ -26,8 +26,10 @@
 		modalStore.trigger({
 			type: "component",
 			component: "room_code_input",
-			response: (infos: { room_id: string; username: string }) =>
-				completer.completeValue(infos),
+			response: (infos: {
+				room_id: string;
+				username: string;
+			}) => completer.completeValue(infos),
 		});
 
 		const infos = await completer.future;
@@ -37,7 +39,7 @@
 			return;
 		}
 
-		const command = await CommandManager.instance.execute(
+		const command = await App.instance.executeCommand(
 			new JoinRoomCommand(
 				infos.unwrap().room_id,
 				infos.unwrap().username,
@@ -59,7 +61,7 @@
 	async function host() {
 		loading = true;
 
-		const command = await CommandManager.instance.execute(
+		const command = await App.instance.executeCommand(
 			new HostCommand(),
 		);
 
@@ -135,9 +137,23 @@
 					"px-4",
 				)}
 			>
-				<div class={clsx("h-[1px]", "w-full", "bg-black")} />
-				<span class={clsx("px-4", "text-black")}> OU </span>
-				<div class={clsx("h-[1px]", "w-full", "bg-black")} />
+				<div
+					class={clsx(
+						"h-[1px]",
+						"w-full",
+						"bg-black",
+					)}
+				/>
+				<span class={clsx("px-4", "text-black")}>
+					OU
+				</span>
+				<div
+					class={clsx(
+						"h-[1px]",
+						"w-full",
+						"bg-black",
+					)}
+				/>
 			</div>
 			<button
 				type="button"

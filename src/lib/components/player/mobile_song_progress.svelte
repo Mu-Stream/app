@@ -2,9 +2,10 @@
 	import { ProgressBar } from "@skeletonlabs/skeleton";
 	import clsx from "clsx";
 	import { formatSeconds } from "$lib/duration_formatter";
-	import { Room } from "$lib/notifier/room";
+	import { App } from "$lib/app";
 
-	const song_progress = Room.instance.readable("CURRENTLY_PLAYING");
+	const song_progress =
+		App.instance.context["room"].readable("CURRENTLY_PLAYING");
 </script>
 
 <div>

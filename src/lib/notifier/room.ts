@@ -1,3 +1,4 @@
+import { App } from "$lib/app";
 import { AudioManager } from "./audio_manager";
 import { Notifier, type Events } from "./i_notifier";
 import { Peer, type PeerEventTypes, type PeerEvents } from "./peer";
@@ -35,11 +36,7 @@ export class Room extends Notifier<RoomEventTypes, RoomEvents> {
 
 	public get members_peers() { return this._members_peers }
 
-	private static _instance: Room;
-
-	public static get instance() { return this._instance ??= new Room() }
-
-	private constructor() {
+	constructor() {
 		super({
 			readable_default_values: {
 				ROOM_ID: { type: 'ROOM_ID', id: undefined },
@@ -62,11 +59,11 @@ export class Room extends Notifier<RoomEventTypes, RoomEvents> {
 	}
 
 	public async playFile(file: File) {
-		await AudioManager.instance.playLocal(file);
+		await App.instance.context["audio_manager"].playLocal(file);
 
 		const event: PeerEvents['ADD_STREAM'] = {
 			type: 'ADD_STREAM',
-			stream: AudioManager.instance.stream!
+			stream: App.instance.context["audio_manager"].stream!
 		};
 
 		if (this._client_peer) {

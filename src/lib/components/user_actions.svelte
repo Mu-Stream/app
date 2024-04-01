@@ -3,12 +3,12 @@
 	import { showOpenFilePicker } from "file-system-access";
 	import { FileMusicSolid } from "flowbite-svelte-icons";
 	import { outline_style } from "$lib/global_styles";
-	import { Room } from "$lib/notifier/room";
+	import { App } from "$lib/app";
 
 	async function pick_songs() {
 		const test = await showOpenFilePicker();
 		const song = await test[0].getFile();
-		Room.instance.playFile(song);
+		App.instance.context["room"].playFile(song);
 	}
 </script>
 
