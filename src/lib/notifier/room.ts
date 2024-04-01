@@ -1,16 +1,21 @@
 import { AudioManager } from "./audio_manager";
 import { Notifier, type Events } from "./i_notifier";
 import { Peer, type PeerEventTypes, type PeerEvents } from "./peer";
-import type { Result } from "bakutils-catcher";
+import { Ok, type Result } from "bakutils-catcher";
 
-type RoomEventTypes = 'ROOM_ID';
+type RoomEventTypes = 'ROOM_ID' | "CURRENTLY_PLAYING";
 
 export type RoomEvents = Events<RoomEventTypes, {
 	ROOM_ID: { type: 'ROOM_ID', id: string | undefined },
+	CURRENTLY_PLAYING: {
+		type: 'CURRENTLY_PLAYING',
+		current_time: number,
+		total_time: number,
+		status: 'PLAYING' | 'PAUSED',
+	}
 }>
 
 export class Room extends Notifier<RoomEventTypes, RoomEvents> {
-
 	// FIXME: send should not be in Notifier class, because all notifier does not have a send method
 	public send(_: RoomEvents[RoomEventTypes]): Result<null, Error> {
 		throw new Error("Method not implemented.");
@@ -23,7 +28,7 @@ export class Room extends Notifier<RoomEventTypes, RoomEvents> {
 	public get id() { return this._room_id }
 	public set id(id: string | undefined) {
 		this._room_id = id
-		this._notify({ type: 'ROOM_ID', id })
+		this.notify({ type: 'ROOM_ID', id })
 	}
 
 	public get users() {
@@ -40,10 +45,15 @@ export class Room extends Notifier<RoomEventTypes, RoomEvents> {
 	public static get instance() { return this._instance ??= new Room() }
 
 	private constructor() {
-		super({ readable_default_values: { ROOM_ID: { type: 'ROOM_ID', id: undefined } } })
+		super({
+			readable_default_values: {
+				ROOM_ID: { type: 'ROOM_ID', id: undefined },
+				CURRENTLY_PLAYING: { type: 'CURRENTLY_PLAYING', status: 'PAUSED', total_time: 0, current_time: 0 }
+			}
+		})
 	}
 
-	public broadcast(event: PeerEvents[PeerEventTypes], excluded_ids?: string[]) {
+	public broadcast(event: PeerEvents[PeerEventTypes], { excluded_ids }: { excluded_ids?: string[] } = {}): Result<null, Error> {
 		for (const peer of this._members_peers) {
 			if (!excluded_ids?.includes(peer.id)) {
 				const res = peer.send(event);
@@ -52,7 +62,7 @@ export class Room extends Notifier<RoomEventTypes, RoomEvents> {
 				}
 			}
 		}
-
+		return Ok(null);
 	}
 
 	public async playFile(file: File) {
@@ -70,15 +80,5 @@ export class Room extends Notifier<RoomEventTypes, RoomEvents> {
 			/// we are the 'host', broadcast stream to all clients 
 			this.broadcast(event)
 		}
-	}
-
-	public pause() {
-		this._client_peer?.send({ type: 'PAUSE' });
-		AudioManager.instance.pause();
-	}
-
-	public resume() {
-		this._client_peer?.send({ type: 'RESUME' });
-		AudioManager.instance.resume()
 	}
 }

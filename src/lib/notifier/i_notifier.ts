@@ -66,7 +66,7 @@ export abstract class Notifier<K extends string, E extends Event<K>> {
 	* Call this method with the recived playload from your source
 	* It will trigger all the registered listeners
     */
-	protected async _notify(event: E[K]): Promise<Result<null, Error[]>> {
+	public async notify(event: E[K]): Promise<Result<null, Error[]>> {
 		const errors: Error[] = []
 		const listeners = this._subscribers.get(event.type) || []
 
@@ -129,7 +129,7 @@ export abstract class Notifier<K extends string, E extends Event<K>> {
 
 	/** use this to bind an external subscribtion with the same type to this notifier who will also notify it */
 	public bind: Listener<E[K]> = async event => {
-		const res = await this._notify(event)
+		const res = await this.notify(event)
 		if (res.isErr()) {
 			return Err(new Error(res.error.map(e => e.message).join('\n')))
 		}

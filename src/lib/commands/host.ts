@@ -4,12 +4,9 @@ import { UnableToRetrivePeerSignal } from "../errors";
 import { Peer, type PeerEvents } from "$lib/notifier/peer";
 import type { Listener } from "$lib/notifier/i_notifier";
 import type { SignalingEvent } from "$lib/notifier/signaling";
-import type { MediaManagerEvents } from "$lib/notifier/audio_manager";
 
 export class HostCommand extends Command {
 	private _peer!: Peer
-
-	constructor() { super() }
 
 	@DefaultCatch(prettyError)
 	public async execute(): Promise<Result<null, Error>> {
@@ -23,7 +20,6 @@ export class HostCommand extends Command {
 
 		this._signaling_server.subscribe('JOIN_OK', this._registerPeer)
 
-		this._audio_manager.subscribe('CURRENTLY_PLAYING', this._broadcastSongProgressToParticipant);
 
 		return Ok(null)
 	}
@@ -55,30 +51,39 @@ export class HostCommand extends Command {
 				this._peer.send({ type: 'ADD_STREAM', stream: current_stream })
 			}
 
-			this._peer.subscribe('ADD_STREAM', this._broadcastPeerStream)
-			this._peer.subscribe('CURRENTLY_PLAYING', this._audio_manager.bind)
+			this._peer.subscribe('ADD_STREAM', this._handlePeerStream)
 			this._peer.subscribe('PAUSE', this._handlePause)
 			this._peer.subscribe('RESUME', this._handleResume)
+			this._peer.subscribe('CURRENTLY_PLAYING', this._handleSongProgressPeer);
+			this._peer.subscribe('CURRENTLY_PLAYING', this._room.bind)
 
 			return Ok(null)
 		}
 
 	private _handlePause: Listener<PeerEvents['PAUSE']> =
-		async _ => { this._audio_manager.pause(); return Ok(null) }
-
-	private _handleResume: Listener<PeerEvents['RESUME']> =
-		async _ => { this._audio_manager.resume(); return Ok(null) }
-
-	private _broadcastPeerStream: Listener<PeerEvents['ADD_STREAM']> =
-		async payload => {
-			this._audio_manager.playRemote(payload.stream);
-			this._room.broadcast(payload, [this._peer.id])
+		async event => {
+			this._audio_manager.pause();
+			this._room.broadcast(event)
 			return Ok(null)
 		}
 
-	private _broadcastSongProgressToParticipant: Listener<MediaManagerEvents['CURRENTLY_PLAYING']> =
+	private _handleResume: Listener<PeerEvents['RESUME']> =
+		async event => {
+			this._audio_manager.resume();
+			this._room.broadcast(event)
+			return Ok(null)
+		}
+
+	private _handlePeerStream: Listener<PeerEvents['ADD_STREAM']> =
 		async payload => {
-			this._room.broadcast(payload)
+			this._audio_manager.playRemote(payload.stream);
+			this._room.broadcast(payload, { excluded_ids: [this._peer.id] })
+			return Ok(null)
+		}
+
+	private _handleSongProgressPeer: Listener<PeerEvents['CURRENTLY_PLAYING']> =
+		async payload => {
+			this._room.broadcast(payload, { excluded_ids: [this._peer.id] })
 			return Ok(null)
 		}
 }

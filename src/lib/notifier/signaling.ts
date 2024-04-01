@@ -54,7 +54,7 @@ export class SignalingServer extends Notifier<SignalingEventType, SignalingEvent
 		super()
 		this._ws.onopen = () => this._is_opened.complete(Some(true))
 		this._ws.onerror = () => this._is_opened.complete(None)
-		this._ws.onmessage = ({ data }) => this._notify(JSON.parse(data))
+		this._ws.onmessage = ({ data }) => this.notify(JSON.parse(data))
 	}
 
 	public send(payload: SignalingEvent[keyof SignalingEvent]): Result<null, Error> {

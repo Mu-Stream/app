@@ -1,43 +1,13 @@
 import { Completer } from '$lib/completer'
 import { Err, Ok, type Result } from 'bakutils-catcher'
-import { Notifier, type Events } from './i_notifier'
+import { CommandManager } from '$lib/commands/command_manager'
+import { SyncCurrentlyPlaying } from '$lib/commands/send_currently_playing'
 
-type MediaManagerEventsType = 'CURRENTLY_PLAYING'
-
-export type MediaManagerEvents = Events<MediaManagerEventsType, {
-	CURRENTLY_PLAYING: {
-		type: 'CURRENTLY_PLAYING',
-		current_time: number,
-		total_time: number,
-		status: 'PLAYING' | 'PAUSED'
-	},
-}>
-
-export class AudioManager extends Notifier<MediaManagerEventsType, MediaManagerEvents> {
+export class AudioManager {
 
 	private static _instance: AudioManager
 
 	public static get instance() { return this._instance ??= new AudioManager() }
-
-	private constructor() {
-		super(
-			{
-				readable_default_values: {
-					CURRENTLY_PLAYING: {
-						type: 'CURRENTLY_PLAYING',
-						current_time: 0,
-						total_time: 0,
-						status: 'PAUSED',
-					},
-				}
-			}
-		)
-	}
-
-	public send(payload: MediaManagerEvents[keyof MediaManagerEvents]): Result<null, Error> {
-		this._notify(payload)
-		return Ok(null)
-	}
 
 	private _context: AudioContext = new AudioContext()
 	private _audio = new Audio()
@@ -49,10 +19,13 @@ export class AudioManager extends Notifier<MediaManagerEventsType, MediaManagerE
 	/// this one is used to store the stream recived from host that the host rebroadcast to others
 	private _remote?: MediaStreamAudioSourceNode
 
+	private _current_time = 0;
+	private _media_timer: NodeJS.Timeout | undefined = undefined;
+
 	/// getter to get the current stream playing either if its you that created it or got by a remote
 	get stream() { return this._destination?.stream ?? this._remote?.mediaStream }
 
-	public async prepareLocalStream(file: File): Promise<Result<null, Error>> {
+	public async _prepareLocalStream(file: File): Promise<Result<null, Error>> {
 		const reader = new FileReader()
 		const buffer = new Completer<AudioBuffer>()
 
@@ -89,51 +62,53 @@ export class AudioManager extends Notifier<MediaManagerEventsType, MediaManagerE
 	public async resume() {
 		if (!this._node) return;
 		await this._context.resume()
-		this._notify({
-			type: 'CURRENTLY_PLAYING',
-			total_time: this._node!.buffer!.duration,
-			current_time: this._current_time,
-			status: 'PLAYING'
-		});
+		CommandManager.instance.execute(
+			new SyncCurrentlyPlaying({
+				type: 'CURRENTLY_PLAYING',
+				total_time: this._node!.buffer!.duration,
+				current_time: this._current_time,
+				status: 'PLAYING'
+			}));
+		this._setupCurrentlyPlayingPeriodicPing()
 	}
 
 	public async pause() {
 		if (!this._node) return;
+
 		await this._context.suspend();
-		this._notify({
-			type: 'CURRENTLY_PLAYING',
-			total_time: this._node!.buffer!.duration,
-			current_time: this._current_time,
-			status: 'PAUSED'
-		});
+		CommandManager.instance.execute(
+			new SyncCurrentlyPlaying({
+				type: 'CURRENTLY_PLAYING',
+				total_time: this._node!.buffer!.duration,
+				current_time: this._current_time,
+				status: 'PAUSED'
+			}));
+		clearInterval(this._media_timer)
 	}
 
-	private _current_time: number = 0;
+	private _setupCurrentlyPlayingPeriodicPing() {
+		this._media_timer = setInterval(() => {
+			CommandManager.instance.execute(
+				new SyncCurrentlyPlaying({
+					type: 'CURRENTLY_PLAYING',
+					total_time: this._node!.buffer!.duration,
+					current_time: ++this._current_time,
+					status: 'PLAYING'
+				}))
+		}, 1000);
 
-	private _media_timer: NodeJS.Timeout | undefined = undefined;
+		this._node!.onended = () => {
+			if (this._media_timer) clearInterval(this._media_timer);
+		};
+	}
 
 	public async playLocal(file: File) {
 		this.stop()
 
-		await this.prepareLocalStream(file);
+		await this._prepareLocalStream(file);
 		this._node!.start()
 
-		// setup current time interval to synchronize song progress
-		this._current_time = 0
-		// this._media_timer = setInterval(() => {
-		// 	this._notify({
-		// 		type: 'CURRENTLY_PLAYING',
-		// 		total_time: this._node!.buffer!.duration,
-		// 		current_time: ++this._current_time,
-		// 		status: 'PLAYING'
-		// 	});
-		// }, 1000);
-
-		/// clear it once music stops
-		this._node!.onended = () => {
-			if (this._media_timer) clearInterval(this._media_timer);
-			this._current_time = 0;
-		};
+		this._setupCurrentlyPlayingPeriodicPing()
 
 		return;
 	}

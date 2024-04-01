@@ -5,12 +5,12 @@
 	import { formatSeconds } from "$lib/duration_formatter";
 	import UserActions from "$lib/components/user_actions.svelte";
 	import { playlist } from "$lib/stores/playlist";
-	import { AudioManager } from "$lib/notifier/audio_manager";
+	import { Room } from "$lib/notifier/room";
 	let current_song: any | undefined =
 		$playlist !== undefined ? $playlist[0] : undefined;
 	$: current_song = $playlist !== undefined ? $playlist[0] : undefined;
 
-	const song_progress = AudioManager.instance.readable("CURRENTLY_PLAYING");
+	const song_progress = Room.instance.readable("CURRENTLY_PLAYING");
 </script>
 
 <div class={clsx("p-2", "space-x-4", "space-y-2")}>
@@ -30,7 +30,13 @@
 			</div>
 			<div class={clsx("flex-1")}></div>
 			<div>
-				<h5 class={clsx("txt-xl", "font-bold", "capitalize")}>
+				<h5
+					class={clsx(
+						"txt-xl",
+						"font-bold",
+						"capitalize",
+					)}
+				>
 					{current_song.title}
 				</h5>
 				<h4 class={clsx("capitalize")}>

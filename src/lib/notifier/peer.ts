@@ -65,10 +65,10 @@ export class Peer extends Notifier<PeerEventTypes, PeerEvents> {
 						})
 
 						// start notifying Peer to Peer text payload
-						this._peer.on("data", data => this._notify(JSON.parse(data)))
+						this._peer.on("data", data => this.notify(JSON.parse(data)))
 
 						// handle incoming Peer to Peer stream payload
-						this._peer.on("stream", stream => this._notify({
+						this._peer.on("stream", stream => this.notify({
 							type: 'ADD_STREAM',
 							stream
 						}));

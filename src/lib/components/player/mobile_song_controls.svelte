@@ -1,6 +1,9 @@
 <script lang="ts">
-	import { AudioManager } from "$lib/notifier/audio_manager";
+	import { CommandManager } from "$lib/commands/command_manager";
+	import { PauseCommand } from "$lib/commands/pause";
+	import { ResumeCommand } from "$lib/commands/resume";
 	import { Room } from "$lib/notifier/room";
+	import { getToastStore } from "@skeletonlabs/skeleton";
 	import clsx from "clsx";
 	import {
 		CaretLeftOutline,
@@ -9,7 +12,29 @@
 		PlayOutline,
 	} from "flowbite-svelte-icons";
 
-	const song_progress = AudioManager.instance.readable("CURRENTLY_PLAYING");
+	const toastStore = getToastStore();
+
+	const song_progress = Room.instance.readable("CURRENTLY_PLAYING");
+
+	async function pause() {
+		const res = await CommandManager.instance.execute(
+			new PauseCommand(),
+		);
+		res.match({
+			Ok: () => {},
+			Err: (e) => toastStore.trigger({ message: e.message }),
+		});
+	}
+
+	async function resume() {
+		const res = await CommandManager.instance.execute(
+			new ResumeCommand(),
+		);
+		res.match({
+			Ok: () => {},
+			Err: (e) => toastStore.trigger({ message: e.message }),
+		});
+	}
 </script>
 
 <div class={clsx("flex", "justify-center", "space-x-4")}>
@@ -18,7 +43,7 @@
 	</button>
 	{#if $song_progress.status === "PLAYING"}
 		<button
-			on:click={Room.instance.pause}
+			on:click={pause}
 			type="button"
 			class={clsx(
 				"btn-icon",
@@ -33,7 +58,7 @@
 		</button>
 	{:else}
 		<button
-			on:click={Room.instance.resume}
+			on:click={resume}
 			type="button"
 			class={clsx(
 				"btn-icon",
