@@ -17,7 +17,7 @@
 
 	initializeStores();
 
-	const room_id = App.instance.context["room"].readable("ROOM_ID");
+	const room_id = App.instance.context.room.readable("ROOM_ID");
 
 	const custom_modal_registery: Record<string, ModalComponent> = {
 		room_code_input: { ref: RoomCodeInput },

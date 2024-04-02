@@ -55,6 +55,8 @@
 			Ok: (_) => {},
 		});
 
+		App.instance.context.audio_manager.try_init_audio_context();
+
 		loading = false;
 	}
 
@@ -74,6 +76,8 @@
 				});
 			},
 		});
+
+		App.instance.context.audio_manager.try_init_audio_context();
 
 		loading = false;
 	}

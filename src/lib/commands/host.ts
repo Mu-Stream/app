@@ -11,15 +11,15 @@ export class HostCommand extends Command {
 	@DefaultCatch(prettyError)
 	public async execute(context: AppContext): Promise<Result<null, Error>> {
 
-		(await context["signaling_server"].is_opened).unwrap()
+		(await context.signaling_server.is_opened).unwrap()
 
-		context["signaling_server"].send({ type: 'HOST' })
+		context.signaling_server.send({ type: 'HOST' })
 
-		const event = (await context["signaling_server"].once('HOST_OK')).unwrap()
+		const event = (await context.signaling_server.once('HOST_OK')).unwrap()
 
-		context["room"].id = event.roomId;
+		context.room.id = event.roomId;
 
-		context["signaling_server"].subscribe('JOIN_OK', this._registerPeer(context))
+		context.signaling_server.subscribe('JOIN_OK', this._registerPeer(context))
 
 		return Ok(null)
 	}
@@ -31,7 +31,7 @@ export class HostCommand extends Command {
 
 			const signal = (await this._peer.initial_signal).unwrap()
 
-			context["signaling_server"].send({
+			context.signaling_server.send({
 				type: 'SIGNAL_REQUESTER',
 				signal: signal,
 				uuid: payload.uuid,
@@ -40,11 +40,11 @@ export class HostCommand extends Command {
 
 			if ((await this._peer.link_done).isNone()) return Err(new UnableToRetrivePeerSignal);
 
-			this._peer.send({ type: 'INIT_ROOM', room_id: context["room"].id! })
+			this._peer.send({ type: 'INIT_ROOM', room_id: context.room.id! })
 
-			context["room"].members_peers.push(this._peer)
+			context.room.members_peers.push(this._peer)
 
-			const current_stream = context["audio_manager"].stream
+			const current_stream = context.audio_manager.stream
 
 			// there is a current music playing, send it to the new client
 			if (current_stream) {
@@ -56,35 +56,34 @@ export class HostCommand extends Command {
 			this._peer.subscribe('RESUME', this._handleResume(context))
 			this._peer.subscribe('CURRENTLY_PLAYING', this._handleSongProgressPeer(context));
 
-			this._peer.subscribe('CURRENTLY_PLAYING', context["room"].bind)
-
+			this._peer.proxy('CURRENTLY_PLAYING', context.audio_manager.bind)
 			return Ok(null)
 		}
 
 	private _handlePause: WrappedListener<AppContext, PeerEvents['PAUSE']> =
 		context => async event => {
-			context["audio_manager"].pause();
-			context["room"].broadcast(event)
+			context.audio_manager.pause();
+			context.room.broadcast(event)
 			return Ok(null)
 		}
 
 	private _handleResume: WrappedListener<AppContext, PeerEvents['RESUME']> =
 		context => async event => {
-			context["audio_manager"].resume();
-			context["room"].broadcast(event)
+			context.audio_manager.resume();
+			context.room.broadcast(event)
 			return Ok(null)
 		}
 
 	private _handlePeerStream: WrappedListener<AppContext, PeerEvents['ADD_STREAM']> =
 		context => async payload => {
-			context["audio_manager"].playRemote(payload.stream);
-			context["room"].broadcast(payload, { excluded_ids: [this._peer.id] })
+			context.audio_manager.playRemote(payload.stream);
+			context.room.broadcast(payload, { excluded_ids: [this._peer.id] })
 			return Ok(null)
 		}
 
 	private _handleSongProgressPeer: WrappedListener<AppContext, PeerEvents['CURRENTLY_PLAYING']> =
 		context => async payload => {
-			context["room"].broadcast(payload, { excluded_ids: [this._peer.id] })
+			context.room.broadcast(payload, { excluded_ids: [this._peer.id] })
 			return Ok(null)
 		}
 }

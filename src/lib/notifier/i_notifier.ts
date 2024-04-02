@@ -3,7 +3,6 @@ import { Err, Ok, type Result } from "bakutils-catcher";
 import { readable, type Readable } from "svelte/store";
 
 type Event<K extends string> = Record<K, { type: K }>;
-
 export type Events<K extends string, E extends Event<K>> = E;
 export type Listener<Payload> = (payload: Payload) => Promise<Result<null, Error>>;
 export type Subscription<Payload> = Listener<Payload>;
@@ -66,12 +65,12 @@ export abstract class Notifier<K extends string, E extends Event<K>> {
 	* Call this method with the recived playload from your source
 	* It will trigger all the registered listeners
     */
-	public async notify(event: E[K]): Promise<Result<null, Error[]>> {
+	protected async _notify(event: E[K]): Promise<Result<null, Error[]>> {
 		const errors: Error[] = []
 		const listeners = this._subscribers.get(event.type) || []
 
 		// c rigolo eheh
-		console.debug(
+		console.log(
 			`%c ${this.constructor.name} %c %c ${event.type} %c subs ${listeners.length}`,
 			'color:black; background: #bada55; font-weight: bold;',
 			'',
@@ -123,9 +122,32 @@ export abstract class Notifier<K extends string, E extends Event<K>> {
 
 	/** use this to bind an external subscribtion with the same type to this notifier who will also notify it */
 	public bind: Listener<E[K]> = async event => {
-		const res = await this.notify(event)
+		const res = await this._notify(event)
 		if (res.isErr())
 			return Err(new Error(res.error.map(e => e.message).join('\n')))
 		return Ok(null)
 	}
 }
+
+export abstract class ProxyNotifier<K extends string, E extends Event<K>> extends Notifier<K, E> {
+	private _proxy_events: Map<K, Listener<E[K]>> = new Map
+
+	constructor(props: { readable_default_values?: Partial<Events<K, E>> } = {}) {
+		super(props)
+	}
+
+	/** proxy an event to another notifier  this event will not be emitted by this notifier */
+	public proxy<T extends K>(key: T, listener: Listener<E[T]>): void {
+		this._proxy_events.set(key, listener as Listener<E[K]>);
+	}
+
+	public async notify(event: E[K]): Promise<Result<null, Error[]>> {
+		const proxy = this._proxy_events.get(event.type);
+		if (proxy) { proxy(event); return Ok(null) }
+		return super._notify(event);
+	}
+
+}
+
+// TODO: create a Derived Notifier class that can redirect event to other Notifier without handling them
+// this would permit to prevent infinite loop from Peer and the Class that listen for its event from Peer

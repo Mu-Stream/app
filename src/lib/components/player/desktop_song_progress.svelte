@@ -11,7 +11,9 @@
 	$: current_song = $playlist !== undefined ? $playlist[0] : undefined;
 
 	const song_progress =
-		App.instance.context["room"].readable("CURRENTLY_PLAYING");
+		App.instance.context.audio_manager.readable(
+			"CURRENTLY_PLAYING",
+		);
 </script>
 
 <div class={clsx("p-2", "space-x-4", "space-y-2")}>

@@ -5,7 +5,9 @@
 	import { App } from "$lib/app";
 
 	const song_progress =
-		App.instance.context["room"].readable("CURRENTLY_PLAYING");
+		App.instance.context.audio_manager.readable(
+			"CURRENTLY_PLAYING",
+		);
 </script>
 
 <div>

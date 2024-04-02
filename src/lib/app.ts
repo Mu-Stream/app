@@ -26,3 +26,6 @@ export class App {
 }
 
 export type AppContext = typeof App.instance.context;
+
+
+// TODO: plugin context can be infered from plugin interface with dependecies mangement where context inherit all plugins context + its own

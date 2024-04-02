@@ -8,7 +8,7 @@
 	async function pick_songs() {
 		const test = await showOpenFilePicker();
 		const song = await test[0].getFile();
-		App.instance.context["room"].playFile(song);
+		App.instance.context.room.playFile(song);
 	}
 </script>
 

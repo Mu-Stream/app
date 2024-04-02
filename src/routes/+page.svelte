@@ -9,7 +9,7 @@
 
 	// FIXME: JUST FOR QUICK TESTING
 	const playImediatly = async () => {
-		App.instance.context["room"].playFile(files[0]);
+		App.instance.context.room.playFile(files[0]);
 	};
 
 	$: files && playImediatly();

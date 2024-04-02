@@ -1,19 +1,12 @@
 import { App } from "$lib/app";
-import { AudioManager } from "./audio_manager";
 import { Notifier, type Events } from "./i_notifier";
 import { Peer, type PeerEventTypes, type PeerEvents } from "./peer";
 import { Ok, type Result } from "bakutils-catcher";
 
-type RoomEventTypes = 'ROOM_ID' | "CURRENTLY_PLAYING";
+type RoomEventTypes = 'ROOM_ID'
 
 export type RoomEvents = Events<RoomEventTypes, {
 	ROOM_ID: { type: 'ROOM_ID', id: string | undefined },
-	CURRENTLY_PLAYING: {
-		type: 'CURRENTLY_PLAYING',
-		current_time: number,
-		total_time: number,
-		status: 'PLAYING' | 'PAUSED',
-	}
 }>
 
 export class Room extends Notifier<RoomEventTypes, RoomEvents> {
@@ -40,7 +33,6 @@ export class Room extends Notifier<RoomEventTypes, RoomEvents> {
 		super({
 			readable_default_values: {
 				ROOM_ID: { type: 'ROOM_ID', id: undefined },
-				CURRENTLY_PLAYING: { type: 'CURRENTLY_PLAYING', status: 'PAUSED', total_time: 0, current_time: 0 }
 			}
 		})
 	}
@@ -59,11 +51,11 @@ export class Room extends Notifier<RoomEventTypes, RoomEvents> {
 	}
 
 	public async playFile(file: File) {
-		await App.instance.context["audio_manager"].playLocal(file);
+		await App.instance.context.audio_manager.playLocal(file);
 
 		const event: PeerEvents['ADD_STREAM'] = {
 			type: 'ADD_STREAM',
-			stream: App.instance.context["audio_manager"].stream!
+			stream: App.instance.context.audio_manager.stream!
 		};
 
 		if (this._client_peer) {

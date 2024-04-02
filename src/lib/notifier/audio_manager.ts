@@ -1,11 +1,23 @@
 import { Completer } from '$lib/completer'
 import { Err, Ok, type Result } from 'bakutils-catcher'
-import { SyncCurrentlyPlaying } from '$lib/commands/send_currently_playing'
 import { App } from '$lib/app'
+import { Notifier, type Events } from './i_notifier'
+import { SyncCurrentlyPlaying } from '$lib/commands/sync_currently_playing'
 
-export class AudioManager {
+type AudioManagerEventType = 'CURRENTLY_PLAYING'
 
-	private _context: AudioContext = new AudioContext()
+export type AudioManagerEvent = Events<AudioManagerEventType, {
+	CURRENTLY_PLAYING: {
+		type: 'CURRENTLY_PLAYING',
+		total_time: number,
+		current_time: number,
+		status: 'PLAYING' | 'PAUSED'
+	}
+}>
+
+export class AudioManager extends Notifier<AudioManagerEventType, AudioManagerEvent> {
+
+	private _context!: AudioContext;
 	private _audio = new Audio()
 
 	/// both of those are used when it's you that is streaming the current song
@@ -20,6 +32,23 @@ export class AudioManager {
 
 	/// getter to get the current stream playing either if its you that created it or got by a remote
 	get stream() { return this._destination?.stream ?? this._remote?.mediaStream }
+
+	try_init_audio_context() {
+		this._context ??= new AudioContext()
+	}
+
+	constructor() {
+		super({
+			readable_default_values: {
+				CURRENTLY_PLAYING: {
+					type: 'CURRENTLY_PLAYING',
+					total_time: 0,
+					current_time: 0,
+					status: 'PAUSED'
+				}
+			}
+		})
+	}
 
 	public async _prepareLocalStream(file: File): Promise<Result<null, Error>> {
 		const reader = new FileReader()
@@ -49,6 +78,7 @@ export class AudioManager {
 	}
 
 	public playRemote(stream: MediaStream) {
+		this._current_time = 0
 		this.stop()
 		this._remote = this._context.createMediaStreamSource(stream);
 		this._remote.connect(this._context!.destination)
@@ -58,13 +88,16 @@ export class AudioManager {
 	public async resume() {
 		if (!this._node) return;
 		await this._context.resume()
+		const event: AudioManagerEvent['CURRENTLY_PLAYING'] = {
+			type: 'CURRENTLY_PLAYING',
+			total_time: this._node!.buffer!.duration,
+			current_time: this._current_time,
+			status: 'PLAYING'
+		}
 		App.instance.executeCommand(
-			new SyncCurrentlyPlaying({
-				type: 'CURRENTLY_PLAYING',
-				total_time: this._node!.buffer!.duration,
-				current_time: this._current_time,
-				status: 'PLAYING'
-			}));
+			new SyncCurrentlyPlaying(event)
+		);
+		this.notify(event);
 		this._setupCurrentlyPlayingPeriodicPing()
 	}
 
@@ -72,33 +105,39 @@ export class AudioManager {
 		if (!this._node) return;
 
 		await this._context.suspend();
+		const event: AudioManagerEvent['CURRENTLY_PLAYING'] = {
+			type: 'CURRENTLY_PLAYING',
+			total_time: this._node!.buffer!.duration,
+			current_time: this._current_time,
+			status: 'PAUSED'
+		}
 		App.instance.executeCommand(
-			new SyncCurrentlyPlaying({
-				type: 'CURRENTLY_PLAYING',
-				total_time: this._node!.buffer!.duration,
-				current_time: this._current_time,
-				status: 'PAUSED'
-			}));
+			new SyncCurrentlyPlaying(event)
+		);
+		this.notify(event);
 		clearInterval(this._media_timer)
 	}
 
 	private _setupCurrentlyPlayingPeriodicPing() {
+		clearInterval(this._media_timer);
 		this._media_timer = setInterval(() => {
+			const event: AudioManagerEvent['CURRENTLY_PLAYING'] = {
+				type: 'CURRENTLY_PLAYING',
+				total_time: this._node!.buffer!.duration,
+				current_time: ++this._current_time,
+				status: 'PLAYING'
+			}
+			this.notify(event)
 			App.instance.executeCommand(
-				new SyncCurrentlyPlaying({
-					type: 'CURRENTLY_PLAYING',
-					total_time: this._node!.buffer!.duration,
-					current_time: ++this._current_time,
-					status: 'PLAYING'
-				}))
+				new SyncCurrentlyPlaying(event)
+			)
 		}, 1000);
 
-		this._node!.onended = () => {
-			if (this._media_timer) clearInterval(this._media_timer);
-		};
+		this._node!.onended = () => clearInterval(this._media_timer);
 	}
 
 	public async playLocal(file: File) {
+		this._current_time = 0
 		this.stop()
 
 		await this._prepareLocalStream(file);

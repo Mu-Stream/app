@@ -2,7 +2,7 @@ import { Completer } from '$lib/completer';
 import { v4 } from 'uuid'
 import SimplePeer from 'simple-peer'
 import { Err, Ok, type Result } from 'bakutils-catcher';
-import { Notifier, type Events } from './i_notifier';
+import { ProxyNotifier, type Events } from './i_notifier';
 
 export type PeerEventTypes = "INIT_ROOM" | "RENEGOCIATE" | "ADD_STREAM" | "CURRENTLY_PLAYING" | "PAUSE" | "RESUME"
 
@@ -29,7 +29,7 @@ export type PeerEvents = Events<PeerEventTypes, {
 	RESUME: { type: 'RESUME' },
 }>
 
-export class Peer extends Notifier<PeerEventTypes, PeerEvents> {
+export class Peer extends ProxyNotifier<PeerEventTypes, PeerEvents> {
 	private _id = v4();
 	private _username: string;
 	private _peer: SimplePeer.Instance;

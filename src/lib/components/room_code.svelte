@@ -7,7 +7,7 @@
 	import { Toggle } from "bits-ui";
 	import { App } from "$lib/app";
 
-	const room_id = App.instance.context["room"].readable("ROOM_ID");
+	const room_id = App.instance.context.room.readable("ROOM_ID");
 
 	let unlocked = false;
 
