@@ -3,10 +3,11 @@ import { Notifier, type Events } from "./i_notifier";
 import { Peer, type PeerEventTypes, type PeerEvents } from "./peer";
 import { Ok, type Result } from "bakutils-catcher";
 
-type RoomEventTypes = 'ROOM_ID'
+type RoomEventTypes = 'ROOM_ID' | 'NEW_PEER'
 
 export type RoomEvents = Events<RoomEventTypes, {
 	ROOM_ID: { type: 'ROOM_ID', id: string | undefined },
+	NEW_PEER: { type: 'NEW_PEER', peer: Peer }
 }>
 
 export class Room extends Notifier<RoomEventTypes, RoomEvents> {
@@ -17,7 +18,7 @@ export class Room extends Notifier<RoomEventTypes, RoomEvents> {
 	public get id() { return this._room_id }
 	public set id(id: string | undefined) {
 		this._room_id = id
-		this.notify({ type: 'ROOM_ID', id })
+		this._notify({ type: 'ROOM_ID', id })
 	}
 
 	public get users() {
@@ -28,6 +29,12 @@ export class Room extends Notifier<RoomEventTypes, RoomEvents> {
 	public set client_peer(peer: Peer | undefined) { this._client_peer = peer }
 
 	public get members_peers() { return this._members_peers }
+
+	public addPeer(peer: Peer) {
+		this._members_peers.push(peer)
+		this._notify({ type: 'NEW_PEER', peer })
+
+	}
 
 	constructor() {
 		super({

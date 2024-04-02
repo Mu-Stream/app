@@ -82,7 +82,7 @@ export class Peer extends ProxyNotifier<PeerEventTypes, PeerEvents> {
 		this._peer.signal(signal);
 	}
 
-	public send(payload: PeerEvents[keyof PeerEvents]): Result<null, Error> {
+	public send(payload: PeerEvents[PeerEventTypes]): Result<null, Error> {
 		try {
 			// handle special ADD_STREAM payload as it's not a text payload 
 			if (payload.type === 'ADD_STREAM') {

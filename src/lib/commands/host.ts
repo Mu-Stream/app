@@ -3,13 +3,13 @@ import { Command, prettyError, type WrappedListener } from "./i_commands";
 import { UnableToRetrivePeerSignal } from "../errors";
 import { Peer, type PeerEvents } from "$lib/notifier/peer";
 import type { SignalingEvent } from "$lib/notifier/signaling";
-import type { AppContext } from "$lib/app";
+import type { CoreAppContext } from "$lib/app";
 
 export class HostCommand extends Command {
 	private _peer!: Peer
 
 	@DefaultCatch(prettyError)
-	public async execute(context: AppContext): Promise<Result<null, Error>> {
+	public async execute(context: CoreAppContext): Promise<Result<null, Error>> {
 
 		(await context.signaling_server.is_opened).unwrap()
 
@@ -24,7 +24,7 @@ export class HostCommand extends Command {
 		return Ok(null)
 	}
 
-	private _registerPeer: WrappedListener<AppContext, SignalingEvent['JOIN_OK']> =
+	private _registerPeer: WrappedListener<CoreAppContext, SignalingEvent['JOIN_OK']> =
 		context => async (payload) => {
 			this._peer = new Peer({ initiator: false, username: payload.username })
 			this._peer.signal(payload.signal)
@@ -42,7 +42,6 @@ export class HostCommand extends Command {
 
 			this._peer.send({ type: 'INIT_ROOM', room_id: context.room.id! })
 
-			context.room.members_peers.push(this._peer)
 
 			const current_stream = context.audio_manager.stream
 
@@ -57,31 +56,34 @@ export class HostCommand extends Command {
 			this._peer.subscribe('CURRENTLY_PLAYING', this._handleSongProgressPeer(context));
 
 			this._peer.proxy('CURRENTLY_PLAYING', context.audio_manager.bind)
+
+			context.room.addPeer(this._peer)
+
 			return Ok(null)
 		}
 
-	private _handlePause: WrappedListener<AppContext, PeerEvents['PAUSE']> =
+	private _handlePause: WrappedListener<CoreAppContext, PeerEvents['PAUSE']> =
 		context => async event => {
 			context.audio_manager.pause();
 			context.room.broadcast(event)
 			return Ok(null)
 		}
 
-	private _handleResume: WrappedListener<AppContext, PeerEvents['RESUME']> =
+	private _handleResume: WrappedListener<CoreAppContext, PeerEvents['RESUME']> =
 		context => async event => {
 			context.audio_manager.resume();
 			context.room.broadcast(event)
 			return Ok(null)
 		}
 
-	private _handlePeerStream: WrappedListener<AppContext, PeerEvents['ADD_STREAM']> =
+	private _handlePeerStream: WrappedListener<CoreAppContext, PeerEvents['ADD_STREAM']> =
 		context => async payload => {
 			context.audio_manager.playRemote(payload.stream);
 			context.room.broadcast(payload, { excluded_ids: [this._peer.id] })
 			return Ok(null)
 		}
 
-	private _handleSongProgressPeer: WrappedListener<AppContext, PeerEvents['CURRENTLY_PLAYING']> =
+	private _handleSongProgressPeer: WrappedListener<CoreAppContext, PeerEvents['CURRENTLY_PLAYING']> =
 		context => async payload => {
 			context.room.broadcast(payload, { excluded_ids: [this._peer.id] })
 			return Ok(null)

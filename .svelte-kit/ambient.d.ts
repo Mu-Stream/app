@@ -77,6 +77,7 @@ declare module '$env/static/private' {
 	export const npm_package_version: string;
 	export const STARSHIP_SHELL: string;
 	export const WAYLAND_DISPLAY: string;
+	export const SSL_CERT_DIR: string;
 	export const GIO_EXTRA_MODULES: string;
 	export const XDG_SEAT_PATH: string;
 	export const INIT_CWD: string;
@@ -117,6 +118,7 @@ declare module '$env/static/private' {
 	export const ATUIN_HISTORY_ID: string;
 	export const WEZTERM_CONFIG_FILE: string;
 	export const XDG_RUNTIME_DIR: string;
+	export const SSL_CERT_FILE: string;
 	export const WAYFIRE_PLUGIN_PATH: string;
 	export const NIX_XDG_DESKTOP_PORTAL_DIR: string;
 	export const npm_package_json: string;
@@ -219,6 +221,7 @@ declare module '$env/dynamic/private' {
 		npm_package_version: string;
 		STARSHIP_SHELL: string;
 		WAYLAND_DISPLAY: string;
+		SSL_CERT_DIR: string;
 		GIO_EXTRA_MODULES: string;
 		XDG_SEAT_PATH: string;
 		INIT_CWD: string;
@@ -259,6 +262,7 @@ declare module '$env/dynamic/private' {
 		ATUIN_HISTORY_ID: string;
 		WEZTERM_CONFIG_FILE: string;
 		XDG_RUNTIME_DIR: string;
+		SSL_CERT_FILE: string;
 		WAYFIRE_PLUGIN_PATH: string;
 		NIX_XDG_DESKTOP_PORTAL_DIR: string;
 		npm_package_json: string;
