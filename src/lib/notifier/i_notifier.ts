@@ -141,7 +141,7 @@ export abstract class ProxyNotifier<K extends string, E extends Event<K>> extend
 		this._proxy_events.set(key, listener as Listener<E[K]>);
 	}
 
-	public async notify(event: E[K]): Promise<Result<null, Error[]>> {
+	protected async _notify(event: E[K]): Promise<Result<null, Error[]>> {
 		const proxy = this._proxy_events.get(event.type);
 		if (proxy) { proxy(event); return Ok(null) }
 		return super._notify(event);

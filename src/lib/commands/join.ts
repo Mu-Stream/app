@@ -1,7 +1,7 @@
 import { DefaultCatch, Err, Ok, type Result } from "bakutils-catcher";
 import { Command, prettyError, type WrappedListener } from "./i_commands";
 import { SignalingServerNotReady } from "../errors";
-import { Peer, type PeerEvents } from "$lib/notifier/peer";
+import { Peer, type PeerEvents, type WithPeerIentity } from "$lib/notifier/peer";
 import type { CoreAppContext } from "$lib/app";
 
 export class JoinRoomCommand extends Command {
@@ -42,7 +42,7 @@ export class JoinRoomCommand extends Command {
 		return Ok(null)
 	}
 
-	private _handleStream: WrappedListener<CoreAppContext, PeerEvents['ADD_STREAM']> =
+	private _handleStream: WrappedListener<CoreAppContext, WithPeerIentity<PeerEvents['ADD_STREAM']>> =
 		context => async payload => {
 			/// play the stream
 			context.audio_manager.playRemote(payload.stream)
@@ -51,9 +51,9 @@ export class JoinRoomCommand extends Command {
 			return Ok(null)
 		}
 
-	private _handlePause: WrappedListener<CoreAppContext, PeerEvents['PAUSE']> =
+	private _handlePause: WrappedListener<CoreAppContext, WithPeerIentity<PeerEvents['PAUSE']>> =
 		context => async _ => { context.audio_manager.pause(); return Ok(null) }
 
-	private _handleResume: WrappedListener<CoreAppContext, PeerEvents['RESUME']> =
+	private _handleResume: WrappedListener<CoreAppContext, WithPeerIentity<PeerEvents['RESUME']>> =
 		context => async _ => { context.audio_manager.resume(); return Ok(null) }
 }

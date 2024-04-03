@@ -4,7 +4,7 @@ import type { CoreAppContext } from "$lib/app";
 
 export class PauseCommand extends Command {
 	public async execute(context: CoreAppContext): Promise<Result<null, Error>> {
-		context.room.client_peer?.send({ type: 'PAUSE' })
+		context.room.send({ type: 'PAUSE' })
 		context.room.broadcast({ type: 'PAUSE' })
 		return Ok(null)
 	}

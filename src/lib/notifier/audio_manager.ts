@@ -97,7 +97,7 @@ export class AudioManager extends Notifier<AudioManagerEventType, AudioManagerEv
 		App.instance.executeCommand(
 			new SyncCurrentlyPlaying(event)
 		);
-		this.notify(event);
+		this._notify(event);
 		this._setupCurrentlyPlayingPeriodicPing()
 	}
 
@@ -114,7 +114,7 @@ export class AudioManager extends Notifier<AudioManagerEventType, AudioManagerEv
 		App.instance.executeCommand(
 			new SyncCurrentlyPlaying(event)
 		);
-		this.notify(event);
+		this._notify(event);
 		clearInterval(this._media_timer)
 	}
 
@@ -127,7 +127,7 @@ export class AudioManager extends Notifier<AudioManagerEventType, AudioManagerEv
 				current_time: ++this._current_time,
 				status: 'PLAYING'
 			}
-			this.notify(event)
+			this._notify(event)
 			App.instance.executeCommand(
 				new SyncCurrentlyPlaying(event)
 			)

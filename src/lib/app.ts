@@ -7,7 +7,7 @@ import { PluginManager } from "./plugins/i_plugin";
 import { ReactionPlugin } from "./plugins/reactions/reactions";
 
 export class App {
-	public plugin_manager: PluginManager<CoreAppContext & Record<string, unknown>>
+	public plugin_manager: PluginManager
 
 	private static _instance: App;
 
@@ -32,7 +32,6 @@ export type CoreAppContext = typeof App.instance.context;
 
 
 App.instance.plugin_manager.register(context => new ReactionPlugin(context))
-
 
 App.instance.plugin_manager.init()
 

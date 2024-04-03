@@ -7,11 +7,8 @@ export class SyncCurrentlyPlaying extends Command {
 	constructor(private event: PeerEvents['CURRENTLY_PLAYING']) { super() }
 
 	public async execute(context: CoreAppContext): Promise<Result<null, Error>> {
-		if (context.room.client_peer) {
-			context.room.client_peer!.send(this.event)
-		} else {
-			context.room.broadcast(this.event)
-		}
+		context.room.send(this.event)
+		context.room.broadcast(this.event)
 		return Ok(null)
 	}
 }
