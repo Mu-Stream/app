@@ -1,4 +1,9 @@
-import { c as create_ssr_component, s as setContext, v as validate_component, m as missing_component } from "./ssr.js";
+import {
+  c as create_ssr_component,
+  s as setContext,
+  v as validate_component,
+  m as missing_component,
+} from "./ssr.js";
 let base = "";
 let assets = base;
 const initial = { base, assets };
@@ -15,19 +20,16 @@ function set_assets(path) {
 }
 let public_env = {};
 let safe_public_env = {};
-function set_private_env(environment) {
-}
+function set_private_env(environment) {}
 function set_public_env(environment) {
   public_env = environment;
 }
 function set_safe_public_env(environment) {
   safe_public_env = environment;
 }
-function afterUpdate() {
-}
+function afterUpdate() {}
 let prerendering = false;
-function set_building() {
-}
+function set_building() {}
 function set_prerendering() {
   prerendering = true;
 }
@@ -47,9 +49,17 @@ const Root = create_ssr_component(($$result, $$props, $$bindings, slots) => {
     $$bindings.stores(stores);
   if ($$props.page === void 0 && $$bindings.page && page !== void 0)
     $$bindings.page(page);
-  if ($$props.constructors === void 0 && $$bindings.constructors && constructors !== void 0)
+  if (
+    $$props.constructors === void 0 &&
+    $$bindings.constructors &&
+    constructors !== void 0
+  )
     $$bindings.constructors(constructors);
-  if ($$props.components === void 0 && $$bindings.components && components !== void 0)
+  if (
+    $$props.components === void 0 &&
+    $$bindings.components &&
+    components !== void 0
+  )
     $$bindings.components(components);
   if ($$props.form === void 0 && $$bindings.form && form !== void 0)
     $$bindings.form(form);
@@ -66,52 +76,73 @@ const Root = create_ssr_component(($$result, $$props, $$bindings, slots) => {
     {
       stores.page.set(page);
     }
-    $$rendered = `  ${constructors[1] ? `${validate_component(constructors[0] || missing_component, "svelte:component").$$render(
-      $$result,
-      { data: data_0, this: components[0] },
-      {
-        this: ($$value) => {
-          components[0] = $$value;
-          $$settled = false;
-        }
-      },
-      {
-        default: () => {
-          return `${validate_component(constructors[1] || missing_component, "svelte:component").$$render(
+    $$rendered = `  ${
+      constructors[1]
+        ? `${validate_component(
+            constructors[0] || missing_component,
+            "svelte:component",
+          ).$$render(
             $$result,
-            { data: data_1, form, this: components[1] },
+            { data: data_0, this: components[0] },
             {
               this: ($$value) => {
-                components[1] = $$value;
+                components[0] = $$value;
                 $$settled = false;
-              }
+              },
             },
-            {}
-          )}`;
-        }
-      }
-    )}` : `${validate_component(constructors[0] || missing_component, "svelte:component").$$render(
-      $$result,
-      { data: data_0, form, this: components[0] },
-      {
-        this: ($$value) => {
-          components[0] = $$value;
-          $$settled = false;
-        }
-      },
-      {}
-    )}`} ${``}`;
+            {
+              default: () => {
+                return `${validate_component(
+                  constructors[1] || missing_component,
+                  "svelte:component",
+                ).$$render(
+                  $$result,
+                  { data: data_1, form, this: components[1] },
+                  {
+                    this: ($$value) => {
+                      components[1] = $$value;
+                      $$settled = false;
+                    },
+                  },
+                  {},
+                )}`;
+              },
+            },
+          )}`
+        : `${validate_component(
+            constructors[0] || missing_component,
+            "svelte:component",
+          ).$$render(
+            $$result,
+            { data: data_0, form, this: components[0] },
+            {
+              this: ($$value) => {
+                components[0] = $$value;
+                $$settled = false;
+              },
+            },
+            {},
+          )}`
+    } ${``}`;
   } while (!$$settled);
   return $$rendered;
 });
-function set_read_implementation(fn) {
-}
-function set_manifest(_) {
-}
+function set_read_implementation(fn) {}
+function set_manifest(_) {}
 const options = {
   app_dir: "_app",
   app_template_contains_nonce: false,
-  csp: { "mode": "auto", "directives": { "upgrade-insecure-requests": false, "block-all-mixed-content": false }, "reportOnly": { "upgrade-insecure-requests": false, "block-all-mixed-content": false } },
+  csp: {
+    mode: "auto",
+    directives: {
+      "upgrade-insecure-requests": false,
+      "block-all-mixed-content": false,
+    },
+    reportOnly: {
+      "upgrade-insecure-requests": false,
+      "block-all-mixed-content": false,
+    },
+  },
   csrf_check_origin: true,
   embedded: false,
   env_public_prefix: "PUBLIC_",
@@ -122,8 +153,18 @@ const options = {
   root: Root,
   service_worker: false,
   templates: {
-    app: ({ head, body, assets: assets2, nonce, env }) => '<!doctype html>\n<html lang="en" class="dark">\n	<head>\n		<meta charset="utf-8" />\n		<link rel="icon" href="' + assets2 + '/favicon.png" />\n		<meta name="viewport" content="width=device-width, initial-scale=1" />\n		' + head + '\n	</head>\n	<body data-sveltekit-preload-data="hover">\n		<div style="display: contents">' + body + "</div>\n	</body>\n</html>\n",
-    error: ({ status, message }) => '<!doctype html>\n<html lang="en">\n	<head>\n		<meta charset="utf-8" />\n		<title>' + message + `</title>
+    app: ({ head, body, assets: assets2, nonce, env }) =>
+      '<!doctype html>\n<html lang="en" class="dark">\n	<head>\n		<meta charset="utf-8" />\n		<link rel="icon" href="' +
+      assets2 +
+      '/favicon.png" />\n		<meta name="viewport" content="width=device-width, initial-scale=1" />\n		' +
+      head +
+      '\n	</head>\n	<body data-sveltekit-preload-data="hover">\n		<div style="display: contents">' +
+      body +
+      "</div>\n	</body>\n</html>\n",
+    error: ({ status, message }) =>
+      '<!doctype html>\n<html lang="en">\n	<head>\n		<meta charset="utf-8" />\n		<title>' +
+      message +
+      `</title>
 
 		<style>
 			body {
@@ -192,9 +233,13 @@ const options = {
 	</head>
 	<body>
 		<div class="error">
-			<span class="status">` + status + '</span>\n			<div class="message">\n				<h1>' + message + "</h1>\n			</div>\n		</div>\n	</body>\n</html>\n"
+			<span class="status">` +
+      status +
+      '</span>\n			<div class="message">\n				<h1>' +
+      message +
+      "</h1>\n			</div>\n		</div>\n	</body>\n</html>\n",
   },
-  version_hash: "7h21cg"
+  version_hash: "7h21cg",
 };
 async function get_hooks() {
   return {};
@@ -216,5 +261,5 @@ export {
   override as o,
   public_env as p,
   reset as r,
-  safe_public_env as s
+  safe_public_env as s,
 };

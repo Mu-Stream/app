@@ -4,7 +4,9 @@ import { readable, type Readable } from "svelte/store";
 
 type Event<K extends string> = Record<K, { type: K }>;
 export type Events<K extends string, E extends Event<K>> = E;
-export type Listener<Payload> = (payload: Payload) => Promise<Result<null, Error>>;
+export type Listener<Payload> = (
+  payload: Payload,
+) => Promise<Result<null, Error>>;
 export type Subscription<Payload> = Listener<Payload>;
 
 /**
@@ -12,141 +14,157 @@ export type Subscription<Payload> = Listener<Payload>;
  * That emits an payload, all your payloads should contain a type field
  */
 export abstract class Notifier<K extends string, E extends Event<K>> {
+  private _readable_default_values: Partial<Events<K, E>> = {};
 
-	private _readable_default_values: Partial<Events<K, E>> = {};
+  private _subscribers = new Map<K, Listener<E[K]>[]>();
 
-	private _subscribers = new Map<K, Listener<E[K]>[]>();
+  constructor({
+    readable_default_values,
+  }: { readable_default_values?: Partial<Events<K, E>> } = {}) {
+    this._readable_default_values = readable_default_values ?? {};
+  }
 
-	constructor({ readable_default_values }: { readable_default_values?: Partial<Events<K, E>> } = {}) {
-		this._readable_default_values = readable_default_values ?? {}
-	}
+  /**
+   * Subscribe to an event type registering a handler
+   */
+  public subscribe<T extends K = K>(
+    type: T,
+    listener: Listener<E[T]>,
+  ): Subscription<E[T]> {
+    const listeners = this._subscribers.get(type) || [];
+    this._subscribers.set(type, [...listeners, listener as Listener<E[K]>]);
+    return listener;
+  }
 
+  /**
+   * Unsubscribe a listener via it's ref
+   */
+  public unsubscribe<T extends K = K>(subscription: Subscription<E[T]>): void {
+    for (const [type, listeners] of this._subscribers) {
+      const index = listeners.findIndex((s) => s === subscription);
+      if (index !== -1) {
+        this._subscribers.set(
+          type,
+          listeners.filter((s) => s === listeners[index]),
+        );
+      }
+    }
+  }
 
-	/**
-	 * Subscribe to an event type registering a handler
-	 */
-	public subscribe<T extends K = K>(type: T, listener: Listener<E[T]>): Subscription<E[T]> {
-		const listeners = this._subscribers.get(type) || [];
-		this._subscribers.set(type, [
-			...listeners,
-			listener as Listener<E[K]>
-		]);
-		return listener
-	}
+  /**
+   * Subscribe one time to an event type as a promise and return the payload
+   */
+  public async once<T extends K = K>(type: T): Promise<Result<E[T], Error>> {
+    const completer = new Completer<E[T]>();
+    const sub = this.subscribe(type, async (payload) => {
+      completer.completeValue(payload);
+      return Ok(null);
+    });
+    await completer.future;
+    this.unsubscribe(sub as Subscription<E[K]>);
+    return (await completer.future).okOr(new Error());
+  }
 
-	/**
-	* Unsubscribe a listener via it's ref 
-	*/
-	public unsubscribe<T extends K = K>(subscription: Subscription<E[T]>): void {
-		for (const [type, listeners] of this._subscribers) {
-			const index = listeners.findIndex(s => s === subscription)
-			if (index !== -1) {
-				this._subscribers.set(type, listeners.filter(s => s === listeners[index]));
-			}
-		}
-	}
+  /**
+   * Handle the notify logic.
+   * Call this method with the recived playload from your source
+   * It will trigger all the registered listeners
+   */
+  protected async _notify(event: E[K]): Promise<Result<null, Error[]>> {
+    const errors: Error[] = [];
+    const listeners = this._subscribers.get(event.type) || [];
 
-	/**
-	* Subscribe one time to an event type as a promise and return the payload
-	*/
-	public async once<T extends K = K>(type: T): Promise<Result<E[T], Error>> {
-		const completer = new Completer<E[T]>();
-		const sub = this.subscribe(type, async (payload) => {
-			completer.completeValue(payload);
-			return Ok(null);
-		});
-		await completer.future;
-		this.unsubscribe(sub as Subscription<E[K]>);
-		return (await completer.future).okOr(new Error);
-	}
+    // c rigolo eheh
+    console.log(
+      `%c ${this.constructor.name} %c %c ${event.type} %c subs ${listeners.length}`,
+      "color:black; background: #bada55; font-weight: bold;",
+      "",
+      "color:black; background: #ffda55; font-weight: bold;",
+      ``,
+    );
+    for (const listener of listeners) {
+      const res = await listener(event);
+      if (res.isErr()) {
+        console.error(
+          `%c ${this.constructor.name} %c %c ${event.type} %c %c ERROR %c ${res.error.message}`,
+          "color:black; background: #bada55; font-weight: bold;",
+          "",
+          "color:black; background: #ffda55; font-weight: bold;",
+          "",
+          "color:black; background: red; font-weight: bold;",
+          "",
+        );
+        errors.push(res.error);
+      }
+    }
+    return errors.length ? Err(errors) : Ok(null);
+  }
 
-	/**
-    * Handle the notify logic.
-	* Call this method with the recived playload from your source
-	* It will trigger all the registered listeners
-    */
-	protected async _notify(event: E[K]): Promise<Result<null, Error[]>> {
-		const errors: Error[] = []
-		const listeners = this._subscribers.get(event.type) || []
+  private _readable_instances: Map<K, Readable<E[K]>> = new Map();
 
-		// c rigolo eheh
-		console.log(
-			`%c ${this.constructor.name} %c %c ${event.type} %c subs ${listeners.length}`,
-			'color:black; background: #bada55; font-weight: bold;',
-			'',
-			'color:black; background: #ffda55; font-weight: bold;',
-			``
-		)
-		for (const listener of listeners) {
-			const res = await listener(event);
-			if (res.isErr()) {
-				console.error(
-					`%c ${this.constructor.name} %c %c ${event.type} %c %c ERROR %c ${res.error.message}`,
-					'color:black; background: #bada55; font-weight: bold;',
-					'',
-					'color:black; background: #ffda55; font-weight: bold;',
-					'',
-					'color:black; background: red; font-weight: bold;',
-					'',
-				)
-				errors.push(res.error)
-			};
-		}
-		return errors.length ? Err(errors) : Ok(null)
-	}
+  /**
+   * Return a svelte readable subcribable store for the given event type
+   * if already existing, it will return the existing one
+   */
+  public readable<T extends K>(type: T): Readable<E[T]> {
+    const existing = this._readable_instances.get(type);
+    if (existing) return existing as Readable<E[T]>;
 
-	private _readable_instances: Map<K, Readable<E[K]>> = new Map;
+    if (!this._readable_default_values[type]) {
+      throw new Error(
+        `${type} is not configured as a readable event type in ${this.constructor.name}`,
+      );
+    }
 
-	/**
-	* Return a svelte readable subcribable store for the given event type
-	* if already existing, it will return the existing one
-	*/
-	public readable<T extends K>(type: T): Readable<E[T]> {
-		const existing = this._readable_instances.get(type);
-		if (existing) return existing as Readable<E[T]>;
+    const new_one = readable(this._readable_default_values[type], (set) => {
+      const sub = this.subscribe(type, async (payload) => {
+        set(payload);
+        return Ok(null);
+      });
+      // when no listener left remove internal subscribition and remove from readable store cache
+      return () => {
+        this.unsubscribe(sub as Subscription<E[K]>);
+        this._readable_instances.delete(type);
+      };
+    });
 
-		if (!this._readable_default_values[type]) {
-			throw new Error(`${type} is not configured as a readable event type in ${this.constructor.name}`);
-		}
+    this._readable_instances.set(type, new_one as Readable<E[K]>);
 
-		const new_one = readable(this._readable_default_values[type], (set) => {
-			const sub = this.subscribe(type, async payload => { set(payload); return Ok(null); });
-			// when no listener left remove internal subscribition and remove from readable store cache
-			return () => { this.unsubscribe(sub as Subscription<E[K]>); this._readable_instances.delete(type); }
-		});
+    return new_one as Readable<E[T]>;
+  }
 
-		this._readable_instances.set(type, new_one as Readable<E[K]>);
-
-		return new_one as Readable<E[T]>
-	}
-
-	/** use this to bind an external subscribtion with the same type to this notifier who will also notify it */
-	public bind: Listener<E[K]> = async event => {
-		const res = await this._notify(event)
-		if (res.isErr())
-			return Err(new Error(res.error.map(e => e.message).join('\n')))
-		return Ok(null)
-	}
+  /** use this to bind an external subscribtion with the same type to this notifier who will also notify it */
+  public bind: Listener<E[K]> = async (event) => {
+    const res = await this._notify(event);
+    if (res.isErr())
+      return Err(new Error(res.error.map((e) => e.message).join("\n")));
+    return Ok(null);
+  };
 }
 
-export abstract class ProxyNotifier<K extends string, E extends Event<K>> extends Notifier<K, E> {
-	private _proxy_events: Map<K, Listener<E[K]>> = new Map
+export abstract class ProxyNotifier<
+  K extends string,
+  E extends Event<K>,
+> extends Notifier<K, E> {
+  private _proxy_events: Map<K, Listener<E[K]>> = new Map();
 
-	constructor(props: { readable_default_values?: Partial<Events<K, E>> } = {}) {
-		super(props)
-	}
+  constructor(props: { readable_default_values?: Partial<Events<K, E>> } = {}) {
+    super(props);
+  }
 
-	/** proxy an event to another notifier  this event will not be emitted by this notifier */
-	public proxy<T extends K>(key: T, listener: Listener<E[T]>): void {
-		this._proxy_events.set(key, listener as Listener<E[K]>);
-	}
+  /** proxy an event to another notifier  this event will not be emitted by this notifier */
+  public proxy<T extends K>(key: T, listener: Listener<E[T]>): void {
+    this._proxy_events.set(key, listener as Listener<E[K]>);
+  }
 
-	protected async _notify(event: E[K]): Promise<Result<null, Error[]>> {
-		const proxy = this._proxy_events.get(event.type);
-		if (proxy) { proxy(event); return Ok(null) }
-		return super._notify(event);
-	}
-
+  protected async _notify(event: E[K]): Promise<Result<null, Error[]>> {
+    const proxy = this._proxy_events.get(event.type);
+    if (proxy) {
+      proxy(event);
+      return Ok(null);
+    }
+    return super._notify(event);
+  }
 }
 
 // TODO: create a Derived Notifier class that can redirect event to other Notifier without handling them

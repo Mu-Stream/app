@@ -1,8 +1,14 @@
-import { n as noop, j as safe_not_equal, a as subscribe, r as run_all, k as is_function } from "./ssr.js";
+import {
+  n as noop,
+  j as safe_not_equal,
+  a as subscribe,
+  r as run_all,
+  k as is_function,
+} from "./ssr.js";
 const subscriber_queue = [];
 function readable(value, start) {
   return {
-    subscribe: writable(value, start).subscribe
+    subscribe: writable(value, start).subscribe,
   };
 }
 function writable(value, start = noop) {
@@ -70,8 +76,8 @@ function derived(stores, fn, initial_value) {
         cleanup = is_function(result) ? result : noop;
       }
     };
-    const unsubscribers = stores_array.map(
-      (store, i) => subscribe(
+    const unsubscribers = stores_array.map((store, i) =>
+      subscribe(
         store,
         (value) => {
           values[i] = value;
@@ -82,8 +88,8 @@ function derived(stores, fn, initial_value) {
         },
         () => {
           pending |= 1 << i;
-        }
-      )
+        },
+      ),
     );
     started = true;
     sync();
@@ -94,8 +100,4 @@ function derived(stores, fn, initial_value) {
     };
   });
 }
-export {
-  derived as d,
-  readable as r,
-  writable as w
-};
+export { derived as d, readable as r, writable as w };

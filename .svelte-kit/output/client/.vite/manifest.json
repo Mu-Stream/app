@@ -6,22 +6,14 @@
       ".svelte-kit/generated/client-optimized/nodes/2.js"
     ],
     "file": "_app/immutable/entry/app.9eU6bzmZ.js",
-    "imports": [
-      "_scheduler.2pBl59A6.js",
-      "_index.JfgdDZH5.js"
-    ],
+    "imports": ["_scheduler.2pBl59A6.js", "_index.JfgdDZH5.js"],
     "isEntry": true,
     "src": ".svelte-kit/generated/client-optimized/app.js"
   },
   ".svelte-kit/generated/client-optimized/nodes/0.js": {
-    "css": [
-      "_app/immutable/assets/0.nr5bNpjZ.css"
-    ],
+    "css": ["_app/immutable/assets/0.nr5bNpjZ.css"],
     "file": "_app/immutable/nodes/0.h9oSCYWg.js",
-    "imports": [
-      "_scheduler.2pBl59A6.js",
-      "_index.JfgdDZH5.js"
-    ],
+    "imports": ["_scheduler.2pBl59A6.js", "_index.JfgdDZH5.js"],
     "isDynamicEntry": true,
     "isEntry": true,
     "src": ".svelte-kit/generated/client-optimized/nodes/0.js"
@@ -50,31 +42,22 @@
   },
   "_entry.mUfVn78s.js": {
     "file": "_app/immutable/chunks/entry.mUfVn78s.js",
-    "imports": [
-      "_scheduler.2pBl59A6.js",
-      "_index.VIQqXnB6.js"
-    ]
+    "imports": ["_scheduler.2pBl59A6.js", "_index.VIQqXnB6.js"]
   },
   "_index.JfgdDZH5.js": {
     "file": "_app/immutable/chunks/index.JfgdDZH5.js",
-    "imports": [
-      "_scheduler.2pBl59A6.js"
-    ]
+    "imports": ["_scheduler.2pBl59A6.js"]
   },
   "_index.VIQqXnB6.js": {
     "file": "_app/immutable/chunks/index.VIQqXnB6.js",
-    "imports": [
-      "_scheduler.2pBl59A6.js"
-    ]
+    "imports": ["_scheduler.2pBl59A6.js"]
   },
   "_scheduler.2pBl59A6.js": {
     "file": "_app/immutable/chunks/scheduler.2pBl59A6.js"
   },
   "node_modules/.pnpm/@sveltejs+kit@2.5.0_@sveltejs+vite-plugin-svelte@3.0.2_svelte@4.2.9_vite@5.0.12/node_modules/@sveltejs/kit/src/runtime/client/entry.js": {
     "file": "_app/immutable/entry/start.fegFtN66.js",
-    "imports": [
-      "_entry.mUfVn78s.js"
-    ],
+    "imports": ["_entry.mUfVn78s.js"],
     "isEntry": true,
     "src": "node_modules/.pnpm/@sveltejs+kit@2.5.0_@sveltejs+vite-plugin-svelte@3.0.2_svelte@4.2.9_vite@5.0.12/node_modules/@sveltejs/kit/src/runtime/client/entry.js"
   }
