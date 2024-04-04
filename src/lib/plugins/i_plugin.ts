@@ -69,13 +69,14 @@ export type PluginContext<N extends string, T extends Plugin<N>> = Record<
 export class PluginManager {
   private _plugins: Plugin<string>[] = [];
 
-  private _context: CoreAppContext;
+  private _context: CoreAppContext & { [key: string]: Record<string, unknown> };
 
   constructor(context: CoreAppContext) {
-    this._context = context;
+    this._context = context as CoreAppContext & {
+      [key: string]: Record<string, unknown>;
+    };
     // proxy the NEW_PEER event so plugins can hook it
     // and proxy event used by them
-
     context.room.proxy("NEW_PEER", this._hookNewPeer);
     context.room.proxy("JOINED", this._hookMyPeer);
   }
@@ -97,11 +98,6 @@ export class PluginManager {
 
   private async _registerContexts(): Promise<Result<null, Error>> {
     for (const plugin of this._plugins) {
-      // FIXME: I dont know how to do a clean interface for this
-      // and keeping the context type safe
-      // for know just close your eyes and everything will be fine 😗🎶
-
-      // @ts-ignore
       this._context[plugin.name] = plugin.plugin_context;
     }
     return Ok(null);
