@@ -1,10 +1,10 @@
-import type { Result } from "bakutils-catcher";
-import type { Command } from "$lib/commands/i_commands";
-import { Room } from "$lib/notifier/room";
-import { AudioManager } from "$lib/notifier/audio_manager";
-import { SignalingServer } from "$lib/notifier/signaling";
-import { PluginManager } from "./plugins/i_plugin";
-import { ReactionPlugin } from "./plugins/reactions/reactions";
+import type { Result } from 'bakutils-catcher';
+import type { Command } from '$lib/commands/i_commands';
+import { Room } from '$lib/notifier/room';
+import { AudioManager } from '$lib/notifier/audio_manager';
+import { SignalingServer } from '$lib/notifier/signaling';
+import { PluginManager } from './plugins/i_plugin';
+import { ReactionPlugin } from './plugins/reactions/reactions';
 
 export class App {
   public plugin_manager: PluginManager;
@@ -32,7 +32,7 @@ export class App {
 
 export type CoreAppContext = typeof App.instance.context;
 
-App.instance.plugin_manager.register((context) => new ReactionPlugin(context));
+App.instance.plugin_manager.register(context => new ReactionPlugin(context));
 
 App.instance.plugin_manager.init();
 

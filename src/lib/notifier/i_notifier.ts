@@ -1,12 +1,10 @@
-import { Completer } from "$lib/completer";
-import { Err, Ok, type Result } from "bakutils-catcher";
-import { readable, type Readable } from "svelte/store";
+import { Completer } from '$lib/completer';
+import { Err, Ok, type Result } from 'bakutils-catcher';
+import { readable, type Readable } from 'svelte/store';
 
 type Event<K extends string> = Record<K, { type: K }>;
 export type Events<K extends string, E extends Event<K>> = E;
-export type Listener<Payload> = (
-  payload: Payload,
-) => Promise<Result<null, Error>>;
+export type Listener<Payload> = (payload: Payload) => Promise<Result<null, Error>>;
 export type Subscription<Payload> = Listener<Payload>;
 
 /**
@@ -18,19 +16,14 @@ export abstract class Notifier<K extends string, E extends Event<K>> {
 
   private _subscribers = new Map<K, Listener<E[K]>[]>();
 
-  constructor({
-    readable_default_values,
-  }: { readable_default_values?: Partial<Events<K, E>> } = {}) {
+  constructor({ readable_default_values }: { readable_default_values?: Partial<Events<K, E>> } = {}) {
     this._readable_default_values = readable_default_values ?? {};
   }
 
   /**
    * Subscribe to an event type registering a handler
    */
-  public subscribe<T extends K = K>(
-    type: T,
-    listener: Listener<E[T]>,
-  ): Subscription<E[T]> {
+  public subscribe<T extends K = K>(type: T, listener: Listener<E[T]>): Subscription<E[T]> {
     const listeners = this._subscribers.get(type) || [];
     this._subscribers.set(type, [...listeners, listener as Listener<E[K]>]);
     return listener;
@@ -41,11 +34,11 @@ export abstract class Notifier<K extends string, E extends Event<K>> {
    */
   public unsubscribe<T extends K = K>(subscription: Subscription<E[T]>): void {
     for (const [type, listeners] of this._subscribers) {
-      const index = listeners.findIndex((s) => s === subscription);
+      const index = listeners.findIndex(s => s === subscription);
       if (index !== -1) {
         this._subscribers.set(
           type,
-          listeners.filter((s) => s === listeners[index]),
+          listeners.filter(s => s === listeners[index])
         );
       }
     }
@@ -56,7 +49,7 @@ export abstract class Notifier<K extends string, E extends Event<K>> {
    */
   public async once<T extends K = K>(type: T): Promise<Result<E[T], Error>> {
     const completer = new Completer<E[T]>();
-    const sub = this.subscribe(type, async (payload) => {
+    const sub = this.subscribe(type, async payload => {
       completer.completeValue(payload);
       return Ok(null);
     });
@@ -77,22 +70,22 @@ export abstract class Notifier<K extends string, E extends Event<K>> {
     // c rigolo eheh
     console.log(
       `%c ${this.constructor.name} %c %c ${event.type} %c subs ${listeners.length}`,
-      "color:black; background: #bada55; font-weight: bold;",
-      "",
-      "color:black; background: #ffda55; font-weight: bold;",
-      ``,
+      'color:black; background: #bada55; font-weight: bold;',
+      '',
+      'color:black; background: #ffda55; font-weight: bold;',
+      ``
     );
     for (const listener of listeners) {
       const res = await listener(event);
       if (res.isErr()) {
         console.error(
           `%c ${this.constructor.name} %c %c ${event.type} %c %c ERROR %c ${res.error.message}`,
-          "color:black; background: #bada55; font-weight: bold;",
-          "",
-          "color:black; background: #ffda55; font-weight: bold;",
-          "",
-          "color:black; background: red; font-weight: bold;",
-          "",
+          'color:black; background: #bada55; font-weight: bold;',
+          '',
+          'color:black; background: #ffda55; font-weight: bold;',
+          '',
+          'color:black; background: red; font-weight: bold;',
+          ''
         );
         errors.push(res.error);
       }
@@ -111,13 +104,11 @@ export abstract class Notifier<K extends string, E extends Event<K>> {
     if (existing) return existing as Readable<E[T]>;
 
     if (!this._readable_default_values[type]) {
-      throw new Error(
-        `${type} is not configured as a readable event type in ${this.constructor.name}`,
-      );
+      throw new Error(`${type} is not configured as a readable event type in ${this.constructor.name}`);
     }
 
-    const new_one = readable(this._readable_default_values[type], (set) => {
-      const sub = this.subscribe(type, async (payload) => {
+    const new_one = readable(this._readable_default_values[type], set => {
+      const sub = this.subscribe(type, async payload => {
         set(payload);
         return Ok(null);
       });
@@ -134,18 +125,14 @@ export abstract class Notifier<K extends string, E extends Event<K>> {
   }
 
   /** use this to bind an external subscribtion with the same type to this notifier who will also notify it */
-  public bind: Listener<E[K]> = async (event) => {
+  public bind: Listener<E[K]> = async event => {
     const res = await this._notify(event);
-    if (res.isErr())
-      return Err(new Error(res.error.map((e) => e.message).join("\n")));
+    if (res.isErr()) return Err(new Error(res.error.map(e => e.message).join('\n')));
     return Ok(null);
   };
 }
 
-export abstract class ProxyNotifier<
-  K extends string,
-  E extends Event<K>,
-> extends Notifier<K, E> {
+export abstract class ProxyNotifier<K extends string, E extends Event<K>> extends Notifier<K, E> {
   private _proxy_events: Map<K, Listener<E[K]>> = new Map();
 
   constructor(props: { readable_default_values?: Partial<Events<K, E>> } = {}) {

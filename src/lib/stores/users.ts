@@ -1,5 +1,5 @@
-import type { User } from "$lib/webrtc/types/general";
-import { writable } from "svelte/store";
+import type { User } from '$lib/webrtc/types/general';
+import { writable } from 'svelte/store';
 
 export const users = writable<User[]>([]);
 

@@ -1,16 +1,16 @@
-import { App } from "$lib/app";
-import { ProxyNotifier, type Events } from "./i_notifier";
-import { Peer, type PeerEventTypes, type PeerEvents } from "./peer";
-import { Ok, type Result } from "bakutils-catcher";
+import { App } from '$lib/app';
+import { ProxyNotifier, type Events } from './i_notifier';
+import { Peer, type PeerEventTypes, type PeerEvents } from './peer';
+import { Ok, type Result } from 'bakutils-catcher';
 
-export type RoomEventTypes = "ROOM_ID" | "NEW_PEER" | "JOINED";
+export type RoomEventTypes = 'ROOM_ID' | 'NEW_PEER' | 'JOINED';
 
 export type RoomEvents = Events<
   RoomEventTypes,
   {
-    ROOM_ID: { type: "ROOM_ID"; id: string | undefined };
-    NEW_PEER: { type: "NEW_PEER"; peer: Peer };
-    JOINED: { type: "JOINED"; peer: Peer };
+    ROOM_ID: { type: 'ROOM_ID'; id: string | undefined };
+    NEW_PEER: { type: 'NEW_PEER'; peer: Peer };
+    JOINED: { type: 'JOINED'; peer: Peer };
   }
 >;
 
@@ -24,19 +24,16 @@ export class Room extends ProxyNotifier<RoomEventTypes, RoomEvents> {
   }
   public set id(id: string | undefined) {
     this._room_id = id;
-    this._notify({ type: "ROOM_ID", id });
+    this._notify({ type: 'ROOM_ID', id });
   }
 
   public get users() {
-    return [
-      ...this._members_peers.map((p) => ({ id: p.id, name: p.id })),
-      { id: "host", name: "host" },
-    ];
+    return [...this._members_peers.map(p => ({ id: p.id, name: p.id })), { id: 'host', name: 'host' }];
   }
 
   public set client_peer(peer: Peer | undefined) {
     this._client_peer = peer;
-    this._notify({ type: "JOINED", peer: peer! });
+    this._notify({ type: 'JOINED', peer: peer! });
   }
 
   public get members_peers() {
@@ -45,37 +42,33 @@ export class Room extends ProxyNotifier<RoomEventTypes, RoomEvents> {
 
   public addPeer(peer: Peer) {
     this._members_peers.push(peer);
-    this._notify({ type: "NEW_PEER", peer });
+    this._notify({ type: 'NEW_PEER', peer });
   }
 
   constructor() {
     super({
       readable_default_values: {
-        ROOM_ID: { type: "ROOM_ID", id: undefined },
+        ROOM_ID: { type: 'ROOM_ID', id: undefined },
       },
     });
   }
 
   /** send a payload has a client to the host */
-  public send<T extends string, E extends { key: T }>(
-    event: PeerEvents[PeerEventTypes] | E,
-  ): Result<null, Error> {
+  public send<T extends string, E extends { key: T }>(event: PeerEvents[PeerEventTypes] | E): Result<null, Error> {
     this._client_peer?.send(event as PeerEvents[PeerEventTypes]);
     return Ok(null);
   }
 
   public broadcast<T extends string, E extends { key: T }>(
     event: PeerEvents[PeerEventTypes] | E,
-    { excluded_ids }: { excluded_ids?: string[] } = {},
+    { excluded_ids }: { excluded_ids?: string[] } = {}
   ): Result<null, Error> {
     for (const peer of this._members_peers) {
       if (!excluded_ids?.includes(peer.id)) {
         const res = peer.send(event as PeerEvents[PeerEventTypes]);
         // failing means disconnect (for now)
         if (res.isErr()) {
-          this._members_peers = this._members_peers.filter(
-            (p) => p.id !== peer.id,
-          );
+          this._members_peers = this._members_peers.filter(p => p.id !== peer.id);
         }
       }
     }
@@ -85,8 +78,8 @@ export class Room extends ProxyNotifier<RoomEventTypes, RoomEvents> {
   public async playFile(file: File) {
     await App.instance.context.audio_manager.playLocal(file);
 
-    const event: PeerEvents["ADD_STREAM"] = {
-      type: "ADD_STREAM",
+    const event: PeerEvents['ADD_STREAM'] = {
+      type: 'ADD_STREAM',
       stream: App.instance.context.audio_manager.stream!,
     };
 

@@ -1,27 +1,24 @@
-import { Completer } from "$lib/completer";
-import { Err, Ok, type Result } from "bakutils-catcher";
-import { App } from "$lib/app";
-import { Notifier, type Events } from "./i_notifier";
-import { SyncCurrentlyPlaying } from "$lib/commands/sync_currently_playing";
+import { Completer } from '$lib/completer';
+import { Err, Ok, type Result } from 'bakutils-catcher';
+import { App } from '$lib/app';
+import { Notifier, type Events } from './i_notifier';
+import { SyncCurrentlyPlaying } from '$lib/commands/sync_currently_playing';
 
-type AudioManagerEventType = "CURRENTLY_PLAYING";
+type AudioManagerEventType = 'CURRENTLY_PLAYING';
 
 export type AudioManagerEvent = Events<
   AudioManagerEventType,
   {
     CURRENTLY_PLAYING: {
-      type: "CURRENTLY_PLAYING";
+      type: 'CURRENTLY_PLAYING';
       total_time: number;
       current_time: number;
-      status: "PLAYING" | "PAUSED";
+      status: 'PLAYING' | 'PAUSED';
     };
   }
 >;
 
-export class AudioManager extends Notifier<
-  AudioManagerEventType,
-  AudioManagerEvent
-> {
+export class AudioManager extends Notifier<AudioManagerEventType, AudioManagerEvent> {
   private _context!: AudioContext;
   private _audio = new Audio();
 
@@ -48,10 +45,10 @@ export class AudioManager extends Notifier<
     super({
       readable_default_values: {
         CURRENTLY_PLAYING: {
-          type: "CURRENTLY_PLAYING",
+          type: 'CURRENTLY_PLAYING',
           total_time: 0,
           current_time: 0,
-          status: "PAUSED",
+          status: 'PAUSED',
         },
       },
     });
@@ -61,16 +58,13 @@ export class AudioManager extends Notifier<
     const reader = new FileReader();
     const buffer = new Completer<AudioBuffer>();
 
-    reader.onload = (event) =>
-      this._context?.decodeAudioData(event.target?.result as ArrayBuffer, (b) =>
-        buffer.completeValue(b),
-      );
+    reader.onload = event =>
+      this._context?.decodeAudioData(event.target?.result as ArrayBuffer, b => buffer.completeValue(b));
 
     reader.readAsArrayBuffer(file);
     this._node = this._context.createBufferSource();
     const buf = await buffer.future;
-    if (buf.isNone())
-      return Err(Error("unable to create audio buffer from file"));
+    if (buf.isNone()) return Err(Error('unable to create audio buffer from file'));
     this._node.buffer = buf.unwrap();
     this._destination = this._context.createMediaStreamDestination();
     this._node.connect(this._context.destination);
@@ -98,11 +92,11 @@ export class AudioManager extends Notifier<
   public async resume() {
     if (!this._node) return;
     await this._context.resume();
-    const event: AudioManagerEvent["CURRENTLY_PLAYING"] = {
-      type: "CURRENTLY_PLAYING",
+    const event: AudioManagerEvent['CURRENTLY_PLAYING'] = {
+      type: 'CURRENTLY_PLAYING',
       total_time: this._node!.buffer!.duration,
       current_time: this._current_time,
-      status: "PLAYING",
+      status: 'PLAYING',
     };
     App.instance.executeCommand(new SyncCurrentlyPlaying(event));
     this._notify(event);
@@ -113,11 +107,11 @@ export class AudioManager extends Notifier<
     if (!this._node) return;
 
     await this._context.suspend();
-    const event: AudioManagerEvent["CURRENTLY_PLAYING"] = {
-      type: "CURRENTLY_PLAYING",
+    const event: AudioManagerEvent['CURRENTLY_PLAYING'] = {
+      type: 'CURRENTLY_PLAYING',
       total_time: this._node!.buffer!.duration,
       current_time: this._current_time,
-      status: "PAUSED",
+      status: 'PAUSED',
     };
     App.instance.executeCommand(new SyncCurrentlyPlaying(event));
     this._notify(event);
@@ -127,11 +121,11 @@ export class AudioManager extends Notifier<
   private _setupCurrentlyPlayingPeriodicPing() {
     clearInterval(this._media_timer);
     this._media_timer = setInterval(() => {
-      const event: AudioManagerEvent["CURRENTLY_PLAYING"] = {
-        type: "CURRENTLY_PLAYING",
+      const event: AudioManagerEvent['CURRENTLY_PLAYING'] = {
+        type: 'CURRENTLY_PLAYING',
         total_time: this._node!.buffer!.duration,
         current_time: ++this._current_time,
-        status: "PLAYING",
+        status: 'PLAYING',
       };
       this._notify(event);
       App.instance.executeCommand(new SyncCurrentlyPlaying(event));
