@@ -1,11 +1,12 @@
 import { DefaultCatch, Err, Ok, type Result } from 'bakutils-catcher';
-import { Command, prettyError, type WrappedListener } from './i_commands';
+import { Command, type WrappedListener } from './i_commands';
 import { UnableToRetrivePeerSignal } from '../errors';
 import { Peer, type PeerEvents } from '$lib/notifier/peer';
 import type { SignalingEvent } from '$lib/notifier/signaling';
 import type { CoreAppContext } from '$lib/app';
+import { prettyError } from '$lib/logging_utils';
 
-export class HostCommand extends Command {
+export class HostCommand extends Command<CoreAppContext> {
   private _peer!: Peer;
 
   @DefaultCatch(prettyError)
@@ -60,6 +61,7 @@ export class HostCommand extends Command {
   };
 
   private _handlePause: WrappedListener<CoreAppContext, PeerEvents['PAUSE']> = context => async event => {
+    console.log('PAUSE');
     context.audio_manager.pause();
     context.room.broadcast(event);
     return Ok(null);

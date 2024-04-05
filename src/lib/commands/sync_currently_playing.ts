@@ -3,7 +3,7 @@ import { Command } from './i_commands';
 import type { PeerEvents } from '$lib/notifier/peer';
 import type { CoreAppContext } from '$lib/app';
 
-export class SyncCurrentlyPlaying extends Command {
+export class SyncCurrentlyPlaying extends Command<CoreAppContext> {
   constructor(private event: PeerEvents['CURRENTLY_PLAYING']) {
     super();
   }

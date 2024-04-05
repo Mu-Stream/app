@@ -1,10 +1,11 @@
 import { DefaultCatch, Err, Ok, type Result } from 'bakutils-catcher';
-import { Command, prettyError, type WrappedListener } from './i_commands';
+import { Command, type WrappedListener } from './i_commands';
 import { SignalingServerNotReady } from '../errors';
 import { Peer, type PeerEvents, type WithPeerIentity } from '$lib/notifier/peer';
 import type { CoreAppContext } from '$lib/app';
+import { prettyError } from '$lib/logging_utils';
 
-export class JoinRoomCommand extends Command {
+export class JoinRoomCommand extends Command<CoreAppContext> {
   private _peer!: Peer;
 
   constructor(

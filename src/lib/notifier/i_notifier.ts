@@ -1,4 +1,5 @@
 import { Completer } from '$lib/completer';
+import { Stylize, blueLabel, greenLabel, orangeLabel, redLabel } from '$lib/logging_utils';
 import { Err, Ok, type Result } from 'bakutils-catcher';
 import { readable, type Readable } from 'svelte/store';
 
@@ -58,6 +59,39 @@ export abstract class Notifier<K extends string, E extends Event<K>> {
     return (await completer.future).okOr(new Error());
   }
 
+  private logEvent(event: E[K], msg: string) {
+    const stlyed = new Stylize()
+      .style(greenLabel)
+      .apply('NOTIFIER', { padding: 2 })
+      .space()
+      .style(orangeLabel)
+      .apply(this.constructor.name, { padding: 2 })
+      .space()
+      .style(blueLabel)
+      .apply(event.type, { padding: 2 })
+      .apply(msg)
+      .build();
+    console.info(...stlyed);
+  }
+
+  private logError(event: E[K], error: Error) {
+    const stlyed = new Stylize()
+      .style(greenLabel)
+      .apply('NOTIFIER', { padding: 2 })
+      .space()
+      .style(orangeLabel)
+      .apply(this.constructor.name, { padding: 2 })
+      .space()
+      .style(blueLabel)
+      .apply(event.type, { padding: 2 })
+      .space()
+      .style(redLabel)
+      .apply('ERROR', { padding: 2 })
+      .apply(error.message)
+      .build();
+    console.error(...stlyed);
+  }
+
   /**
    * Handle the notify logic.
    * Call this method with the recived playload from your source
@@ -67,26 +101,11 @@ export abstract class Notifier<K extends string, E extends Event<K>> {
     const errors: Error[] = [];
     const listeners = this._subscribers.get(event.type) || [];
 
-    // c rigolo eheh
-    console.log(
-      `%c ${this.constructor.name} %c %c ${event.type} %c subs ${listeners.length}`,
-      'color:black; background: #bada55; font-weight: bold;',
-      '',
-      'color:black; background: #ffda55; font-weight: bold;',
-      ``
-    );
+    this.logEvent(event, `subscribers: ${listeners.length}`);
     for (const listener of listeners) {
       const res = await listener(event);
       if (res.isErr()) {
-        console.error(
-          `%c ${this.constructor.name} %c %c ${event.type} %c %c ERROR %c ${res.error.message}`,
-          'color:black; background: #bada55; font-weight: bold;',
-          '',
-          'color:black; background: #ffda55; font-weight: bold;',
-          '',
-          'color:black; background: red; font-weight: bold;',
-          ''
-        );
+        this.logError(event, res.error);
         errors.push(res.error);
       }
     }

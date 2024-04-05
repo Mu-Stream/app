@@ -1,5 +1,5 @@
 import type { CoreAppContext } from '$lib/app';
-import { prettyError } from '$lib/commands/i_commands';
+import { Stylize, blueLabel, greenLabel, orangeLabel, prettyError } from '$lib/logging_utils';
 import type { Listener } from '$lib/notifier/i_notifier';
 import type { RoomEvents } from '$lib/notifier/room';
 import { DefaultCatch, Err, Ok, type Result } from 'bakutils-catcher';
@@ -71,17 +71,25 @@ export class PluginManager {
     context.room.proxy('JOINED', this._hookMyPeer);
   }
 
+  private pluginLog: (plugin: Plugin<string>, msg: string) => void = (plugin, msg) => {
+    const styled = new Stylize()
+      .style(greenLabel)
+      .apply('PLUGIN MANAGER', { padding: 2 })
+      .space()
+      .style(orangeLabel)
+      .apply(plugin.name, { padding: 2 })
+      .space()
+      .style(blueLabel)
+      .apply(`V${plugin.version}`, { padding: 2 })
+      .apply(msg, { padding: { left: 1 } })
+      .build();
+    console.info(...styled);
+  };
+
   public async register<N extends string>(cb: (context: CoreAppContext) => Plugin<N>) {
     const plugin = cb(this._context);
     this._plugins.push(plugin);
-    console.log(
-      `%c PLUGIN MANAGER %c %c ${plugin.name} %c %c V${plugin.version} %c registered`,
-      'color:black; background: lightgreen; font-weight: bold;',
-      '',
-      'color:black; background: orange; font-weight: bold;',
-      '',
-      'color:black; background: cadetblue ; font-weight: bold;'
-    );
+    this.pluginLog(plugin, 'registered');
   }
 
   private async _registerContexts(): Promise<Result<null, Error>> {
@@ -115,7 +123,6 @@ export class PluginManager {
   public async init() {
     (await this._registerContexts()).unwrap();
     for (const plugin of this._plugins) {
-      console.log(`init plugin ${plugin.name} v${plugin.version}`);
       (await plugin.init()).unwrap();
     }
   }

@@ -6,6 +6,8 @@ import { SignalingServer } from '$lib/notifier/signaling';
 import { PluginManager } from './plugins/i_plugin';
 import { ReactionPlugin } from './plugins/reactions/reactions';
 
+export type CoreAppContext = typeof App.instance.context;
+
 export class App {
   public plugin_manager: PluginManager;
 
@@ -25,15 +27,11 @@ export class App {
     this.plugin_manager = new PluginManager(this.context);
   }
 
-  public async executeCommand(command: Command): Promise<Result<null, Error>> {
-    return command.execute(this.context);
+  public async executeCommand<T extends CoreAppContext>(command: Command<T>): Promise<Result<null, Error>> {
+    return command.execute(this.context as T);
   }
 }
-
-export type CoreAppContext = typeof App.instance.context;
 
 App.instance.plugin_manager.register(context => new ReactionPlugin(context));
 
 App.instance.plugin_manager.init();
-
-console.log(App.instance.context);
