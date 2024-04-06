@@ -14,16 +14,16 @@
   border=""
   class="bg-tertiary-500 w-full"
 >
-  <Tab bind:group={$navigation} value="PLAYER" name="player" flex="items-center justify-center">
+  <Tab bind:group={$navigation} value={'PLAYER'} name="player" flex="items-center justify-center">
     <PlaySolid {size} />
   </Tab>
-  <Tab bind:group={$navigation} value="PLAYLIST" name="playlist" flex="items-center justify-center">
+  <Tab bind:group={$navigation} value={'PLAYLIST'} name="playlist" flex="items-center justify-center">
     <ListMusicSolid {size} />
   </Tab>
-  <Tab bind:group={$navigation} value="PARTICIPANTS" name="participants" flex="items-center justify-center">
+  <Tab bind:group={$navigation} value={'PARTICIPANTS'} name="participants" flex="items-center justify-center">
     <UsersGroupSolid {size} />
   </Tab>
-  <Tab bind:group={$navigation} value="SETTINGS" name="settings" flex="items-center justify-center">
+  <Tab bind:group={$navigation} value={'SETTINGS'} name="settings" flex="items-center justify-center">
     <CogSolid {size} />
   </Tab>
 </TabGroup>
