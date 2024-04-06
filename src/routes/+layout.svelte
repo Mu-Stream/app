@@ -9,6 +9,8 @@
   import SidebarRight from '$lib/components/sidebar_right.svelte';
   import { App } from '$lib/app';
   import { is_mobile } from '$lib/stores/is_mobile';
+  import clsx from 'clsx';
+  import { onMount } from 'svelte';
 
   initializeStores();
 
@@ -17,31 +19,32 @@
   const custom_modal_registery: Record<string, ModalComponent> = {
     room_code_input: { ref: RoomCodeInput },
   };
+
+  onMount(App.instance.plugin_manager.registerAppUI);
 </script>
 
 <Modal components={custom_modal_registery} />
 <Toast />
 
-{#if $room_id.id}
-  <AppShell>
-    <svelte:fragment slot="header">
-      <Header />
-    </svelte:fragment>
-
-    <slot />
-
-    <svelte:fragment slot="pageFooter">
-      {#if $is_mobile}
-        <MobileNavbar />
-      {:else}
-        <DesktopSongProgress />
-      {/if}
-    </svelte:fragment>
-
-    <svelte:fragment slot="sidebarRight">
-      <SidebarRight />
-    </svelte:fragment>
-  </AppShell>
-{:else}
-  <WaitingScreen />
-{/if}
+<div bind:this={App.instance.plugin_manager.app_ref} class={clsx('w-full', 'h-full', 'overflow-hidden')}>
+  {#if $room_id.id}
+    <AppShell>
+      <svelte:fragment slot="header">
+        <Header />
+      </svelte:fragment>
+      <slot />
+      <svelte:fragment slot="pageFooter">
+        {#if $is_mobile}
+          <MobileNavbar />
+        {:else}
+          <DesktopSongProgress />
+        {/if}
+      </svelte:fragment>
+      <svelte:fragment slot="sidebarRight">
+        <SidebarRight />
+      </svelte:fragment>
+    </AppShell>
+  {:else}
+    <WaitingScreen />
+  {/if}
+</div>
