@@ -1,8 +1,6 @@
 import type { CoreAppContext } from '$lib/app';
-import { Stylize, blueLabel, greenLabel, orangeLabel, prettyError } from '$lib/logging_utils';
 import type { Listener } from '$lib/notifier/i_notifier';
-import type { RoomEvents } from '$lib/notifier/room';
-import { DefaultCatch, Err, Ok, type Result } from 'bakutils-catcher';
+import { type Result } from 'bakutils-catcher';
 
 // TODO: handle unsubribe cleanup at dispose
 
@@ -52,109 +50,5 @@ export abstract class Plugin<N extends string> {
 	/** extra dispose for your plugin do as you please */
 	abstract dispose(): Promise<Result<null, Error>>;
 
-	abstract mountPlayerScreen(userActionContainer: HTMLDivElement): void;
-
-	abstract unmountPlayerScreen(): void;
-}
-
-/** Get the type of your plugin context useful to create commands */
-export type PluginContext<N extends string, T extends Plugin<N>> = Record<N, T['plugin_context']>;
-
-export class PluginManager {
-	private _plugins: Plugin<string>[] = [];
-
-	private _context: CoreAppContext & { [key: string]: Record<string, unknown> };
-
-	constructor(context: CoreAppContext) {
-		this._context = context as CoreAppContext & {
-			[key: string]: Record<string, unknown>;
-		};
-		// proxy the NEW_PEER event so plugins can hook it
-		// and proxy event used by them
-		context.room.proxy('NEW_PEER', this._hookNewPeer);
-		context.room.proxy('JOINED', this._hookMyPeer);
-	}
-
-	private pluginLog: (plugin: Plugin<string>, msg: string) => void = (plugin, msg) => {
-		const styled = new Stylize()
-			.style(greenLabel)
-			.apply('PLUGIN MANAGER', { padding: 2 })
-			.space()
-			.style(orangeLabel)
-			.apply(plugin.name, { padding: 2 })
-			.space()
-			.style(blueLabel)
-			.apply(`V${plugin.version}`, { padding: 2 })
-			.apply(msg, { padding: { left: 1 } })
-			.build();
-		console.info(...styled);
-	};
-
-	public async register<N extends string>(cb: (context: CoreAppContext) => Plugin<N>) {
-		const plugin = cb(this._context);
-		this._plugins.push(plugin);
-		this.pluginLog(plugin, 'registered');
-	}
-
-	private async _registerContexts(): Promise<Result<null, Error>> {
-		for (const plugin of this._plugins) {
-			this._context[plugin.name] = plugin.plugin_context;
-		}
-		return Ok(null);
-	}
-
-	private _hookNewPeer: Listener<RoomEvents['NEW_PEER']> = async event => {
-		for (const plugin of this._plugins) {
-			(await plugin.hookEvents(event.peer.hookPluginEvents)).unwrap();
-		}
-		return Ok(null);
-	};
-
-	private _hookMyPeer: Listener<RoomEvents['JOINED']> = async event => {
-		for (const plugin of this._plugins) {
-			(await plugin.hookEvents(event.peer.hookPluginEvents)).unwrap();
-		}
-		return Ok(null);
-	};
-
-	private async _unRegisterContext<N extends string>(plugin: Plugin<N>): Promise<Result<null, Error>> {
-		// @ts-ignore
-		this._context[plugin.name] = undefined;
-		return Ok(null);
-	}
-
-	@DefaultCatch(prettyError)
-	public async init() {
-		(await this._registerContexts()).unwrap();
-		for (const plugin of this._plugins) {
-			(await plugin.init()).unwrap();
-		}
-	}
-
-	@DefaultCatch(prettyError)
-	public async dispose(name: string): Promise<Result<null, Error>> {
-		const plugin = this._plugins.find(p => p.name === name);
-		if (plugin) {
-			(await plugin.dispose()).unwrap();
-			(await this._unRegisterContext(plugin)).unwrap();
-		}
-		return Err(Error(`Plugin ${name} not found`));
-	}
-
-
-	public registerPluginPlayerUI = () => {
-		const userActionsContainer = document.querySelector('#user-action-shortcut')
-
-		for (const plugin of this._plugins) {
-			console.log('mounting', plugin.name)
-			plugin.mountPlayerScreen(userActionsContainer as HTMLDivElement)
-		}
-
-		return () => {
-			for (const plugin of this._plugins) {
-				console.log('unmounting', plugin.name)
-				plugin.unmountPlayerScreen()
-			}
-		}
-	}
+	abstract mountUserShortcutUI(target: HTMLDivElement): Result<null, Error>
 }

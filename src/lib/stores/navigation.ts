@@ -1,3 +1,4 @@
 import { writable } from 'svelte/store';
 
-export const navigation = writable<number>(0);
+type Navigation = 'PLAYER' | 'PLAYLIST' | 'PARTICIPANTS' | 'SETTINGS'
+export const navigation = writable<Navigation>('PLAYER');
