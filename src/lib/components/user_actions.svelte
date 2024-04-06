@@ -1,36 +1,26 @@
 <script lang="ts">
-	import { room } from "$lib/webrtc/room";
-	import clsx from "clsx";
-	import { showOpenFilePicker } from "file-system-access";
-	import { FileMusicSolid } from "flowbite-svelte-icons";
-	import { outline_style } from "$lib/global_styles";
+  import clsx from 'clsx';
+  import { showOpenFilePicker } from 'file-system-access';
+  import { FileMusicSolid } from 'flowbite-svelte-icons';
+  import { outline_style } from '$lib/global_styles';
+  import { App } from '$lib/app';
+  import { onMount } from 'svelte';
 
-	async function pick_songs() {
-		const test = await showOpenFilePicker();
-		const song = await test[0].getFile();
-		room.playFile(song);
-	}
+  onMount(App.instance.plugin_manager.registerUserShorcutUI);
+
+  async function pick_songs() {
+    const test = await showOpenFilePicker();
+    const song = await test[0].getFile();
+    App.instance.context.room.playFile(song);
+  }
 </script>
 
 <div
-	class={clsx(
-		"flex",
-		"items-center",
-		"justify-center md:justify-end",
-		"py-4 md:py-0",
-		"space-x-2",
-		"px-4",
-	)}
+  class={clsx('flex', 'items-center', 'justify-center md:justify-end', 'py-4 md:py-0', 'space-x-2', 'px-4')}
+  bind:this={App.instance.plugin_manager.user_actions_shortcut_ref}
 >
-	<button class={clsx("btn", "variant-filled-tertiary", outline_style)}>
-		<span>😁</span>
-		<span class="hidden md:inline">réagir</span>
-	</button>
-	<button
-		class={clsx("btn", "variant-filled-tertiary", outline_style)}
-		on:click={pick_songs}
-	>
-		<FileMusicSolid />
-		<span class="hidden md:inline">ajouter un son</span>
-	</button>
+  <button class={clsx('btn', 'variant-filled-tertiary', outline_style)} on:click={pick_songs}>
+    <FileMusicSolid />
+    <span class="hidden md:inline">ajouter un son</span>
+  </button>
 </div>

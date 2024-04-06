@@ -1,15 +1,23 @@
 <script lang="ts">
-	import { ProgressBar, RangeSlider } from "@skeletonlabs/skeleton";
+	import { ProgressBar } from "@skeletonlabs/skeleton";
 	import clsx from "clsx";
 	import { formatSeconds } from "$lib/duration_formatter";
-	export let current: number;
-	export let max: number;
+	import { App } from "$lib/app";
+
+	const song_progress =
+		App.instance.context.audio_manager.readable(
+			"CURRENTLY_PLAYING",
+		);
 </script>
 
 <div>
-	<ProgressBar value={current} {max} meter={"bg-tertiary-500"} />
+	<ProgressBar
+		value={$song_progress.current_time}
+		max={$song_progress.total_time}
+		meter={"bg-tertiary-500"}
+	/>
 	<div class={clsx("flex", "justify-between")}>
-		<h5>{formatSeconds(current)}</h5>
-		<h5>{formatSeconds(max)}</h5>
+		<h5>{formatSeconds($song_progress.current_time)}</h5>
+		<h5>{formatSeconds($song_progress.total_time)}</h5>
 	</div>
 </div>

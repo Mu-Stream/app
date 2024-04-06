@@ -1,3 +1,3 @@
 export const formatSeconds = (seconds: number) => {
-	return `${Math.floor(seconds / 60)}:${(seconds % 60).toString().padEnd(2, '0')}`;
-}
+  return `${Math.floor(seconds / 60)}:${(seconds % 60).toFixed(0).padStart(2, '0')}`;
+};

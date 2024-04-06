@@ -5,49 +5,81 @@
 		getModalStore,
 		getToastStore,
 	} from "@skeletonlabs/skeleton";
-	import { room } from "$lib/webrtc/room";
 	import clsx from "clsx";
-	import { room_id } from "$lib/stores/room_id";
 	import { outline_style, shape_style } from "$lib/global_styles";
+	import { JoinRoomCommand } from "$lib/commands/join";
+	import { HostCommand } from "$lib/commands/host";
+	import { App } from "$lib/app";
+
 	const modalStore = getModalStore();
 	const toastStore = getToastStore();
-	let connected_room_id: Completer<string> | undefined = undefined;
+	let loading: boolean = false;
 
-	async function join() {
-		try {
-			connected_room_id = new Completer<string>();
-			modalStore.trigger({
-				type: "component",
-				component: "connect_to_room",
-				response: connected_room_id.complete,
-			});
-			const id = await connected_room_id.future;
-			await room.join(id);
-			if (id) room_id.set(id);
-		} catch (e: any) {
-			toastStore.trigger({
-				message: e.toString(),
-				background: "variant-filled-error",
-			});
-		} finally {
-			connected_room_id = undefined;
+	async function join(): Promise<void> {
+		loading = true;
+
+		const completer = new Completer<{
+			room_id: string;
+			username: string;
+		}>();
+
+		modalStore.trigger({
+			type: "component",
+			component: "room_code_input",
+			response: (infos: {
+				room_id: string;
+				username: string;
+			}) => completer.completeValue(infos),
+		});
+
+		const infos = await completer.future;
+
+		if (infos.isNone()) {
+			loading = false;
+			return;
 		}
+
+		const command = await App.instance.executeCommand(
+			new JoinRoomCommand(
+				infos.unwrap().room_id,
+				infos.unwrap().username,
+			),
+		);
+
+		command.match({
+			Err: (e) =>
+				toastStore.trigger({
+					message: e.message,
+					background: "variant-filled-error",
+				}),
+			Ok: (_) => {},
+		});
+
+		App.instance.context.audio_manager.try_init_audio_context();
+
+		loading = false;
 	}
 
 	async function host() {
-		try {
-			connected_room_id = new Completer<string>();
-			connected_room_id.complete(await room.host());
-			const id = await connected_room_id.future;
-			if (id) room_id.set(id);
-		} catch (e: any) {
-			toastStore.trigger({
-				message: e.toString(),
-				background: "variant-filled-error",
-			});
-		} finally {
-			connected_room_id = undefined;
-		}
+		loading = true;
+
+		const command = await App.instance.executeCommand(
+			new HostCommand(),
+		);
+
+		command.match({
+			Ok: (_) => {},
+			Err: (err) => {
+				toastStore.trigger({
+					message: err.toString(),
+					background: "variant-filled-error",
+				});
+			},
+		});
+
+		App.instance.context.audio_manager.try_init_audio_context();
+
+		loading = false;
 	}
 </script>
 
@@ -86,7 +118,7 @@
 			<button
 				type="button"
 				on:click={host}
-				disabled={connected_room_id !== undefined}
+				disabled={loading}
 				class={clsx(
 					"btn",
 					"btn-lg",
@@ -94,7 +126,7 @@
 					outline_style,
 				)}
 			>
-				{#if connected_room_id !== undefined}
+				{#if loading}
 					<ProgressRadial width="w-6 mr-4" />
 				{/if}
 
@@ -130,7 +162,7 @@
 			<button
 				type="button"
 				on:click={join}
-				disabled={connected_room_id !== undefined}
+				disabled={loading}
 				class={clsx(
 					"btn",
 					"btn-lg",
@@ -138,7 +170,7 @@
 					outline_style,
 				)}
 			>
-				{#if connected_room_id !== undefined}
+				{#if loading}
 					<ProgressRadial width="w-6 mr-4" />
 				{/if}
 				Rejoindre une Salle
