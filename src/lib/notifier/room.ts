@@ -3,7 +3,7 @@ import { ProxyNotifier, type Events } from './i_notifier';
 import { Peer, type PeerEventTypes, type PeerEvents } from './peer';
 import { Ok, type Result } from 'bakutils-catcher';
 
-export type RoomEventTypes = 'ROOM_ID' | 'NEW_PEER' | 'JOINED';
+export type RoomEventTypes = 'ROOM_ID' | 'NEW_PEER' | 'JOINED' | 'USER_LIST';
 
 export type RoomEvents = Events<
   RoomEventTypes,
@@ -11,6 +11,7 @@ export type RoomEvents = Events<
     ROOM_ID: { type: 'ROOM_ID'; id: string | undefined };
     NEW_PEER: { type: 'NEW_PEER'; peer: Peer };
     JOINED: { type: 'JOINED'; peer: Peer };
+    USER_LIST: { type: 'USER_LIST'; users: { id: string; username: string }[] };
   }
 >;
 
@@ -19,16 +20,22 @@ export class Room extends ProxyNotifier<RoomEventTypes, RoomEvents> {
   private _client_peer?: Peer;
   private _members_peers: Peer[] = [];
 
+  constructor() {
+    super({
+      readable_default_values: {
+        ROOM_ID: { type: 'ROOM_ID', id: undefined },
+        USER_LIST: { type: 'USER_LIST', users: [] },
+      },
+    });
+  }
+
   public get id() {
     return this._room_id;
   }
+
   public set id(id: string | undefined) {
     this._room_id = id;
     this._notify({ type: 'ROOM_ID', id });
-  }
-
-  public get users() {
-    return [...this._members_peers.map(p => ({ id: p.id, name: p.id })), { id: 'host', name: 'host' }];
   }
 
   public set client_peer(peer: Peer | undefined) {
@@ -40,17 +47,17 @@ export class Room extends ProxyNotifier<RoomEventTypes, RoomEvents> {
     return this._members_peers;
   }
 
+  public notifyUserList() {
+    const users = this._members_peers.map(p => ({ id: p.id, username: p.username }));
+    users.push({ id: 'host', username: 'host' });
+    this._notify({ type: 'USER_LIST', users });
+    this.broadcast({ type: 'USER_LIST', users });
+  }
+
   public addPeer(peer: Peer) {
     this._members_peers.push(peer);
     this._notify({ type: 'NEW_PEER', peer });
-  }
-
-  constructor() {
-    super({
-      readable_default_values: {
-        ROOM_ID: { type: 'ROOM_ID', id: undefined },
-      },
-    });
+    this.notifyUserList();
   }
 
   /** send a payload has a client to the host */
@@ -71,6 +78,7 @@ export class Room extends ProxyNotifier<RoomEventTypes, RoomEvents> {
         // failing means disconnect (for now)
         if (res.isErr()) {
           this._members_peers = this._members_peers.filter(p => p.id !== peer.id);
+          this.notifyUserList();
         }
       }
     }

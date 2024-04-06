@@ -13,11 +13,10 @@ export type SignalingEvent = Events<
       type: 'SIGNAL_REQUESTER';
       uuid: string;
       signal: SimplePeer.SignalData;
-      username: string;
     };
     HOST_OK: {
       type: 'HOST_OK';
-      roomId: string;
+      room_id: string;
     };
     JOIN_OK: {
       type: 'JOIN_OK';
@@ -30,7 +29,8 @@ export type SignalingEvent = Events<
     };
     JOIN_HOST: {
       type: 'JOIN_HOST';
-      roomId: string;
+      room_id: string;
+      username: string;
       signal: SimplePeer.SignalData;
     };
   }
