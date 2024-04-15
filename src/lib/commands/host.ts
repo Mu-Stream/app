@@ -1,7 +1,7 @@
 import { DefaultCatch, Err, Ok, type Result } from 'bakutils-catcher';
 import { Command, type WrappedListener } from './i_commands';
 import { UnableToRetrivePeerSignal } from '../errors';
-import { Peer, type PeerEvents } from '$lib/notifier/peer';
+import { Peer, type PeerEvents, type WithPeerIentity } from '$lib/notifier/peer';
 import type { SignalingEvent } from '$lib/notifier/signaling';
 import type { CoreAppContext } from '$lib/app';
 import { prettyError } from '$lib/logging_utils';
@@ -17,7 +17,7 @@ export class HostCommand extends Command<CoreAppContext> {
 
     const event = (await context.signaling_server.once('HOST_OK')).unwrap();
 
-    context.room.id = event.roomId;
+    context.room.id = event.room_id;
 
     context.signaling_server.subscribe('JOIN_OK', this._registerPeer(context));
 
@@ -34,7 +34,6 @@ export class HostCommand extends Command<CoreAppContext> {
       type: 'SIGNAL_REQUESTER',
       signal: signal,
       uuid: payload.uuid,
-      username: payload.username,
     });
 
     if ((await this._peer.link_done).isNone()) return Err(new UnableToRetrivePeerSignal());
@@ -52,6 +51,7 @@ export class HostCommand extends Command<CoreAppContext> {
     this._peer.subscribe('PAUSE', this._handlePause(context));
     this._peer.subscribe('RESUME', this._handleResume(context));
     this._peer.subscribe('CURRENTLY_PLAYING', this._handleSongProgressPeer(context));
+    this._peer.subscribe('USER_LIST', this._handleUserList(context));
 
     this._peer.proxy('CURRENTLY_PLAYING', context.audio_manager.bind);
 
@@ -61,7 +61,6 @@ export class HostCommand extends Command<CoreAppContext> {
   };
 
   private _handlePause: WrappedListener<CoreAppContext, PeerEvents['PAUSE']> = context => async event => {
-    console.log('PAUSE');
     context.audio_manager.pause();
     context.room.broadcast(event);
     return Ok(null);
@@ -82,6 +81,11 @@ export class HostCommand extends Command<CoreAppContext> {
   private _handleSongProgressPeer: WrappedListener<CoreAppContext, PeerEvents['CURRENTLY_PLAYING']> =
     context => async payload => {
       context.room.broadcast(payload, { excluded_ids: [this._peer.id] });
+      return Ok(null);
+    };
+  private _handleUserList: WrappedListener<CoreAppContext, WithPeerIentity<PeerEvents['USER_LIST']>> =
+    context => async _ => {
+      context.room.notifyUserList();
       return Ok(null);
     };
 }

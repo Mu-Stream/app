@@ -9,7 +9,14 @@ export type WithPeerIentity<E extends Record<string, unknown>> = E & {
   identity: string;
 };
 
-export type PeerEventTypes = 'INIT_ROOM' | 'RENEGOCIATE' | 'ADD_STREAM' | 'CURRENTLY_PLAYING' | 'PAUSE' | 'RESUME';
+export type PeerEventTypes =
+  | 'INIT_ROOM'
+  | 'RENEGOCIATE'
+  | 'ADD_STREAM'
+  | 'CURRENTLY_PLAYING'
+  | 'PAUSE'
+  | 'RESUME'
+  | 'USER_LIST';
 
 export type PeerEvents = Events<
   PeerEventTypes,
@@ -37,6 +44,10 @@ export type PeerEvents = Events<
     };
     RESUME: {
       type: 'RESUME';
+    };
+    USER_LIST: {
+      type: 'USER_LIST';
+      users: { id: string; username: string }[];
     };
   }
 >;

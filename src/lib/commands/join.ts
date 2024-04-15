@@ -26,7 +26,8 @@ export class JoinRoomCommand extends Command<CoreAppContext> {
     const own_signal = (await this._peer.initial_signal).unwrap();
     context.signaling_server.send({
       type: 'JOIN_HOST',
-      roomId: this.room_id,
+      room_id: this.room_id,
+      username: this.username,
       signal: own_signal,
     });
 
@@ -41,6 +42,7 @@ export class JoinRoomCommand extends Command<CoreAppContext> {
     this._peer.subscribe('ADD_STREAM', this._handleStream(context));
     this._peer.subscribe('PAUSE', this._handlePause(context));
     this._peer.subscribe('RESUME', this._handleResume(context));
+    this._peer.subscribe('USER_LIST', context.room.bind);
 
     context.room.client_peer = this._peer;
 
