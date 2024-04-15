@@ -139,11 +139,4 @@ export class Peer extends ProxyNotifier<PeerEventTypes, PeerEvents> {
       return Err(err as Error);
     }
   }
-
-  public subscribe<T extends PeerEventTypes>(
-    type: T,
-    listener: Listener<WithPeerIentity<PeerEvents[T]>>
-  ): Subscription<PeerEvents[T]> {
-    return super.subscribe(type, listener as unknown as Listener<PeerEvents[T]>) as Subscription<PeerEvents[T]>;
-  }
 }
