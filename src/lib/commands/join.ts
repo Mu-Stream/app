@@ -45,7 +45,6 @@ export class JoinRoomCommand extends Command<CoreAppContext> {
     this._peer.subscribe('USER_LIST', context.room.bind);
 
     context.room.client_peer = this._peer;
-
     return Ok(null);
   }
 
