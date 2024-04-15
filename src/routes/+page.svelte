@@ -17,11 +17,15 @@
 </script>
 
 <div class="w-full h-full">
-  {#if $navigation == 'PLAYER' || $is_mobile}
+  {#if $is_mobile}
+    {#if $navigation === 'PLAYER'}
+      <PlayerScreen />
+    {:else if $navigation === 'PLAYLIST'}
+      <PlaylistScreen />
+    {:else if $navigation === 'PARTICIPANTS'}
+      <UsersListScreen />
+    {/if}
+  {:else}
     <PlayerScreen />
-  {:else if $navigation == 'PLAYLIST'}
-    <PlaylistScreen />
-  {:else if $navigation == 'PARTICIPANTS'}
-    <UsersListScreen />
   {/if}
 </div>
