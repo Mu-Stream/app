@@ -1,6 +1,6 @@
 import { Plugin, type Binder } from '$lib/plugins/i_plugin';
 import { Ok, type Result } from 'bakutils-catcher';
-import TextChat from './components/chat.svelte'
+import TextChat from './components/chat.svelte';
 import { TextChatManager } from './notifiers/text_chat_manager';
 
 export class TextChatPlugin extends Plugin<'text_chat'> {
@@ -21,7 +21,7 @@ export class TextChatPlugin extends Plugin<'text_chat'> {
   }
 
   async hookEvents(bind: Binder<string, any>): Promise<Result<null, Error>> {
-  bind('ADD_TEXT_CHAT', this.context.text_chat.text_chat_manager.bind);
+    bind('ADD_TEXT_CHAT', this.context.text_chat.text_chat_manager.bind);
     return Ok(null);
   }
   public mountSidebarUI(target: HTMLDivElement): Result<null, Error> {

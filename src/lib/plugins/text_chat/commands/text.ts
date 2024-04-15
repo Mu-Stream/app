@@ -9,15 +9,15 @@ export class TextCommand extends Command<TextChatPlugin['context']> {
   }
 
   public async execute(context: TextChatPlugin['context']): Promise<Result<null, Error>> {
-    let username = 'admin'
-    if(context.room.client_peer){
-      username = context.room.client_peer.username
+    let username = 'admin';
+    if (context.room.client_peer) {
+      username = context.room.client_peer.username;
     }
 
     const event: TextChatEvent['ADD_TEXT_CHAT'] = {
       type: 'ADD_TEXT_CHAT',
       text: this.text,
-      nickname : username
+      nickname: username,
     };
     context.room.send(event);
     context.room.broadcast(event);

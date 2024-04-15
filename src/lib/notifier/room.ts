@@ -44,7 +44,7 @@ export class Room extends ProxyNotifier<RoomEventTypes, RoomEvents> {
   }
 
   public get client_peer() {
-    return this._client_peer
+    return this._client_peer;
   }
 
   public get members_peers() {

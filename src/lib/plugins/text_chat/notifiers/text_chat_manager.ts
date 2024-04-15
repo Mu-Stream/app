@@ -12,14 +12,14 @@ export type TextChatEvent = Events<
       nickname: string;
     };
     TEXT_ADDED_IN_LIST: {
-        type: 'TEXT_ADDED_IN_LIST';
-        messages: {nickname: string, text: string}[]
+      type: 'TEXT_ADDED_IN_LIST';
+      messages: { nickname: string; text: string }[];
     };
   }
 >;
 
 export class TextChatManager extends Notifier<TextChatEventType, TextChatEvent> {
-  public listOfMessages : {nickname: string, text: string}[]= []
+  public listOfMessages: { nickname: string; text: string }[] = [];
 
   constructor() {
     super({
@@ -34,8 +34,8 @@ export class TextChatManager extends Notifier<TextChatEventType, TextChatEvent> 
   }
 
   public addTextChat(nickname: string, text: string) {
-    this.listOfMessages.push({nickname, text})
-    this._notify({type:'TEXT_ADDED_IN_LIST', messages: this.listOfMessages})
+    this.listOfMessages.push({ nickname, text });
+    this._notify({ type: 'TEXT_ADDED_IN_LIST', messages: this.listOfMessages });
   }
 
   public _onTextChat: Listener<TextChatEvent['ADD_TEXT_CHAT']> = async event => {
