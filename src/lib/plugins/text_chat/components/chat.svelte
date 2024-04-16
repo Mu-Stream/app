@@ -20,7 +20,7 @@
 <div class={clsx('space-y-2')} style="width: 250px;">
   <!-- Largeur fixe ajoutée -->
   <div class={clsx('text-xl', 'font-bold', 'text-center')}>Chat en direct</div>
-  <div class="overflow-y-auto overflow-x-hidden h-[40vh]">
+  <div class="overflow-y-auto overflow-x-hidden h-[35vh]">
     {#each $chat_msgs.messages as text_msg}
       <div class="grid grid-cols-[auto] mb-1">
         <div class="card p-0.5 variant-soft rounded-tl-none">
