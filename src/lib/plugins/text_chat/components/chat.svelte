@@ -17,22 +17,22 @@
   }
 </script>
 
-<div class={clsx('h-full', 'space-y-2')}>
-  <h3 class={clsx('text-xl', 'font-bold', 'text-center')}>Chat en direct</h3>
-  <div class={clsx('h-full', 'space-y-2')}>
+<div class={clsx('space-y-2')} style="width: 250px;">
+  <!-- Largeur fixe ajoutée -->
+  <div class={clsx('text-xl', 'font-bold', 'text-center')}>Chat en direct</div>
+  <div class="overflow-y-auto overflow-x-hidden h-[40vh]">
     {#each $chat_msgs.messages as text_msg}
-      <div class="grid grid-cols-[auto_1fr] gap-1">
-        <div class="card p-1 variant-soft rounded-tl-none space-y-2">
+      <div class="grid grid-cols-[auto] mb-1">
+        <div class="card p-0.5 variant-soft rounded-tl-none">
           <header class="flex justify-between items-center">
-            <p class="font-bold">{text_msg.nickname}</p>
+            <p class="text-pretty break-all text-sm font-bold">{text_msg.nickname}</p>
           </header>
-          <p>{text_msg.text}</p>
+          <p class="text-pretty break-all text-sm">{text_msg.text}</p>
         </div>
       </div>
-      <br />
     {/each}
   </div>
-  <div>
+  <div class="bottom-0 grid grid-cols-[auto]">
     <input bind:value={text} />
     <button on:click={sendMessage}>Envoyer !</button>
   </div>

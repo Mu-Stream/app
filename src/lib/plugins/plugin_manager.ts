@@ -23,7 +23,7 @@ export class PluginManager {
     };
     // proxy the NEW_PEER event so plugins can hook it
     // and proxy event used by them
-    context.room.proxy('NEW_PEER', this._hookNewPeer);
+    context.room.subscribe('NEW_PEER', this._hookNewPeer);
     context.room.proxy('JOINED', this._hookMyPeer);
   }
 

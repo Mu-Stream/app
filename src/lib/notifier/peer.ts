@@ -126,7 +126,7 @@ export class Peer extends ProxyNotifier<PeerEventTypes, PeerEvents> {
     return Ok(null);
   };
 
-  public send<K extends PeerEventTypes>(payload: PeerEvents[K]): Result<null, Error> {
+  public send<E extends { type: string } & Record<string, any>>(payload: E): Result<null, Error> {
     try {
       // handle special ADD_STREAM payload as it's not a text payload
       if (payload.type === 'ADD_STREAM') {

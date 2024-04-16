@@ -1,7 +1,7 @@
 import { Notifier, type Events, type Listener } from '$lib/notifier/i_notifier';
 import { Ok } from 'bakutils-catcher';
 
-export type TextChatEventType = 'ADD_TEXT_CHAT' | 'TEXT_ADDED_IN_LIST';
+export type TextChatEventType = 'ADD_TEXT_CHAT' | 'TEXT_ADDED_IN_LIST' | 'ADD_HISTORY_TO_TEXT_CHAT';
 
 export type TextChatEvent = Events<
   TextChatEventType,
@@ -14,6 +14,10 @@ export type TextChatEvent = Events<
     TEXT_ADDED_IN_LIST: {
       type: 'TEXT_ADDED_IN_LIST';
       messages: { nickname: string; text: string }[];
+    };
+    ADD_HISTORY_TO_TEXT_CHAT: {
+      type: 'ADD_HISTORY_TO_TEXT_CHAT';
+      list: { nickname: string; text: string }[];
     };
   }
 >;
@@ -31,12 +35,19 @@ export class TextChatManager extends Notifier<TextChatEventType, TextChatEvent> 
       },
     });
     this.subscribe('ADD_TEXT_CHAT', this._onTextChat);
+    this.subscribe('ADD_HISTORY_TO_TEXT_CHAT', this._onhistoryLoaded);
   }
 
   public addTextChat(nickname: string, text: string) {
     this.listOfMessages.push({ nickname, text });
     this._notify({ type: 'TEXT_ADDED_IN_LIST', messages: this.listOfMessages });
   }
+
+  public _onhistoryLoaded: Listener<TextChatEvent['ADD_HISTORY_TO_TEXT_CHAT']> = async event => {
+    this.listOfMessages = event.list;
+    this._notify({ type: 'TEXT_ADDED_IN_LIST', messages: this.listOfMessages });
+    return Ok(null);
+  };
 
   public _onTextChat: Listener<TextChatEvent['ADD_TEXT_CHAT']> = async event => {
     this.addTextChat(event.nickname, event.text);
