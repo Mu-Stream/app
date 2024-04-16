@@ -10,20 +10,21 @@ export type TextChatEvent = Events<
       type: 'ADD_TEXT_CHAT';
       text: string;
       nickname: string;
+      uuid: string;
     };
     TEXT_ADDED_IN_LIST: {
       type: 'TEXT_ADDED_IN_LIST';
-      messages: { nickname: string; text: string }[];
+      messages: { nickname: string; text: string; uuid: string }[];
     };
     ADD_HISTORY_TO_TEXT_CHAT: {
       type: 'ADD_HISTORY_TO_TEXT_CHAT';
-      list: { nickname: string; text: string }[];
+      list: { nickname: string; text: string; uuid: string }[];
     };
   }
 >;
 
 export class TextChatManager extends Notifier<TextChatEventType, TextChatEvent> {
-  public listOfMessages: { nickname: string; text: string }[] = [];
+  public listOfMessages: { nickname: string; text: string; uuid: string }[] = [];
 
   constructor() {
     super({
@@ -38,8 +39,8 @@ export class TextChatManager extends Notifier<TextChatEventType, TextChatEvent> 
     this.subscribe('ADD_HISTORY_TO_TEXT_CHAT', this._onhistoryLoaded);
   }
 
-  public addTextChat(nickname: string, text: string) {
-    this.listOfMessages.push({ nickname, text });
+  public addTextChat(nickname: string, text: string, uuid: string) {
+    this.listOfMessages.push({ nickname, text, uuid });
     this._notify({ type: 'TEXT_ADDED_IN_LIST', messages: this.listOfMessages });
   }
 
@@ -50,7 +51,7 @@ export class TextChatManager extends Notifier<TextChatEventType, TextChatEvent> 
   };
 
   public _onTextChat: Listener<TextChatEvent['ADD_TEXT_CHAT']> = async event => {
-    this.addTextChat(event.nickname, event.text);
+    this.addTextChat(event.nickname, event.text, event.uuid);
     return Ok(null);
   };
 }

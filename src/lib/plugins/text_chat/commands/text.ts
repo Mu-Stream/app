@@ -9,19 +9,22 @@ export class TextCommand extends Command<TextChatPlugin['context']> {
   }
 
   public async execute(context: TextChatPlugin['context']): Promise<Result<null, Error>> {
+    let uuid = '';
     let username = 'admin';
     if (context.room.client_peer) {
       username = context.room.client_peer.username;
+      uuid = context.room.client_peer.id;
     }
 
     const event: TextChatEvent['ADD_TEXT_CHAT'] = {
       type: 'ADD_TEXT_CHAT',
       text: this.text,
       nickname: username,
+      uuid: uuid,
     };
     context.room.send(event);
     context.room.broadcast(event);
-    context.text_chat.text_chat_manager.addTextChat(event.nickname, event.text);
+    context.text_chat.text_chat_manager.addTextChat(event.nickname, event.text, event.uuid);
     return Ok(null);
   }
 }
