@@ -14,6 +14,7 @@ export class PluginManager {
   private _context: CoreAppContext & { [key: string]: Record<string, unknown> };
 
   public user_actions_shortcut_ref!: HTMLDivElement;
+  public sidebar_ref!: HTMLDivElement;
   public app_ref!: HTMLDivElement;
 
   constructor(context: CoreAppContext) {
@@ -22,7 +23,7 @@ export class PluginManager {
     };
     // proxy the NEW_PEER event so plugins can hook it
     // and proxy event used by them
-    context.room.proxy('NEW_PEER', this._hookNewPeer);
+    context.room.subscribe('NEW_PEER', this._hookNewPeer);
     context.room.proxy('JOINED', this._hookMyPeer);
   }
 
@@ -96,6 +97,16 @@ export class PluginManager {
     try {
       for (const plugin of this._plugins) {
         plugin.mountUserShortcutUI(this.user_actions_shortcut_ref).unwrap();
+      }
+    } catch (e) {
+      prettyError(e as Error);
+    }
+  };
+
+  public registerSidebarUI = () => {
+    try {
+      for (const plugin of this._plugins) {
+        plugin.mountSidebarUI(this.sidebar_ref).unwrap();
       }
     } catch (e) {
       prettyError(e as Error);

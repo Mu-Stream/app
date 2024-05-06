@@ -43,6 +43,10 @@ export class Room extends ProxyNotifier<RoomEventTypes, RoomEvents> {
     this._notify({ type: 'JOINED', peer: peer! });
   }
 
+  public get client_peer() {
+    return this._client_peer;
+  }
+
   public get members_peers() {
     return this._members_peers;
   }

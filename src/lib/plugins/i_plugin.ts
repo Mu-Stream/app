@@ -54,6 +54,10 @@ export abstract class Plugin<N extends string> {
     return Ok(null);
   }
 
+  public mountSidebarUI(target: HTMLDivElement): Result<null, Error> {
+    return Ok(null);
+  }
+
   public mountAppUI(target: HTMLDivElement): Result<null, Error> {
     return Ok(null);
   }
