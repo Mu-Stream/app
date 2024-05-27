@@ -4,23 +4,26 @@
   import clsx from 'clsx';
   import SongControls from './mobile_song_controls.svelte';
   import UserActions from '$lib/components/user_actions.svelte';
-  import { playlist } from '$lib/stores/playlist';
   import { is_mobile } from '$lib/stores/is_mobile';
   import { App } from '$lib/app';
   import { derived } from 'svelte/store';
+  import { FileMusicSolid } from 'flowbite-svelte-icons';
 
   const current_meta = App.instance.context.audio_manager.readable('CURRENTLY_METADATA');
 
   const image = derived(current_meta, $current_meta => {
-    if ($current_meta.img.length === 0) return '';
+    if ($current_meta.img?.length === 0) return '';
     var blob = new Blob([new Uint8Array($current_meta.img[0].data)], { type: $current_meta.img[0].format });
     return URL.createObjectURL(blob);
   });
 </script>
 
 <div class={clsx('flex', 'flex-col', 'w-full', 'h-full', 'px-8', 'space-y-4', 'items-center', 'justify-center')}>
-  <!-- {#if current_song !== undefined} -->
-  <StyledCover alt="cover" src={$image} height="md:h-96" width="w-full md:w-96" />
+  {#if $image !== ''}
+    <StyledCover alt="cover" src={$image} height="md:h-96" width="w-full md:w-96" />
+  {:else}
+    <FileMusicSolid size="xl" />
+  {/if}
 
   {#if $is_mobile}
     <div class={clsx('flex', 'flex-col', 'w-full', 'relative')}>
@@ -38,7 +41,4 @@
       <UserActions />
     </div>
   {/if}
-  <!-- {:else}
-    <div>Pas de musique</div>
-  {/if} -->
 </div>

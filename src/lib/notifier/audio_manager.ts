@@ -83,11 +83,11 @@ export class AudioManager extends Notifier<AudioManagerEventType, AudioManagerEv
 			tags.read();
 			const evt: AudioManagerEvent['CURRENTLY_METADATA'] = {
 				type: 'CURRENTLY_METADATA',
-				title: tags.tags.title!,
-				artist: tags.tags.artist!,
-				album: tags.tags.album!,
-				year: tags.tags.year!,
-				img: tags.tags.v2!.APIC!,
+				title: tags.tags.title ?? file.name,
+				artist: tags.tags.artist ?? '',
+				album: tags.tags.album ?? '',
+				year: tags.tags.year ?? '',
+				img: tags.tags.v2!.APIC ?? [],
 
 			}
 			App.instance.executeCommand(new SyncCurrentMetadata(evt));
