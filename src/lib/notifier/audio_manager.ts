@@ -3,8 +3,11 @@ import { Err, Ok, type Result } from 'bakutils-catcher';
 import { App } from '$lib/app';
 import { Notifier, type Events } from './i_notifier';
 import { SyncCurrentlyPlaying } from '$lib/commands/sync_currently_playing';
+import Mp3Tag from 'mp3tag.js';
+import type { MP3TagAPICFrame } from 'mp3tag.js/types/id3v2/frames';
+import { SyncCurrentMetadata } from '$lib/commands/sync_current_metadata';
 
-type AudioManagerEventType = 'CURRENTLY_PLAYING';
+type AudioManagerEventType = 'CURRENTLY_PLAYING' | 'CURRENTLY_METADATA';
 
 export type AudioManagerEvent = Events<
   AudioManagerEventType,
@@ -14,6 +17,14 @@ export type AudioManagerEvent = Events<
       total_time: number;
       current_time: number;
       status: 'PLAYING' | 'PAUSED';
+    };
+    CURRENTLY_METADATA: {
+      type: 'CURRENTLY_METADATA';
+      title: string;
+      artist: string;
+      album: string;
+      year: string;
+      img: MP3TagAPICFrame[];
     };
   }
 >;
@@ -50,6 +61,14 @@ export class AudioManager extends Notifier<AudioManagerEventType, AudioManagerEv
           current_time: 0,
           status: 'PAUSED',
         },
+        CURRENTLY_METADATA: {
+          type: 'CURRENTLY_METADATA',
+          title: '',
+          artist: '',
+          album: '',
+          year: '',
+          img: [],
+        },
       },
     });
   }
@@ -58,8 +77,21 @@ export class AudioManager extends Notifier<AudioManagerEventType, AudioManagerEv
     const reader = new FileReader();
     const buffer = new Completer<AudioBuffer>();
 
-    reader.onload = event =>
-      this._context?.decodeAudioData(event.target?.result as ArrayBuffer, b => buffer.completeValue(b));
+    reader.onload = event => {
+      const b = event.target?.result as ArrayBuffer;
+      const tags = new Mp3Tag(b);
+      tags.read();
+      const evt: AudioManagerEvent['CURRENTLY_METADATA'] = {
+        type: 'CURRENTLY_METADATA',
+        title: tags.tags.title ?? file.name,
+        artist: tags.tags.artist ?? '',
+        album: tags.tags.album ?? '',
+        year: tags.tags.year ?? '',
+        img: tags.tags.v2!.APIC ?? [],
+      };
+      App.instance.executeCommand(new SyncCurrentMetadata(evt));
+      return this._context?.decodeAudioData(b, b => buffer.completeValue(b));
+    };
 
     reader.readAsArrayBuffer(file);
     this._node = this._context.createBufferSource();
@@ -114,8 +146,11 @@ export class AudioManager extends Notifier<AudioManagerEventType, AudioManagerEv
       status: 'PAUSED',
     };
     App.instance.executeCommand(new SyncCurrentlyPlaying(event));
-    this._notify(event);
     clearInterval(this._media_timer);
+  }
+
+  public syncCurrentMetadata(metadata: AudioManagerEvent['CURRENTLY_METADATA']) {
+    this._notify(metadata);
   }
 
   private _setupCurrentlyPlayingPeriodicPing() {

@@ -4,6 +4,7 @@ import { SignalingServerNotReady } from '../errors';
 import { Peer, type PeerEvents, type WithPeerIentity } from '$lib/notifier/peer';
 import type { CoreAppContext } from '$lib/app';
 import { prettyError } from '$lib/logging_utils';
+import type { AudioManagerEvent } from '$lib/notifier/audio_manager';
 
 export class JoinRoomCommand extends Command<CoreAppContext> {
   private _peer!: Peer;
@@ -43,8 +44,10 @@ export class JoinRoomCommand extends Command<CoreAppContext> {
     this._peer.subscribe('PAUSE', this._handlePause(context));
     this._peer.subscribe('RESUME', this._handleResume(context));
     this._peer.subscribe('USER_LIST', context.room.bind);
+    this._peer.subscribe('CURRENTLY_METADATA', this._handleCurrentMetadata(context));
 
     context.room.client_peer = this._peer;
+
     return Ok(null);
   }
 
@@ -67,4 +70,12 @@ export class JoinRoomCommand extends Command<CoreAppContext> {
       context.audio_manager.resume();
       return Ok(null);
     };
+
+  private _handleCurrentMetadata: WrappedListener<
+    CoreAppContext,
+    WithPeerIentity<AudioManagerEvent['CURRENTLY_METADATA']>
+  > = context => async event => {
+    context.audio_manager.syncCurrentMetadata(event);
+    return Ok(null);
+  };
 }

@@ -5,6 +5,8 @@ import { Peer, type PeerEvents, type WithPeerIentity } from '$lib/notifier/peer'
 import type { SignalingEvent } from '$lib/notifier/signaling';
 import type { CoreAppContext } from '$lib/app';
 import { prettyError } from '$lib/logging_utils';
+import type { AudioManagerEvent } from '$lib/notifier/audio_manager';
+import { get } from 'svelte/store';
 
 export class HostCommand extends Command<CoreAppContext> {
   private _peer!: Peer;
@@ -57,6 +59,9 @@ export class HostCommand extends Command<CoreAppContext> {
 
     context.room.addPeer(this._peer);
 
+    const meta_payload = get(context.audio_manager.readable('CURRENTLY_METADATA'));
+    this._peer.send(meta_payload);
+
     return Ok(null);
   };
 
@@ -78,7 +83,7 @@ export class HostCommand extends Command<CoreAppContext> {
     return Ok(null);
   };
 
-  private _handleSongProgressPeer: WrappedListener<CoreAppContext, PeerEvents['CURRENTLY_PLAYING']> =
+  private _handleSongProgressPeer: WrappedListener<CoreAppContext, AudioManagerEvent['CURRENTLY_PLAYING']> =
     context => async payload => {
       context.room.broadcast(payload, { excluded_ids: [this._peer.id] });
       return Ok(null);

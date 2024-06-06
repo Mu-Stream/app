@@ -9,14 +9,7 @@ export type WithPeerIentity<E extends Record<string, unknown>> = E & {
   identity: string;
 };
 
-export type PeerEventTypes =
-  | 'INIT_ROOM'
-  | 'RENEGOCIATE'
-  | 'ADD_STREAM'
-  | 'CURRENTLY_PLAYING'
-  | 'PAUSE'
-  | 'RESUME'
-  | 'USER_LIST';
+export type PeerEventTypes = 'INIT_ROOM' | 'RENEGOCIATE' | 'ADD_STREAM' | 'PAUSE' | 'RESUME' | 'USER_LIST';
 
 export type PeerEvents = Events<
   PeerEventTypes,
@@ -32,12 +25,6 @@ export type PeerEvents = Events<
     ADD_STREAM: {
       type: 'ADD_STREAM';
       stream: MediaStream;
-    };
-    CURRENTLY_PLAYING: {
-      type: 'CURRENTLY_PLAYING';
-      current_time: number;
-      total_time: number;
-      status: 'PLAYING' | 'PAUSED';
     };
     PAUSE: {
       type: 'PAUSE';
@@ -126,7 +113,9 @@ export class Peer extends ProxyNotifier<PeerEventTypes, PeerEvents> {
     return Ok(null);
   };
 
-  public send<E extends { type: string } & Record<string, any>>(payload: E): Result<null, Error> {
+  public send<E extends { type: string } & Record<string, any>>(
+    payload: PeerEvents[PeerEventTypes] | E
+  ): Result<null, Error> {
     try {
       // handle special ADD_STREAM payload as it's not a text payload
       if (payload.type === 'ADD_STREAM') {
@@ -140,10 +129,16 @@ export class Peer extends ProxyNotifier<PeerEventTypes, PeerEvents> {
     }
   }
 
-  public subscribe<T extends PeerEventTypes>(
+  public proxy<T extends PeerEventTypes | string>(key: T, listener: Listener<any>): void {
+    super.proxy(key as PeerEventTypes, listener as unknown as any);
+  }
+
+  public subscribe<T extends string, K extends Record<string, any>>(
     type: T,
-    listener: Listener<WithPeerIentity<PeerEvents[T]>>
-  ): Subscription<PeerEvents[T]> {
-    return super.subscribe(type, listener as unknown as Listener<PeerEvents[T]>) as Subscription<PeerEvents[T]>;
+    listener: Listener<WithPeerIentity<K>>
+  ): Subscription<any> {
+    return super.subscribe(type as any, listener as unknown as Listener<any>) as Subscription<
+      PeerEvents[PeerEventTypes]
+    >;
   }
 }
