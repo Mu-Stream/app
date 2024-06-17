@@ -2,3 +2,5 @@ build
 out
 node_modules
 .svelte-kit
+dist/builder-debug.yml
+dist
