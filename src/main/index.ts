@@ -1,10 +1,9 @@
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, Menu } from 'electron';
 import { start, load } from 'adapter-electron/functions';
 import isDev from 'electron-is-dev';
 import log from 'electron-log/main';
 import nodePath from 'node:path';
 
-log.info('Hello, log!');
 const port = await start();
 
 async function createWindow() {
@@ -29,6 +28,7 @@ app.whenReady().then(() => {
 	log.info('App is ready');
 
 	log.info('Creating window...');
+	Menu.setApplicationMenu(null)
 	createWindow();
 
 	app.on('activate', () => {

@@ -6,34 +6,36 @@ import { SignalingServer } from '$lib/notifier/signaling';
 import { ReactionPlugin } from './plugins/reactions/reactions';
 import { PluginManager } from './plugins/plugin_manager';
 import { TextChatPlugin } from './plugins/text_chat/text_chat';
+import { PlaylistPlugin } from './plugins/playlist/playlist';
 
 export type CoreAppContext = typeof App.instance.context;
 
 export class App {
-  public plugin_manager: PluginManager;
+	public plugin_manager: PluginManager;
 
-  private static _instance: App;
+	private static _instance: App;
 
-  public static get instance() {
-    return (this._instance ??= new App());
-  }
+	public static get instance() {
+		return (this._instance ??= new App());
+	}
 
-  public context = {
-    room: new Room(),
-    audio_manager: new AudioManager(),
-    signaling_server: new SignalingServer(),
-  };
+	public context = {
+		room: new Room(),
+		audio_manager: new AudioManager(),
+		signaling_server: new SignalingServer(),
+	};
 
-  private constructor() {
-    this.plugin_manager = new PluginManager(this.context);
-  }
+	private constructor() {
+		this.plugin_manager = new PluginManager(this.context);
+	}
 
-  public async executeCommand<T extends CoreAppContext>(command: Command<T>): Promise<Result<null, Error>> {
-    return command.execute(this.context as T);
-  }
+	public async executeCommand<T extends CoreAppContext>(command: Command<T>): Promise<Result<null, Error>> {
+		return command.execute(this.context as T);
+	}
 }
 
 // TODO: propose a way to load plugins from a folder
+App.instance.plugin_manager.register(context => new PlaylistPlugin(context));
 App.instance.plugin_manager.register(context => new ReactionPlugin(context));
 App.instance.plugin_manager.register(context => new TextChatPlugin(context));
 App.instance.plugin_manager.init();
