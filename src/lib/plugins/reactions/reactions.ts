@@ -1,7 +1,6 @@
 import { Plugin, type Binder } from '$lib/plugins/i_plugin';
 import { Ok, type Result } from 'bakutils-catcher';
 import Reaction from './components/react.svelte';
-import Particles from './components/particles.svelte';
 import { ReactionManager } from './notifiers/reaction_manager';
 
 export class ReactionPlugin extends Plugin<'reaction'> {
