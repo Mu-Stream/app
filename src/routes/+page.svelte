@@ -16,7 +16,6 @@
 </script>
 
 <div class="w-full h-full">
-  <p>hey</p>
   {#if $is_mobile}
     {#if $navigation === 'PLAYER'}
       <PlayerScreen />

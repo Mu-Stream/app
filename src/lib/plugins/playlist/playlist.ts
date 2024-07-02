@@ -1,7 +1,7 @@
-import { Plugin, type Binder } from '$lib/plugins/i_plugin'
-import { Ok, type Result } from 'bakutils-catcher'
-import { PlaylistManager } from './notifier/playlist_manager'
-import Playlist from './components/playlist.svelte'
+import { Plugin, type Binder } from '$lib/plugins/i_plugin';
+import { Ok, type Result } from 'bakutils-catcher';
+import { PlaylistManager } from './notifier/playlist_manager';
+import Playlist from './components/playlist.svelte';
 
 export class PlaylistPlugin extends Plugin<'playlist'> {
 	name: 'playlist' = 'playlist'
@@ -13,11 +13,7 @@ export class PlaylistPlugin extends Plugin<'playlist'> {
 	}
 
 	async hookEvents(binder: Binder<string, any>): Promise<Result<null, Error>> {
-		binder('ADD_TO_PLAYLIST', this.plugin_context.playlist_manager.bind)
-		binder('REMOVE_FROM_PLAYLIST', this.plugin_context.playlist_manager.bind)
-		binder('SWAP_IN_PLAYLIST', this.plugin_context.playlist_manager.bind)
-		binder('PLAY_SONG_IN_PLAYLIST', this.plugin_context.playlist_manager.bind)
-		binder('UPDATE_PLAYLIST', this.plugin_context.playlist_manager.bind)
+		binder('UPDATE_PLAYLIST', this.plugin_context.playlist_manager._handleUpdatePlaylist)
 		return Ok(null)
 	}
 
@@ -33,4 +29,5 @@ export class PlaylistPlugin extends Plugin<'playlist'> {
 		new Playlist({ target })
 		return Ok(null)
 	}
+
 }

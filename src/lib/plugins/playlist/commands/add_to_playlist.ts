@@ -22,7 +22,6 @@ export class AddToPlaylist extends Command<PlaylistPlugin['context']> {
 		}>()
 
 		const reader = new FileReader();
-		console.log('heyfwef')
 
 		reader.onload = event => {
 			const b = event.target?.result as ArrayBuffer;

@@ -3,6 +3,7 @@
   import { outline_style } from '$lib/global_styles';
   import type { PluginContext } from '$lib/plugins/plugin_manager';
   import type { PlaylistPlugin } from '../playlist';
+  import { showOpenFilePicker } from 'file-system-access';
   import PlaylistSong from './playlist_song.svelte';
   import clsx from 'clsx';
   import { AddToPlaylist } from '../commands/add_to_playlist';

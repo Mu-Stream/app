@@ -1,5 +1,18 @@
-import { Notifier, type Events } from "$lib/notifier/i_notifier";
+import { Notifier, type Events, type Listener } from "$lib/notifier/i_notifier";
 import type { MP3TagAPICFrame } from "mp3tag.js/types/id3v2/frames";
+import { App } from '$lib/app'
+import { Ok } from "bakutils-catcher";
+import type { WithPeerIentity } from "$lib/notifier/peer";
+
+interface Song {
+	uuid: string;
+	owner: string;
+	title: string;
+	artist: string;
+	album: string;
+	year: string;
+	img: MP3TagAPICFrame[];
+}
 
 export type PlaylistEventType = 'ADD_TO_PLAYLIST' | 'REMOVE_FROM_PLAYLIST' | 'SWAP_IN_PLAYLIST' | 'PLAY_SONG_IN_PLAYLIST' | 'UPDATE_PLAYLIST'
 
@@ -8,12 +21,7 @@ export type PlaylistEvent = Events<
 	{
 		ADD_TO_PLAYLIST: {
 			type: 'ADD_TO_PLAYLIST',
-			uuid: string;
-			title: string;
-			artist: string;
-			album: string;
-			year: string;
-			img: MP3TagAPICFrame[];
+			song: Song
 		},
 		REMOVE_FROM_PLAYLIST: {
 			type: 'REMOVE_FROM_PLAYLIST';
@@ -21,8 +29,8 @@ export type PlaylistEvent = Events<
 		},
 		SWAP_IN_PLAYLIST: {
 			type: 'SWAP_IN_PLAYLIST';
-			uuida: string;
-			uuidb: string;
+			uuid_a: string;
+			uuid_b: string;
 		},
 		PLAY_SONG_IN_PLAYLIST: {
 			type: 'PLAY_SONG_IN_PLAYLIST';
@@ -30,14 +38,7 @@ export type PlaylistEvent = Events<
 		},
 		UPDATE_PLAYLIST: {
 			type: 'UPDATE_PLAYLIST';
-			queue: {
-				uuid: string;
-				title: string;
-				artist: string;
-				album: string;
-				year: string;
-				img: MP3TagAPICFrame[];
-			}[]
+			queue: Song[]
 		},
 	}
 >
@@ -55,25 +56,22 @@ export class PlaylistManager extends Notifier<PlaylistEventType, PlaylistEvent> 
 		})
 	}
 
-	private _queue: {
-		uuid: string;
-		title: string;
-		artist: string;
-		album: string;
-		year: string;
-		img: MP3TagAPICFrame[];
-	}[] = []
+	private _queue: Song[] = []
 
-	public addSongToPlaylist(song: {
-		uuid: string;
-		title: string;
-		artist: string;
-		album: string;
-		year: string;
-		img: MP3TagAPICFrame[];
-	}) {
+	public addSongToPlaylist(song: Song) {
 		this._queue.push(song)
-		this._notify({ type: 'UPDATE_PLAYLIST', queue: this._queue })
+		const payload: PlaylistEvent['UPDATE_PLAYLIST'] = { type: 'UPDATE_PLAYLIST', queue: this._queue };
+		this._notify(payload)
+		App.instance.context.room.broadcast(payload)
+		App.instance.context.room.send(payload)
 	}
 
+
+	public _handleUpdatePlaylist: Listener<WithPeerIentity<PlaylistEvent['UPDATE_PLAYLIST']>> =
+		async payload => {
+			this._queue = payload.queue;
+			console.log('queue', this._queue)
+			this._notify(payload)
+			return Ok(null);
+		};
 }
