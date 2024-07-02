@@ -26,43 +26,45 @@
     modal_store.close();
   }
 
-  const input_style = clsx('w-5', 'text-center', 'border', 'rounded-lg');
+  const input_style = clsx('w-12', 'h-12', 'text-center', 'border', 'rounded-lg', 'text-lg');
 </script>
 
 {#if $modal_store[0]}
-  <div class={clsx('card', 'p-4', 'space-y-4')}>
-    <header>
-      <h1 class={clsx('text-2xl')}>Entrer Votre Code</h1>
-    </header>
-    <section class={clsx('flex', 'justify-center', 'align-center', 'flex-col')}>
-      <label for="username" class={clsx('text-sm', 'mb-1')}> User Name </label>
-      <input type="text" class={clsx('input', 'w-full')} bind:value={username} />
-      <PinInput.Root
-        bind:value={values}
-        class={clsx('min-h-input', 'flex', 'h-full', 'items-center', 'gap-2', 'py-1', 'px-1.5')}
-      >
-        <PinInput.Input class={input_style} />
-        <PinInput.Input class={input_style} />
-        <PinInput.Input class={input_style} />
-        <PinInput.Input class={input_style} />
-        <Toggle.Root
-          aria-label="Toggle Room code visibility"
-          class={clsx('transition-all', 'active:scale-98')}
-          bind:pressed={unlocked}
+  <div class={clsx('card', 'p-12', 'space-y-4', 'rounded-3xl', 'min-w-96')}>
+    <section class={clsx('flex', 'justify-center', 'align-center', 'flex-col', 'space-y-4')}>
+      <div>
+        <label for="username" class={clsx('text-lg', 'mb-2')}> Nom d'utilisateur </label>
+        <input type="text" class={clsx('input', 'w-full', 'h-12', 'px-4')} bind:value={username} />
+      </div>
+      <div class="flex flex-col items-center">
+        <label for="code" class={clsx('text-lg', 'mb-2', 'self-start')}>Code de salle</label>
+        <PinInput.Root
+          bind:value={values}
+          class={clsx('min-h-input', 'flex', 'h-full', 'items-center', 'gap-2', 'py-1', 'px-1.5')}
         >
-          {#if unlocked}
-            <EyeOutline />
-          {:else}
-            <EyeSlashOutline />
-          {/if}
-        </Toggle.Root>
-      </PinInput.Root>
+          <PinInput.Input class={input_style} type={unlocked ? 'text' : 'password'} />
+          <PinInput.Input class={input_style} type={unlocked ? 'text' : 'password'} />
+          <PinInput.Input class={input_style} type={unlocked ? 'text' : 'password'} />
+          <PinInput.Input class={input_style} type={unlocked ? 'text' : 'password'} />
+          <Toggle.Root
+            aria-label="Afficher/masquer le code de la salle"
+            class={clsx('transition-all', 'active:scale-98')}
+            bind:pressed={unlocked}
+          >
+            {#if unlocked}
+              <EyeOutline />
+            {:else}
+              <EyeSlashOutline />
+            {/if}
+          </Toggle.Root>
+        </PinInput.Root>
+      </div>
     </section>
-    <footer class="card-footer">
+    <footer class="card-footer pt-4 flex justify-center">
       <button
-        class={clsx('btn', 'variant-filled-tertiary', 'border-b-4', 'border-b-black', 'w-full')}
+        class={clsx('btn', 'variant-filled-tertiary', 'border-b-4', 'border-b-black')}
         on:click={submit}
-        disabled={values?.join('').length !== 4}
+        disabled={values?.join('').length !== 4 || !username}
       >
         Rejoindre
       </button>
