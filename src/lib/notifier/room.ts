@@ -51,6 +51,10 @@ export class Room extends ProxyNotifier<RoomEventTypes, RoomEvents> {
     return this._members_peers;
   }
 
+  public get is_client() {
+    return this._client_peer !== undefined;
+  }
+
   public notifyUserList() {
     const users = this._members_peers.map(p => ({ id: p.id, username: p.username }));
     users.push({ id: 'host', username: 'host' });
@@ -61,6 +65,11 @@ export class Room extends ProxyNotifier<RoomEventTypes, RoomEvents> {
   public addPeer(peer: Peer) {
     this._members_peers.push(peer);
     this._notify({ type: 'NEW_PEER', peer });
+    this.notifyUserList();
+  }
+
+  public removePeer(id: string) {
+    this._members_peers = this._members_peers.filter(p => p.id !== id);
     this.notifyUserList();
   }
 
@@ -104,5 +113,16 @@ export class Room extends ProxyNotifier<RoomEventTypes, RoomEvents> {
       /// we are the 'host', broadcast stream to all clients
       this.broadcast(event);
     }
+  }
+
+  public async quit() {
+    if (!this._client_peer) return;
+    this._client_peer.quit();
+  }
+
+  public async delete() {
+    if (this._client_peer) return;
+    this._members_peers.forEach(p => p.quit());
+    this._members_peers = [];
   }
 }

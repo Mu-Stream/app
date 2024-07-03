@@ -18,7 +18,7 @@ export default function (opts = {}) {
       await adapter({ out, ...options }).adapt(builder);
     },
     supports: {
-      read: () => true
-    }
+      read: () => true,
+    },
   };
 }

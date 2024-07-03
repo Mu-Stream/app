@@ -54,8 +54,18 @@ export class HostCommand extends Command<CoreAppContext> {
     this._peer.subscribe('RESUME', this._handleResume(context));
     this._peer.subscribe('CURRENTLY_PLAYING', this._handleSongProgressPeer(context));
     this._peer.subscribe('USER_LIST', this._handleUserList(context));
+    this._peer.subscribe('CLOSE', this._handleClose(context));
+    this._peer.subscribe('TOAST', this._handleToast(context));
 
     this._peer.proxy('CURRENTLY_PLAYING', context.audio_manager.bind);
+
+    const new_peer_toast: PeerEvents['TOAST'] = {
+      type: 'TOAST',
+      severity: 'success',
+      message: this._peer.username + ' a rejoint la salle',
+    };
+    context.room.broadcast(new_peer_toast);
+    context.toaster.trigger(new_peer_toast);
 
     context.room.addPeer(this._peer);
 
@@ -91,6 +101,24 @@ export class HostCommand extends Command<CoreAppContext> {
   private _handleUserList: WrappedListener<CoreAppContext, WithPeerIentity<PeerEvents['USER_LIST']>> =
     context => async _ => {
       context.room.notifyUserList();
+      return Ok(null);
+    };
+
+  private _handleClose: WrappedListener<CoreAppContext, WithPeerIentity<PeerEvents['CLOSE']>> = context => async _ => {
+    context.room.removePeer(this._peer.id);
+    const payload: PeerEvents['TOAST'] = {
+      type: 'TOAST',
+      severity: 'success',
+      message: this._peer.username + ' a quitté la salle',
+    };
+    context.room.broadcast(payload);
+    context.toaster.trigger(payload);
+    return Ok(null);
+  };
+
+  private _handleToast: WrappedListener<CoreAppContext, WithPeerIentity<PeerEvents['TOAST']>> =
+    context => async event => {
+      context.toaster.trigger(event);
       return Ok(null);
     };
 }
