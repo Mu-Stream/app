@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { AppShell, Modal, initializeStores, type ModalComponent, Toast } from '@skeletonlabs/skeleton';
+  import { AppShell, Modal, initializeStores, type ModalComponent, Toast, getToastStore } from '@skeletonlabs/skeleton';
   import '../app.pcss';
   import Header from '$lib/components/header.svelte';
   import MobileNavbar from '$lib/components/mobile_navbar.svelte';
@@ -24,6 +24,7 @@
   };
 
   onMount(App.instance.plugin_manager.registerAppUI);
+  onMount(App.instance.context.toaster.init(getToastStore()));
 </script>
 
 <Modal components={custom_modal_registery} />
