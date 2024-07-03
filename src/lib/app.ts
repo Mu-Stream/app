@@ -11,28 +11,28 @@ import { Toaster } from './notifier/toaster';
 export type CoreAppContext = typeof App.instance.context;
 
 export class App {
-	public plugin_manager: PluginManager;
+  public plugin_manager: PluginManager;
 
-	private static _instance: App;
+  private static _instance: App;
 
-	public static get instance() {
-		return (this._instance ??= new App());
-	}
+  public static get instance() {
+    return (this._instance ??= new App());
+  }
 
-	public context = {
-		room: new Room(),
-		audio_manager: new AudioManager(),
-		signaling_server: new SignalingServer(),
-		toaster: new Toaster(),
-	};
+  public context = {
+    room: new Room(),
+    audio_manager: new AudioManager(),
+    signaling_server: new SignalingServer(),
+    toaster: new Toaster(),
+  };
 
-	private constructor() {
-		this.plugin_manager = new PluginManager(this.context);
-	}
+  private constructor() {
+    this.plugin_manager = new PluginManager(this.context);
+  }
 
-	public async executeCommand<T extends CoreAppContext>(command: Command<T>): Promise<Result<null, Error>> {
-		return command.execute(this.context as T);
-	}
+  public async executeCommand<T extends CoreAppContext>(command: Command<T>): Promise<Result<null, Error>> {
+    return command.execute(this.context as T);
+  }
 }
 
 // TODO: propose a way to load plugins from a folder
