@@ -11,6 +11,9 @@
   import { is_mobile } from '$lib/stores/is_mobile';
   import clsx from 'clsx';
   import { onMount } from 'svelte';
+  import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
+  import { storePopup } from '@skeletonlabs/skeleton';
+  storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 
   initializeStores();
 
