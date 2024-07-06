@@ -7,6 +7,7 @@ import { ReactionPlugin } from './plugins/reactions/reactions';
 import { PluginManager } from './plugins/plugin_manager';
 import { TextChatPlugin } from './plugins/text_chat/text_chat';
 import { PlaylistPlugin } from './plugins/playlist/playlist';
+import { Toaster } from './notifier/toaster';
 
 export type CoreAppContext = typeof App.instance.context;
 
@@ -23,6 +24,7 @@ export class App {
 		room: new Room(),
 		audio_manager: new AudioManager(),
 		signaling_server: new SignalingServer(),
+		toaster: new Toaster(),
 	};
 
 	private constructor() {

@@ -60,6 +60,7 @@
     "@floating-ui/dom": "^1.6.7",
     "bakutils-catcher": "^3.5.0",
     "bits-ui": "^0.16.0",
+    "browser-image-compression": "^2.0.2",
     "clsx": "^2.1.0",
     "electron-is-dev": "^3.0.1",
     "file-system-access": "^1.0.4",

@@ -9,7 +9,15 @@ export type WithPeerIentity<E extends Record<string, unknown>> = E & {
   identity: string;
 };
 
-export type PeerEventTypes = 'INIT_ROOM' | 'RENEGOCIATE' | 'ADD_STREAM' | 'PAUSE' | 'RESUME' | 'USER_LIST';
+export type PeerEventTypes =
+  | 'INIT_ROOM'
+  | 'RENEGOCIATE'
+  | 'ADD_STREAM'
+  | 'PAUSE'
+  | 'RESUME'
+  | 'USER_LIST'
+  | 'CLOSE'
+  | 'TOAST';
 
 export type PeerEvents = Events<
   PeerEventTypes,
@@ -35,6 +43,14 @@ export type PeerEvents = Events<
     USER_LIST: {
       type: 'USER_LIST';
       users: { id: string; username: string }[];
+    };
+    CLOSE: {
+      type: 'CLOSE';
+    };
+    TOAST: {
+      type: 'TOAST';
+      severity: 'normal' | 'success' | 'error';
+      message: string;
     };
   }
 >;
@@ -88,6 +104,11 @@ export class Peer extends ProxyNotifier<PeerEventTypes, PeerEvents> {
             return this._notify(JSON.parse(data));
           });
 
+          this._peer.on('close', () => {
+            console.log('peer closed');
+            return this._notify({ type: 'CLOSE' });
+          });
+
           // handle incoming Peer to Peer stream payload
           this._peer.on('stream', stream =>
             this._notify({
@@ -112,6 +133,10 @@ export class Peer extends ProxyNotifier<PeerEventTypes, PeerEvents> {
     this.proxy(key as PeerEventTypes, handler as unknown as Listener<PeerEvents[PeerEventTypes]>);
     return Ok(null);
   };
+
+  public quit() {
+    this._peer.destroy();
+  }
 
   public send<E extends { type: string } & Record<string, any>>(
     payload: PeerEvents[PeerEventTypes] | E

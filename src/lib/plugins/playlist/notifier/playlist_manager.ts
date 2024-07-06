@@ -4,9 +4,8 @@ import { App } from '$lib/app'
 import { Ok } from "bakutils-catcher";
 import type { WithPeerIentity } from "$lib/notifier/peer";
 
-interface Song {
-	uuid: string;
-	owner: string;
+export interface Song {
+	identity: string;
 	title: string;
 	artist: string;
 	album: string;
@@ -69,6 +68,7 @@ export class PlaylistManager extends Notifier<PlaylistEventType, PlaylistEvent> 
 
 	public _handleUpdatePlaylist: Listener<WithPeerIentity<PlaylistEvent['UPDATE_PLAYLIST']>> =
 		async payload => {
+			console.log('handleUpdatePlaylist', payload);
 			this._queue = payload.queue;
 			console.log('queue', this._queue)
 			this._notify(payload)

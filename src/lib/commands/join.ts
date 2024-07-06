@@ -45,6 +45,8 @@ export class JoinRoomCommand extends Command<CoreAppContext> {
     this._peer.subscribe('RESUME', this._handleResume(context));
     this._peer.subscribe('USER_LIST', context.room.bind);
     this._peer.subscribe('CURRENTLY_METADATA', this._handleCurrentMetadata(context));
+    this._peer.subscribe('TOAST', this._handleToast(context));
+    this._peer.subscribe('CLOSE', this._handleClose(context));
 
     context.room.client_peer = this._peer;
 
@@ -78,4 +80,16 @@ export class JoinRoomCommand extends Command<CoreAppContext> {
     context.audio_manager.syncCurrentMetadata(event);
     return Ok(null);
   };
+
+  private _handleClose: WrappedListener<CoreAppContext, WithPeerIentity<PeerEvents['CLOSE']>> = context => async _ => {
+    context.room.quit();
+    window.location.reload();
+    return Ok(null);
+  };
+
+  private _handleToast: WrappedListener<CoreAppContext, WithPeerIentity<PeerEvents['TOAST']>> =
+    context => async event => {
+      context.toaster.trigger(event);
+      return Ok(null);
+    };
 }

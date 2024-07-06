@@ -13,8 +13,8 @@ async function createWindow() {
 		width: 800,
 		height: 600,
 		webPreferences: {
-			preload: nodePath.join(__dirname, '../preload/index.mjs')
-		}
+			preload: nodePath.join(__dirname, '../preload/index.mjs'),
+		},
 	});
 
 	// Load the local URL for development or the local
@@ -28,7 +28,6 @@ app.whenReady().then(() => {
 	log.info('App is ready');
 
 	log.info('Creating window...');
-	Menu.setApplicationMenu(null)
 	createWindow();
 
 	app.on('activate', () => {
@@ -43,4 +42,3 @@ app.on('window-all-closed', () => {
 		app.quit();
 	}
 });
-
