@@ -6,6 +6,7 @@
   import { JoinRoomCommand } from '$lib/commands/join';
   import { HostCommand } from '$lib/commands/host';
   import { App } from '$lib/app';
+  import { waves_store_instance } from '$lib/stores/waves';
 
   const modalStore = getModalStore();
   const toastStore = getToastStore();
@@ -69,10 +70,16 @@
 
     loading = false;
   }
+
+  let bg_ref: HTMLDivElement | undefined;
+
+  $: if (bg_ref) {
+    $waves_store_instance.mount(bg_ref);
+  }
 </script>
 
 <div class={clsx('h-full', 'w-full', 'flex', 'flex-col', 'items-center', 'justify-evenly', 'relative')}>
-  <img src="/home_bg.svg" alt="logo" class={clsx('absolute', 'bottom-0', 'left-0', 'w-full', 'z-[-1]')} />
+  <div bind:this={bg_ref} class={clsx('absolute', 'bottom-0', 'left-0', 'w-full', 'z-[-1]', 'h-1/3')} />
   <div
     class={clsx(
       'w-full',
@@ -87,7 +94,7 @@
     )}
   >
     <h1 class={clsx('text-6xl', 'text-center', 'nowrap')}>Mu Stream</h1>
-    <h4>Partage des scéance d'écoute instense avec tes amis !</h4>
+    <h4 class="text-center">Partage des scéance d'écoute instense avec tes amis !</h4>
 
     <div class={clsx('flex', 'flex-col', 'space-y-4')}>
       <button
