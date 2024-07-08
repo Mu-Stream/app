@@ -1,7 +1,7 @@
 <script lang="ts">
   import { AppShell, Modal, initializeStores, type ModalComponent, Toast, getToastStore } from '@skeletonlabs/skeleton';
-  import '../app.pcss';
   import 'driver.js/dist/driver.css';
+  import '../app.pcss';
   import Header from '$lib/components/header.svelte';
   import MobileNavbar from '$lib/components/mobile_navbar.svelte';
   import DesktopSongProgress from '$lib/components/player/desktop_song_progress.svelte';

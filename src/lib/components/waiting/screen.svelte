@@ -81,6 +81,10 @@
   function onTutorial() {
     const d = driver({
       showProgress: true,
+      nextBtnText: '→',
+      prevBtnText: '←',
+      doneBtnText: '✕',
+
       steps: [
         {
           element: '#btn-create-room',
@@ -94,8 +98,39 @@
           element: '#btn-join-room',
           popover: {
             title: 'Rejoindre une salle',
-            description:
-              "Clique ici pour rejoindre une salle.\nRensigne ton nom d'utilisateur et le code que tu as copié et clique sur le bouton. rejoindre.",
+            description: 'Clique ici pour rejoindre une salle.',
+            onNextClick: () => {
+              document.getElementById('btn-join-room')!.click();
+              setTimeout(() => {
+                d.moveNext();
+              }, 200);
+            },
+          },
+        },
+        {
+          element: '#username-input',
+          popover: {
+            title: 'Rejoindre une salle',
+            description: "Rensigne ton nom d'utilisateur ici",
+          },
+        },
+        {
+          element: '#code-input',
+          popover: {
+            title: 'Rejoindre une salle',
+            description: 'Rensigne le code de la salle ici',
+          },
+        },
+        {
+          element: '#join-room-btn',
+          popover: {
+            title: 'Rejoindre une salle',
+            description: "Et c'est parti !",
+          },
+          onDeselected: () => {
+            modalStore.close();
+            loading = false;
+            d.moveNext();
           },
         },
       ],
@@ -124,7 +159,7 @@
   <div class={clsx('w-full', 'h-full', 'flex', 'flex-col', 'items-center', 'justify-center', 'space-y-8', 'md:p-4')}>
     <img src="/logo.svg" alt="logo" class={clsx('w-64', 'h-64', 'animate-pulse')} />
     <h1 class={clsx('text-6xl', 'text-center', 'nowrap')}>Mu Stream</h1>
-    <h4 class="text-center">Partage des scéance d'écoute instense avec tes amis !</h4>
+    <h4 class="text-center">Partage des sessions d'écoute instense avec tes amis !</h4>
 
     <div class={clsx('flex', 'flex-col', 'space-y-4')}>
       <button

@@ -32,13 +32,14 @@
 {#if $modal_store[0]}
   <div class={clsx('card', 'p-12', 'space-y-4', 'rounded-3xl', 'min-w-96')}>
     <section class={clsx('flex', 'justify-center', 'align-center', 'flex-col', 'space-y-4')}>
-      <div>
+      <div id="username-input">
         <label for="username" class={clsx('text-lg', 'mb-2')}> Nom d'utilisateur </label>
         <input type="text" class={clsx('input', 'w-full', 'h-12', 'px-4')} bind:value={username} />
       </div>
       <div class="flex flex-col items-center">
         <label for="code" class={clsx('text-lg', 'mb-2', 'self-start')}>Code de salle</label>
         <PinInput.Root
+          id="code-input"
           bind:value={values}
           class={clsx('min-h-input', 'flex', 'h-full', 'items-center', 'gap-2', 'py-1', 'px-1.5')}
         >
@@ -62,6 +63,7 @@
     </section>
     <footer class="card-footer pt-4 flex justify-center">
       <button
+        id="join-room-btn"
         class={clsx('btn', 'variant-filled-tertiary', 'border-b-4', 'border-b-black')}
         on:click={submit}
         disabled={values?.join('').length !== 4 || !username}

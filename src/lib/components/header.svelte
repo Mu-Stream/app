@@ -12,7 +12,10 @@
 
   function onTutorial() {
     const d = driver({
-      showProgress: true,
+      nextBtnText: '→',
+      prevBtnText: '←',
+      doneBtnText: '✕',
+
       steps: [
         {
           // element: '#btn-create-room',
@@ -55,6 +58,12 @@
           popover: {
             title: 'Quitter la salle',
             description: 'Tu peux quitter ou dissoudre la salle en cliquant ici',
+          },
+        },
+        {
+          popover: {
+            title: 'Enjoy Sharing',
+            description: 'Et voila tu sais tout sur Mu Stream',
           },
         },
       ],
