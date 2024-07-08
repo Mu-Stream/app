@@ -1,3 +1,69 @@
+@import url('https://fonts.googleapis.com/css2?family=Kodchasan:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;1,200;1,300;1,400;1,500;1,600;1,700&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.toast {
+	@apply border-2 border-b-4 border-black;
+}
+
+
+:root [data-theme='wintry'] {
+	--theme-font-family-base: 'Kodchasan', sans-serif;
+	--theme-font-family-heading: 'Kodchasan', sans-serif;
+}
+
+/* Class assigned to popover wrapper */
+.driver-popover {
+	font-family: 'Kodchasan', sans-serif !important;
+	border: 2px solid #000 !important;
+	border-bottom: 4px solid #000 !important;
+	box-shadow: none !important;
+}
+
+/* Arrow pointing towards the highlighted element */
+.driver-popover-arrow {
+	display: none !important;
+}
+
+/* Title and description */
+.driver-popover-title {}
+
+.driver-popover-description {
+	font-family: 'Kodchasan', sans-serif;
+}
+
+/* Close button displayed on the top right corner */
+.driver-popover-close-btn {
+	@apply btn btn-icon variant-filled-tertiary;
+	border-bottom: 4px solid black !important;
+	aspect-ratio: 1 / 1 !important;
+	color: white !important;
+	width: 30px !important;
+	height: 30px !important;
+	margin: 4px !important;
+}
+
+/* Footer of the popover displaying progress and navigation buttons */
+.driver-popover-footer {}
+
+.driver-popover-progress-text {
+	@apply mr-8;
+}
+
+.driver-popover-footer button {
+	@apply btn btn-sm variant-filled-tertiary border-b-4 rounded-2xl border-black;
+}
+
+.driver-popover-footer button:hover {
+	background-color: rgb(var(--color-tertiary-500) / var(--tw-bg-opacity)) !important;
+}
+
+.driver-popover-next-btn {
+	@apply btn btn-icon variant-filled-tertiary;
+}
+
+
+.driver-popover-prev-btn {
+	@apply btn btn-icon variant-filled-tertiary;
+}

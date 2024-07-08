@@ -1,5 +1,6 @@
 <script lang="ts">
   import { AppShell, Modal, initializeStores, type ModalComponent, Toast, getToastStore } from '@skeletonlabs/skeleton';
+  import 'driver.js/dist/driver.css';
   import '../app.pcss';
   import Header from '$lib/components/header.svelte';
   import MobileNavbar from '$lib/components/mobile_navbar.svelte';
@@ -17,6 +18,8 @@
 
   initializeStores();
 
+  const toast_store = getToastStore();
+
   const room_id = App.instance.context.room.readable('ROOM_ID');
 
   const custom_modal_registery: Record<string, ModalComponent> = {
@@ -24,11 +27,31 @@
   };
 
   onMount(App.instance.plugin_manager.registerAppUI);
-  onMount(App.instance.context.toaster.init(getToastStore()));
+  onMount(App.instance.context.toaster.init(toast_store));
+
+  function persitWarningContentSeen() {
+    localStorage.setItem('warningContentSeen', 'true');
+  }
+
+  onMount(() => {
+    if (localStorage.getItem('warningContentSeen') === 'true') {
+      return;
+    }
+    toast_store.trigger({
+      autohide: false,
+      background: 'bg-primary-100',
+      action: {
+        label: 'Ne plus afficher',
+        response: persitWarningContentSeen,
+      },
+      message:
+        "Mu Stream n'est pas resonsable du contenu audio diffusé par les participants, vous seul êtes responsable.",
+    });
+  });
 </script>
 
 <Modal components={custom_modal_registery} />
-<Toast />
+<Toast position="bl" />
 
 <div bind:this={App.instance.plugin_manager.app_ref} class={clsx('w-full', 'h-full', 'overflow-hidden')}>
   {#if $room_id.id}

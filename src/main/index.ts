@@ -1,7 +1,6 @@
-import { app, BrowserWindow, Menu } from 'electron';
+import { app, BrowserWindow } from 'electron';
 import { start, load } from 'adapter-electron/functions';
 import isDev from 'electron-is-dev';
-import log from 'electron-log/main';
 import nodePath from 'node:path';
 
 const port = await start();
@@ -10,8 +9,8 @@ async function createWindow() {
 	// Create the browser window
 
 	const mainWindow = new BrowserWindow({
-		width: 800,
-		height: 600,
+		width: 1280,
+		height: 720,
 		webPreferences: {
 			preload: nodePath.join(__dirname, '../preload/index.mjs'),
 		},
@@ -25,9 +24,6 @@ async function createWindow() {
 }
 
 app.whenReady().then(() => {
-	log.info('App is ready');
-
-	log.info('Creating window...');
 	createWindow();
 
 	app.on('activate', () => {

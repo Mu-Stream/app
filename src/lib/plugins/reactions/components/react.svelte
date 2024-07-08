@@ -6,7 +6,29 @@
   import type { PopupSettings } from '@skeletonlabs/skeleton';
   import { popup } from '@skeletonlabs/skeleton';
 
-  let emojis = ['😁', '😂', '😃', '😄', '😅', '😆', '🤮', '🤩', '🤨', '🤐', '😴', '🤡', '❤️', '☠️', '💩', '🫦', '🕺', '💃', '🏎️', '🔥', '🎶'];
+  let emojis = [
+    '😁',
+    '😂',
+    '😃',
+    '😄',
+    '😅',
+    '😆',
+    '🤮',
+    '🤩',
+    '🤨',
+    '🤐',
+    '😴',
+    '🤡',
+    '❤️',
+    '☠️',
+    '💩',
+    '🫦',
+    '🕺',
+    '💃',
+    '🏎️',
+    '🔥',
+    '🎶',
+  ];
   let dropdownOpen = false;
   let selectedEmoji = emojis[0];
 
@@ -19,21 +41,17 @@
     event: 'click',
     target: 'popupFeatured',
     placement: 'bottom',
-    closeQuery: '#will-close',
+    closeQuery: '#btn-add-reaction',
   };
-
-
 </script>
 
-<button id="will-close" class={clsx('btn', 'variant-filled-tertiary', outline_style)}
-        use:popup={popupFeatured}>
+<button id="btn-add-reaction" class={clsx('btn', 'variant-filled-tertiary', outline_style)} use:popup={popupFeatured}>
   <span>😁</span>
   <span class="hidden md:inline">réagir</span>
 </button>
 
-
 <div class="card p-4 w-72 shadow-xl" data-popup="popupFeatured">
   {#each emojis as emoji}
-    <button class="btn text-3xl" on:click={(event) => selectEmoji(emoji)}>{emoji}</button>
+    <button class="btn text-3xl" on:click={event => selectEmoji(emoji)}>{emoji}</button>
   {/each}
 </div>

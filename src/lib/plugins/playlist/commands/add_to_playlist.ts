@@ -49,5 +49,4 @@ export class AddToPlaylist extends Command<PlaylistPlugin['context']> {
 		context.playlist.playlist_manager.addSongToPlaylist(m.unwrap());
 		return Ok(null)
 	}
-
 }
