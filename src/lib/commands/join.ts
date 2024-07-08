@@ -37,6 +37,7 @@ export class JoinRoomCommand extends Command<CoreAppContext> {
 
     const init_room_res = (await this._peer.once('INIT_ROOM')).unwrap();
     context.room.id = init_room_res.room_id;
+    this._peer.id = init_room_res.peer_id;
 
     this._peer.proxy('CURRENTLY_PLAYING', context.audio_manager.bind);
 

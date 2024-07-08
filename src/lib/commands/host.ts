@@ -40,7 +40,7 @@ export class HostCommand extends Command<CoreAppContext> {
 
     if ((await this._peer.link_done).isNone()) return Err(new UnableToRetrivePeerSignal());
 
-    this._peer.send({ type: 'INIT_ROOM', room_id: context.room.id! });
+    this._peer.send({ type: 'INIT_ROOM', room_id: context.room.id!, peer_id: this._peer.id });
 
     const current_stream = context.audio_manager.stream;
 
