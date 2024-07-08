@@ -12,7 +12,7 @@
   }
 </script>
 
-<div class="gap-2 flex items-center justify-center pl-4">
+<div class="gap-2 flex items-center justify-center pl-4" id="access-room-code">
   <h1 class="pr-4">Code</h1>
   {#if unlocked}
     <span class="text-xl font-bold pb-1">{$room_id.id}</span>

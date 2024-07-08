@@ -7,6 +7,7 @@
   import { HostCommand } from '$lib/commands/host';
   import { App } from '$lib/app';
   import { waves_store_instance } from '$lib/stores/waves';
+  import { driver } from 'driver.js';
 
   const modalStore = getModalStore();
   const toastStore = getToastStore();
@@ -76,28 +77,93 @@
   $: if (bg_ref) {
     $waves_store_instance.mount(bg_ref);
   }
+
+  function onTutorial() {
+    const d = driver({
+      showProgress: true,
+      nextBtnText: '→',
+      prevBtnText: '←',
+      doneBtnText: '✕',
+
+      steps: [
+        {
+          element: '#btn-create-room',
+          popover: {
+            title: 'Créer une salle',
+            description:
+              "Clique ici pour créer une salle.\nUn code seras créer, tu pourras le copier et le partager avec tes amis pour qu'il te rejoigne.",
+          },
+        },
+        {
+          element: '#btn-join-room',
+          popover: {
+            title: 'Rejoindre une salle',
+            description: 'Clique ici pour rejoindre une salle.',
+            onNextClick: () => {
+              document.getElementById('btn-join-room')!.click();
+              setTimeout(() => {
+                d.moveNext();
+              }, 200);
+            },
+          },
+        },
+        {
+          element: '#username-input',
+          popover: {
+            title: 'Rejoindre une salle',
+            description: "Rensigne ton nom d'utilisateur ici",
+          },
+        },
+        {
+          element: '#code-input',
+          popover: {
+            title: 'Rejoindre une salle',
+            description: 'Rensigne le code de la salle ici',
+          },
+        },
+        {
+          element: '#join-room-btn',
+          popover: {
+            title: 'Rejoindre une salle',
+            description: "Et c'est parti !",
+          },
+          onDeselected: () => {
+            modalStore.close();
+            loading = false;
+            d.moveNext();
+          },
+        },
+      ],
+    });
+    d.drive();
+  }
 </script>
 
-<div class={clsx('h-full', 'w-full', 'flex', 'flex-col', 'items-center', 'justify-evenly', 'relative')}>
-  <div bind:this={bg_ref} class={clsx('absolute', 'bottom-0', 'left-0', 'w-full', 'z-[-1]', 'h-1/3')} />
-  <div
+<div class={clsx('h-full', 'w-full', 'flex', 'flex-col', 'relative')}>
+  <button
+    on:click={onTutorial}
     class={clsx(
-      'w-full',
-      'h-full',
-      'flex',
-      'flex-col',
-      'items-center',
-      'justify-evenly',
-      'space-y-8',
-      'md:h-96',
-      'md:p-4'
+      'absolute',
+      'right-5',
+      'top-5',
+      'btn-icon',
+      'variant-filled-tertiary',
+      'text-white',
+      'border-b-4',
+      'border-black'
     )}
   >
+    ?
+  </button>
+  <div bind:this={bg_ref} class={clsx('absolute', 'bottom-0', 'left-0', 'w-full', 'z-[-1]', 'h-1/3')} />
+  <div class={clsx('w-full', 'h-full', 'flex', 'flex-col', 'items-center', 'justify-center', 'space-y-8', 'md:p-4')}>
+    <img src="/logo.svg" alt="logo" class={clsx('w-64', 'h-64', 'animate-pulse')} />
     <h1 class={clsx('text-6xl', 'text-center', 'nowrap')}>Mu Stream</h1>
-    <h4 class="text-center">Partage des scéance d'écoute instense avec tes amis !</h4>
+    <h4 class="text-center">Partage des sessions d'écoute instense avec tes amis !</h4>
 
     <div class={clsx('flex', 'flex-col', 'space-y-4')}>
       <button
+        id="btn-create-room"
         type="button"
         on:click={host}
         disabled={loading}
@@ -109,12 +175,13 @@
 
         Créer une salle
       </button>
-      <div class={clsx('flex', 'w-full', 'justify-evenly', 'items-center', 'px-4')}>
+      <div class={clsx('flex', 'w-full', 'justify-evenly', 'px-4')}>
         <div class={clsx('h-[1px]', 'w-full', 'bg-black')} />
         <span class={clsx('px-4', 'text-black')}> OU </span>
         <div class={clsx('h-[1px]', 'w-full', 'bg-black')} />
       </div>
       <button
+        id="btn-join-room"
         type="button"
         on:click={join}
         disabled={loading}
