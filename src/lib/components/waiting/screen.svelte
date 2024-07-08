@@ -84,7 +84,6 @@
       nextBtnText: '→',
       prevBtnText: '←',
       doneBtnText: '✕',
-
       steps: [
         {
           element: '#btn-create-room',

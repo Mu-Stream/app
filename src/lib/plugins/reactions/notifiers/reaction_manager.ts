@@ -2,6 +2,7 @@ import { Notifier, type Events, type Listener } from '$lib/notifier/i_notifier';
 import { Ok } from 'bakutils-catcher';
 import { v4 } from 'uuid';
 import Particles from '../components/particles.svelte';
+import { App } from '$lib/app';
 
 export type ReactionEventType = 'ADD_REACTION';
 
@@ -46,6 +47,7 @@ export class ReactionManager extends Notifier<ReactionEventType, ReactionEvent> 
 
 	public _onReaction: Listener<ReactionEvent['ADD_REACTION']> = async event => {
 		this.addReaction(event.emoji);
+		App.instance.context.room.broadcast(event);
 		return Ok(null);
 	};
 }

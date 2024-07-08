@@ -15,7 +15,7 @@
       nextBtnText: '→',
       prevBtnText: '←',
       doneBtnText: '✕',
-
+      showProgress: true,
       steps: [
         {
           // element: '#btn-create-room',

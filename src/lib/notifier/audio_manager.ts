@@ -117,12 +117,17 @@ export class AudioManager extends Notifier<AudioManagerEventType, AudioManagerEv
 	}
 
 	public stop() {
-		this._remote?.disconnect();
-		this._node?.stop();
-		this._node?.stop();
-		this._destination?.disconnect();
-		this._node = undefined;
-		this._destination = undefined;
+		if (!this._node) return;
+		try {
+			this._remote?.disconnect();
+			this._node?.stop();
+			this._node?.stop();
+			this._destination?.disconnect();
+			this._node = undefined;
+			this._destination = undefined;
+		} catch (e) {
+			console.error(e);
+		}
 	}
 
 	public playRemote(stream: MediaStream) {
@@ -158,6 +163,7 @@ export class AudioManager extends Notifier<AudioManagerEventType, AudioManagerEv
 			status: 'PAUSED',
 		};
 		App.instance.executeCommand(new SyncCurrentlyPlaying(event));
+		this._notify(event);
 		clearInterval(this._media_timer);
 	}
 
