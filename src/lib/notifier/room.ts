@@ -85,7 +85,6 @@ export class Room extends ProxyNotifier<RoomEventTypes, RoomEvents> {
 		event: PeerEvents[PeerEventTypes] | E,
 		{ excluded_ids }: { excluded_ids?: string[] } = {}
 	): Result<null, Error> {
-		console.log('broadcasting', event, 'to ', this._members_peers.length, ' peers');
 		for (const peer of this._members_peers) {
 			if (!excluded_ids?.includes(peer.id)) {
 				const res = peer.send(event as PeerEvents[PeerEventTypes]);

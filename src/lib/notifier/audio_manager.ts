@@ -97,7 +97,6 @@ export class AudioManager extends Notifier<AudioManagerEventType, AudioManagerEv
 			if (evt.img.length !== 0) {
 				var blob = new Blob([new Uint8Array(evt.img[0].data)], { type: evt.img[0].format });
 				const compressed = await imageCompression(new File([blob], "temp", { type: evt.img[0].format }), { maxSizeMB: 0.05 });
-				console.log(blob.size, compressed.size);
 				evt.img[0].data = Array.from(new Uint8Array(await compressed.arrayBuffer()));
 				evt.img = evt.img.slice(0, 1);
 			}

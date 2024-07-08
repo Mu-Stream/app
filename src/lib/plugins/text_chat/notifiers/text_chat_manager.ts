@@ -1,5 +1,6 @@
 import { App } from '$lib/app';
 import { Notifier, type Events, type Listener } from '$lib/notifier/i_notifier';
+import type { WithPeerIentity } from '$lib/notifier/peer';
 import { Ok } from 'bakutils-catcher';
 
 export type TextChatEventType = 'ADD_TEXT_CHAT' | 'TEXT_ADDED_IN_LIST' | 'ADD_HISTORY_TO_TEXT_CHAT';
@@ -51,9 +52,9 @@ export class TextChatManager extends Notifier<TextChatEventType, TextChatEvent> 
 		return Ok(null);
 	};
 
-	public _onTextChat: Listener<TextChatEvent['ADD_TEXT_CHAT']> = async event => {
+	public _onTextChat: Listener<WithPeerIentity<TextChatEvent['ADD_TEXT_CHAT']>> = async event => {
 		this.addTextChat(event.nickname, event.text, event.uuid);
-		App.instance.context.room.broadcast(event);
+		App.instance.context.room.broadcast(event, { excluded_ids: [event.identity] });
 		return Ok(null);
 	};
 }
