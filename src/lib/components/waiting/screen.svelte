@@ -81,6 +81,7 @@
   function onTutorial() {
     const d = driver({
       showProgress: true,
+      progressText: "Etape {{current}} sur {{total}}" ,
       nextBtnText: '→',
       prevBtnText: '←',
       doneBtnText: '✕',
@@ -175,7 +176,7 @@
 
         Créer une salle
       </button>
-      <div class={clsx('flex', 'w-full', 'justify-evenly', 'px-4')}>
+      <div class={clsx('flex', 'w-full', 'justify-evenly', 'items-center', 'px-4')}>
         <div class={clsx('h-[1px]', 'w-full', 'bg-black')} />
         <span class={clsx('px-4', 'text-black')}> OU </span>
         <div class={clsx('h-[1px]', 'w-full', 'bg-black')} />

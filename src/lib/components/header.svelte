@@ -15,7 +15,8 @@
       nextBtnText: '→',
       prevBtnText: '←',
       doneBtnText: '✕',
-
+      showProgress: true,
+      progressText: "Etape {{current}} sur {{total}}" ,
       steps: [
         {
           // element: '#btn-create-room',
