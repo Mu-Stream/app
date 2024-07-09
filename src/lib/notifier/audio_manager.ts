@@ -33,7 +33,6 @@ export type AudioManagerEvent = Events<
 export class AudioManager extends Notifier<AudioManagerEventType, AudioManagerEvent> {
 	private _context!: AudioContext;
 	private _audio = new Audio();
-
 	/// both of those are used when it's you that is streaming the current song
 	private _node?: AudioBufferSourceNode;
 	private _destination?: MediaStreamAudioDestinationNode;
@@ -80,7 +79,7 @@ export class AudioManager extends Notifier<AudioManagerEventType, AudioManagerEv
 
 		reader.onload = async event => {
 			const b = event.target?.result as ArrayBuffer;
-			const tags = new Mp3Tag(b);
+			const tags = new Mp3Tag(b, true);
 			tags.read();
 
 			const evt: AudioManagerEvent['CURRENTLY_METADATA'] = {
@@ -92,15 +91,17 @@ export class AudioManager extends Notifier<AudioManagerEventType, AudioManagerEv
 				img: tags.tags.v2?.APIC ?? [],
 			};
 
-			// compress image  to mak eit go through webrtc and keep only the first one
+			// compress image  to mak it go through webrtc and keep only the first one
 			if (evt.img.length !== 0) {
 				var blob = new Blob([new Uint8Array(evt.img[0].data)], { type: evt.img[0].format });
 				const compressed = await imageCompression(new File([blob], 'temp', { type: evt.img[0].format }), {
-					maxSizeMB: 0.05,
+					maxSizeMB: 0.01,
 				});
 				evt.img[0].data = Array.from(new Uint8Array(await compressed.arrayBuffer()));
 				evt.img = evt.img.slice(0, 1);
 			}
+
+			console.log({ evt });
 			App.instance.executeCommand(new SyncCurrentMetadata(evt));
 			return this._context?.decodeAudioData(b, b => buffer.completeValue(b));
 		};

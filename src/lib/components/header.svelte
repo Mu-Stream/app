@@ -72,7 +72,7 @@
   }
 </script>
 
-<div class={clsx('flex', 'justify-between', 'items-center', 'py-2', 'bg-tertiary-300', 'px-4')}>
+<div class={clsx('flex', 'justify-between', 'items-center', 'py-2', 'px-4', 'text-white')}>
   <h1 class={clsx('text-2xl', 'font-bold')}>Mu Stream</h1>
   <div class={clsx('flex', 'items-center')}>
     <RoomCode />

@@ -8,7 +8,7 @@
 </script>
 
 <div
-  class={clsx('hidden', 'md:flex', 'h-full', 'flex-col', 'mx-4', 'relative')}
+  class={clsx('hidden', 'md:flex', 'h-full', 'flex-col', 'mx-4', 'relative', 'text-white', 'max-w-96', 'w-96', 'py-8')}
   bind:this={App.instance.plugin_manager.sidebar_ref}
 >
   <div class={clsx('h-full', 'space-y-2')}>

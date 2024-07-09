@@ -138,7 +138,7 @@
   }
 </script>
 
-<div class={clsx('h-full', 'w-full', 'flex', 'flex-col', 'relative')}>
+<div class={clsx('h-full', 'w-full', 'flex', 'flex-col', 'relative', 'text-white')}>
   <button
     on:click={onTutorial}
     class={clsx(

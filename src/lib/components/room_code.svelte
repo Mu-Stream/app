@@ -2,6 +2,7 @@
   import { EyeOutline, EyeSlashOutline, FileCopyOutline } from 'flowbite-svelte-icons';
   import { Toggle } from 'bits-ui';
   import { App } from '$lib/app';
+  import { getToastStore } from '@skeletonlabs/skeleton';
 
   const room_id = App.instance.context.room.readable('ROOM_ID');
 
@@ -9,6 +10,7 @@
 
   function copy() {
     if ($room_id.id) navigator.clipboard.writeText($room_id.id);
+    App.instance.context.toaster.trigger({ message: 'Code copié dans le presse papier' });
   }
 </script>
 

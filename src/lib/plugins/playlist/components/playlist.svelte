@@ -18,7 +18,7 @@
   }
 </script>
 
-<div>
+<div class={clsx('md:max-w-96')}>
   <div class={clsx('text-xl', 'font-bold', 'text-center', 'max-h-1/3')}>Playlist</div>
   <button
     type="button"
