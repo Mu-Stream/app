@@ -20,7 +20,7 @@
 
 <div class={clsx('flex', 'flex-col', 'w-full', 'h-full', 'px-8', 'space-y-4', 'items-center', 'justify-center')}>
   {#if $image !== ''}
-    <StyledCover alt="cover" src={$image} height="md:h-96" width="w-full md:w-96" />
+    <StyledCover id="main-cover" alt="cover" src={$image} height="md:h-96" width="w-full md:w-96" />
   {:else}
     <FileMusicSolid size="xl" />
   {/if}

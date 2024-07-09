@@ -1,7 +1,6 @@
-import type { Song } from '$lib/webrtc/types/general';
 import { writable } from 'svelte/store';
 
-export const playlist = writable<Song[]>([
+export const playlist = writable([
   {
     title: 'test',
     artist: 'test',
@@ -12,6 +11,6 @@ export const playlist = writable<Song[]>([
   },
 ]);
 
-export function updatePlaylist(new_playlist: Song[]) {
+export function updatePlaylist(new_playlist: any) {
   playlist.set(new_playlist);
 }

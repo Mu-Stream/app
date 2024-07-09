@@ -32,7 +32,7 @@
   let dropdownOpen = false;
   let selectedEmoji = emojis[0];
 
-  function selectEmoji(emoji) {
+  function selectEmoji(emoji: string) {
     selectedEmoji = emoji;
     App.instance.executeCommand(new ReactCommand(selectedEmoji));
   }

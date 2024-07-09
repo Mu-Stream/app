@@ -11,7 +11,7 @@
   const song_meta = App.instance.context.audio_manager.readable('CURRENTLY_METADATA');
 </script>
 
-<div class={clsx('p-2', 'space-x-4', 'space-y-2')}>
+<div class={clsx('p-2', 'space-x-4', 'space-y-2', 'text-white')}>
   <!-- {#if current_song !== undefined} -->
   <ProgressBar value={$song_progress.current_time} max={$song_progress.total_time} meter={'bg-tertiary-500'} />
   <div class={clsx('flex', 'items-center', 'space-x-4')}>

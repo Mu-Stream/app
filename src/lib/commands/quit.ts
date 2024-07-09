@@ -9,6 +9,7 @@ export class QuitCommand extends Command<CoreAppContext> {
     } else {
       context.room.delete();
     }
+    context.audio_manager.stop();
     // TODO: maybe find other solution than hard relad page
     window.location.reload();
     return Ok(null);

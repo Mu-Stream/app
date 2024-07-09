@@ -6,6 +6,7 @@ import { SignalingServer } from '$lib/notifier/signaling';
 import { ReactionPlugin } from './plugins/reactions/reactions';
 import { PluginManager } from './plugins/plugin_manager';
 import { TextChatPlugin } from './plugins/text_chat/text_chat';
+import { PlaylistPlugin } from './plugins/playlist/playlist';
 import { Toaster } from './notifier/toaster';
 
 export type CoreAppContext = typeof App.instance.context;
@@ -36,6 +37,7 @@ export class App {
 }
 
 // TODO: propose a way to load plugins from a folder
+App.instance.plugin_manager.register(context => new PlaylistPlugin(context));
 App.instance.plugin_manager.register(context => new ReactionPlugin(context));
 App.instance.plugin_manager.register(context => new TextChatPlugin(context));
 App.instance.plugin_manager.init();

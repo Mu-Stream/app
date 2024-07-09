@@ -1,7 +1,6 @@
 <script lang="ts">
   import { navigation } from '$lib/stores/navigation';
   import PlayerScreen from '$lib/components/player/screen.svelte';
-  import PlaylistScreen from '$lib/components/playlist/screen.svelte';
   import UsersListScreen from '$lib/components/users/screen.svelte';
   import { App } from '$lib/app';
   import { is_mobile } from '$lib/stores/is_mobile';
@@ -20,8 +19,6 @@
   {#if $is_mobile}
     {#if $navigation === 'PLAYER'}
       <PlayerScreen />
-    {:else if $navigation === 'PLAYLIST'}
-      <PlaylistScreen />
     {:else if $navigation === 'PARTICIPANTS'}
       <UsersListScreen />
     {/if}

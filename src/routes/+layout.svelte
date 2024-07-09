@@ -14,6 +14,7 @@
   import { onMount } from 'svelte';
   import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
   import { storePopup } from '@skeletonlabs/skeleton';
+  import DynamicBg from '$lib/components/dynamic_bg.svelte';
   storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 
   initializeStores();
@@ -52,6 +53,8 @@
 
 <Modal components={custom_modal_registery} />
 <Toast position="bl" />
+
+<DynamicBg />
 
 <div bind:this={App.instance.plugin_manager.app_ref} class={clsx('w-full', 'h-full', 'overflow-hidden')}>
   {#if $room_id.id}

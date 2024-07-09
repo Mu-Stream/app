@@ -25,6 +25,7 @@ export type PeerEvents = Events<
     INIT_ROOM: {
       type: 'INIT_ROOM';
       room_id: string;
+      peer_id: string;
     };
     RENEGOCIATE: {
       type: 'RENEGOCIATE';
@@ -66,14 +67,21 @@ export class Peer extends ProxyNotifier<PeerEventTypes, PeerEvents> {
   public get id() {
     return this._id;
   }
+
   public get username() {
     return this._username;
   }
+
   public get initial_signal() {
     return this._initial_signal.future;
   }
+
   public get link_done() {
     return this._link_done.future;
+  }
+
+  public set id(id: string) {
+    this._id = id;
   }
 
   constructor({ initiator, username }: { initiator: boolean; username: string }) {
@@ -105,7 +113,6 @@ export class Peer extends ProxyNotifier<PeerEventTypes, PeerEvents> {
           });
 
           this._peer.on('close', () => {
-            console.log('peer closed');
             return this._notify({ type: 'CLOSE' });
           });
 
