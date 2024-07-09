@@ -14,7 +14,21 @@ export default {
     join(require.resolve('@skeletonlabs/skeleton'), '../**/*.{html,js,svelte,ts}'),
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        'transparent-tertiary': '#BDB8E34a',
+        'semi-transparent-tertiary': '#BDB8E3CC',
+      },
+      animation: {
+        'scale-reverse': 'scale-reverse 1s ease-in-out',
+      },
+      keyframes: {
+        'scale-reverse': {
+          '0%': { transform: 'scale(1.1)' },
+          '100%': { transform: 'scale(1)' },
+        },
+      },
+    },
   },
   plugins: [
     // 4. Append the Skeleton plugin (after other plugins)

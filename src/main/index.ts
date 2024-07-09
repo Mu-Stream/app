@@ -19,6 +19,7 @@ async function createWindow() {
   // Load the local URL for development or the local
   // html file for production
   load(mainWindow, port, undefined);
+  mainWindow.setMenu(null);
 
   if (isDev) mainWindow.webContents.openDevTools();
 }

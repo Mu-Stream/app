@@ -18,17 +18,17 @@
   });
 </script>
 
-<div class={clsx('flex', 'flex-col', 'w-full', 'h-full', 'px-8', 'space-y-4', 'items-center', 'justify-center')}>
+<div class={clsx('flex', 'flex-col', 'w-full', 'h-full', 'px-8', 'items-center', 'justify-center', 'grow')}>
   {#if $image !== ''}
-    <StyledCover id="main-cover" alt="cover" src={$image} height="md:h-96" width="w-full md:w-96" />
+    <StyledCover id="main-cover" alt="cover" src={$image} />
   {:else}
-    <FileMusicSolid size="xl" />
+    <FileMusicSolid size="xl" class={clsx('grow')} />
   {/if}
-
   {#if $is_mobile}
-    <div class={clsx('flex', 'flex-col', 'w-full', 'relative')}>
+    <div class={clsx('flex', 'flex-col', 'w-full', 'relative', 'justify-end', 'grow', 'text-white')}>
+      <UserActions />
       <div class={clsx('space-y-2')}>
-        <h1 class={clsx('text-3xl', 'font-bold')}>
+        <h1 class={clsx('text-xl', 'md:text-3xl', 'font-bold')}>
           {$current_meta.title}
         </h1>
         <h4 class={clsx('text-sm')}>
@@ -38,7 +38,6 @@
 
       <SongProgress />
       <SongControls />
-      <UserActions />
     </div>
   {/if}
 </div>

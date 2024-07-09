@@ -21,6 +21,6 @@
 >
   <button id="btn-add-song" class={clsx('btn', 'variant-filled-tertiary', outline_style)} on:click={pick_songs}>
     <FileMusicSolid />
-    <span class="hidden md:inline">ajouter un son</span>
+    <span class="hidden lg:inline">ajouter un son</span>
   </button>
 </div>

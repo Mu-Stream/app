@@ -5,49 +5,53 @@ import { Completer } from '$lib/completer';
 import Mp3Tag from 'mp3tag.js';
 import type { Song } from '../notifier/playlist_manager';
 import imageCompression from 'browser-image-compression';
+import { get } from 'svelte/store';
+import { compression_rate } from '$lib/stores/compression_rate';
 
 export class AddToPlaylist extends Command<PlaylistPlugin['context']> {
-	constructor(private _file: File) {
-		super();
-	}
+  constructor(private _file: File) {
+    super();
+  }
 
-	public async execute(context: PlaylistPlugin['context']): Promise<Result<null, Error>> {
-		const meta = new Completer<Song>();
+  public async execute(context: PlaylistPlugin['context']): Promise<Result<null, Error>> {
+    const meta = new Completer<Song>();
 
-		const reader = new FileReader();
+    const reader = new FileReader();
 
-		reader.onload = event => {
-			const b = event.target?.result as ArrayBuffer;
-			const tags = new Mp3Tag(b);
-			tags.read();
-			console.log(tags.tags.v2?.APIC);
+    reader.onload = event => {
+      const b = event.target?.result as ArrayBuffer;
+      const tags = new Mp3Tag(b);
+      tags.read();
+      console.log(tags.tags.v2?.APIC);
+      let title = tags.tags.title;
+      if (title === undefined || title === '') title = this._file.name.slice(0, this._file.name.lastIndexOf('.')!);
 
-			meta.complete(
-				Option({
-					identity: context.room.client_peer?.id ?? 'host',
-					title: tags.tags.title ?? this._file.name,
-					artist: tags.tags.artist ?? '',
-					album: tags.tags.album ?? '',
-					year: tags.tags.year ?? '',
-					img: tags.tags.v2?.APIC ?? [],
-				})
-			);
-		};
-		reader.readAsArrayBuffer(this._file);
-		const m = await meta.future;
-		const met = m.unwrap();
+      meta.complete(
+        Option({
+          identity: context.room.client_peer?.id ?? 'host',
+          title,
+          artist: tags.tags.artist ?? '',
+          album: tags.tags.album ?? '',
+          year: tags.tags.year ?? '',
+          img: tags.tags.v2?.APIC ?? [],
+        })
+      );
+    };
+    reader.readAsArrayBuffer(this._file);
+    const m = await meta.future;
+    const met = m.unwrap();
 
-		// compress image  to mak eit go through webrtc and keep only the first one
-		if (met.img.length !== 0) {
-			var blob = new Blob([new Uint8Array(met.img[0].data)], { type: met.img[0].format });
-			const compressed = await imageCompression(new File([blob], 'temp', { type: met.img[0].format }), {
-				maxSizeMB: 0.01,
-			});
-			met.img[0].data = Array.from(new Uint8Array(await compressed.arrayBuffer()));
-			met.img = met.img.slice(0, 1);
-		}
+    // compress image  to mak eit go through webrtc and keep only the first one
+    if (met.img.length !== 0) {
+      var blob = new Blob([new Uint8Array(met.img[0].data)], { type: met.img[0].format });
+      const compressed = await imageCompression(new File([blob], 'temp', { type: met.img[0].format }), {
+        maxSizeMB: get(compression_rate),
+      });
+      met.img[0].data = Array.from(new Uint8Array(await compressed.arrayBuffer()));
+      met.img = met.img.slice(0, 1);
+    }
 
-		context.playlist.playlist_manager.addSongToPlaylist(m.unwrap());
-		return Ok(null);
-	}
+    context.playlist.playlist_manager.addSongToPlaylist(m.unwrap());
+    return Ok(null);
+  }
 }
