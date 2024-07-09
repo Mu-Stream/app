@@ -13,6 +13,7 @@
   ).text_chat.text_chat_manager.readable('TEXT_ADDED_IN_LIST');
 
   let input: HTMLInputElement;
+  let lastMessage: HTMLDivElement;
 
   function sendMessage() {
     if (text.length === 0 || text.trim() === '') return;
@@ -21,15 +22,30 @@
     // refocus on the input
     input.focus();
   }
+
+  $: $chat_msgs.messages && lastMessage && lastMessage.scrollIntoView({ behavior: 'smooth' });
 </script>
 
-<div class={clsx('space-y-2')}>
+<div
+  class={clsx(
+    'space-y-2',
+    'bg-transparent-tertiary',
+    'p-4',
+    'rounded-3xl',
+    'grow-[3]',
+    'h-full',
+    'flex',
+    'flex-col',
+    'overflow-y-hidden'
+  )}
+>
   <div class={clsx('text-xl', 'font-bold', 'text-center')}>Chat en direct</div>
-  <div class="overflow-y-auto overflow-x-hidden h-[35vh]">
+  <div class="overflow-y-auto grow">
     {#each $chat_msgs.messages as text_msg}
       <div
-        class={clsx('grid', 'grid-cols-[auto]', 'mb-1', text_msg.uuid === currentUuid && 'float-right')}
-        style="width: 90%;"
+        id="message-{text_msg.uuid}"
+        bind:this={lastMessage}
+        class={clsx('grid', 'grid-cols-[auto]', 'mb-1', text_msg.uuid === currentUuid && 'float-right', 'w-full')}
       >
         <div
           class={clsx(
@@ -57,7 +73,11 @@
   <div class="bottom-0 grid grid-cols-[auto]">
     <div class={clsx('relative')}>
       <form>
-        <input bind:this={input} class={clsx('input', 'w-full', 'h-8', 'px-4', 'text-black')} bind:value={text} />
+        <input
+          bind:this={input}
+          class={clsx('input', 'w-full', 'h-8', 'px-4', 'text-black', 'bg-transparent-tertiary')}
+          bind:value={text}
+        />
         <button
           class={clsx(
             'absolute',

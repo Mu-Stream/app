@@ -18,14 +18,30 @@
   }
 </script>
 
-<div class={clsx('md:max-w-96')}>
-  <div class={clsx('text-xl', 'font-bold', 'text-center', 'max-h-1/3')}>Playlist</div>
-  <button
-    type="button"
-    on:click={onAddSongToPlaylist}
-    class={clsx('btn', 'btn-sm', 'variant-filled-tertiary', outline_style)}>+</button
-  >
-  {#each $queue.queue as song}
-    <PlaylistSong {song} />
-  {/each}
+<div
+  class={clsx(
+    'bg-transparent-tertiary',
+    'p-4',
+    'rounded-3xl',
+    'grow-[3]',
+    'overflow-y-hidden',
+    'h-full',
+    'flex',
+    'flex-col'
+  )}
+>
+  <div class={clsx('flex', 'justify-between', 'items-center')}>
+    <div />
+    <div class={clsx('text-xl', 'font-bold', 'text-center')}>Playlist</div>
+    <button
+      type="button"
+      on:click={onAddSongToPlaylist}
+      class={clsx('btn', 'btn-sm', 'variant-filled-tertiary', outline_style)}>+</button
+    >
+  </div>
+  <div class="overflow-y-auto grow flex flex-col">
+    {#each $queue.queue as song}
+      <PlaylistSong {song} />
+    {/each}
+  </div>
 </div>

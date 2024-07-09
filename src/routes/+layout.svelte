@@ -1,5 +1,14 @@
 <script lang="ts">
-  import { AppShell, Modal, initializeStores, type ModalComponent, Toast, getToastStore } from '@skeletonlabs/skeleton';
+  import {
+    AppShell,
+    Modal,
+    initializeStores,
+    type ModalComponent,
+    Toast,
+    getToastStore,
+    Drawer,
+    getDrawerStore,
+  } from '@skeletonlabs/skeleton';
   import 'driver.js/dist/driver.css';
   import '../app.pcss';
   import Header from '$lib/components/header.svelte';
@@ -15,11 +24,13 @@
   import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
   import { storePopup } from '@skeletonlabs/skeleton';
   import DynamicBg from '$lib/components/dynamic_bg.svelte';
+  import HeaderActions from '$lib/components/header_actions.svelte';
   storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 
   initializeStores();
 
   const toast_store = getToastStore();
+  const drawer_store = getDrawerStore();
 
   const room_id = App.instance.context.room.readable('ROOM_ID');
 
@@ -53,6 +64,11 @@
 
 <Modal components={custom_modal_registery} />
 <Toast position="bl" />
+<Drawer position="right">
+  {#if $drawer_store.id === 'mobile-menu'}
+    <HeaderActions />
+  {/if}
+</Drawer>
 
 <DynamicBg />
 

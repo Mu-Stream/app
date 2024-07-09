@@ -1,97 +1,46 @@
 <script lang="ts">
-  import RoomCode from '$lib/components/room_code.svelte';
   import { outline_style } from '$lib/global_styles';
   import clsx from 'clsx';
-  import { App } from '$lib/app';
-  import { QuitCommand } from '$lib/commands/quit';
-  import { driver } from 'driver.js';
+  import { getDrawerStore, type DrawerSettings } from '@skeletonlabs/skeleton';
+  import { DotsVerticalOutline } from 'flowbite-svelte-icons';
+  import HeaderActions from './header_actions.svelte';
 
-  function onQuit() {
-    App.instance.executeCommand(new QuitCommand());
-  }
+  const drawer_store = getDrawerStore();
 
-  function onTutorial() {
-    const d = driver({
-      nextBtnText: '→',
-      prevBtnText: '←',
-      doneBtnText: '✕',
-      showProgress: true,
-      steps: [
-        {
-          // element: '#btn-create-room',
-          popover: {
-            title: 'Bienvenue sur Mu Stream',
-            description: 'Voici un tutoriel pour vous aider à démarrer',
-          },
-        },
-        {
-          element: '#access-room-code',
-          popover: {
-            title: 'Code de la salle',
-            description:
-              "Tu peux partager ce code avec tes amis pour qu'ils rejoignent ta salle.L'oeil permet de l'afficher et licone copier de le copier directement dans ton presse papier !",
-          },
-        },
-        {
-          element: '#btn-add-song',
-          popover: {
-            title: 'Ajouter un son',
-            description: 'Tu peux ajouter une musique à la salle en appuyant ici',
-          },
-        },
-        {
-          element: '#btn-add-reaction',
-          popover: {
-            title: 'Ajouter une reaction',
-            description: 'Tu peux reagir a la musique !',
-          },
-        },
-        {
-          element: '#song-controls',
-          popover: {
-            title: 'Contrôles de la musique',
-            description: 'Tu peux contrôler avec les boutons ici',
-          },
-        },
-        {
-          element: '#btn-leave-room',
-          popover: {
-            title: 'Quitter la salle',
-            description: 'Tu peux quitter ou dissoudre la salle en cliquant ici',
-          },
-        },
-        {
-          popover: {
-            title: 'Enjoy Sharing',
-            description: 'Et voila tu sais tout sur Mu Stream',
-          },
-        },
-      ],
-    });
-    d.drive();
+  function openMobileMenu() {
+    const drawerSettings: DrawerSettings = {
+      id: 'mobile-menu',
+      position: 'right',
+      bgDrawer: 'bg-semi-transparent-tertiary  border-b-4  border-r-2 border-black',
+      width: 'w-[280px] md:w-[480px]',
+      padding: 'p-4',
+      rounded: 'rounded-xl',
+    };
+    drawer_store.open(drawerSettings);
   }
 </script>
 
-<div class={clsx('flex', 'justify-between', 'items-center', 'py-2', 'px-4', 'text-white')}>
+<div
+  class={clsx(
+    'flex',
+    'justify-between',
+    'items-center',
+    'py-2',
+    'px-4',
+    'text-white',
+    'bg-transparent-tertiary',
+    'rounded-3xl',
+    'm-4'
+  )}
+>
   <h1 class={clsx('text-2xl', 'font-bold')}>Mu Stream</h1>
-  <div class={clsx('flex', 'items-center')}>
-    <RoomCode />
-    <button
-      id="btn-leave-room"
-      class={clsx('btn', 'btn-sm', 'variant-filled-tertiary', outline_style)}
-      on:click={onQuit}
-    >
-      {#if App.instance.context.room.is_client}
-        Déconnexion
-      {:else}
-        Supprimer la salle
-      {/if}
-    </button>
-    <button
-      on:click={onTutorial}
-      class={clsx('ml-2', 'btn-icon', 'variant-filled-tertiary', 'text-white', 'border-b-4', 'border-black')}
-    >
-      ?
-    </button>
+  <button
+    class={clsx('btn', 'btn-icon', 'variant-filled-tertiary', outline_style, 'md:hidden')}
+    on:click={openMobileMenu}
+  >
+    <DotsVerticalOutline size="xl" />
+  </button>
+  <div class={clsx('items-center', 'hidden', 'md:flex')}>
+    <HeaderActions />
   </div>
 </div>

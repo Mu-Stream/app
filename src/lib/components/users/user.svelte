@@ -3,7 +3,7 @@
   import clsx from 'clsx';
   export let user: { id: string; username: string };
 
-  const initials = user.username
+  $: initials = user.username
     .split(' ')
     .map((name: string) => name[0])
     .join('');
