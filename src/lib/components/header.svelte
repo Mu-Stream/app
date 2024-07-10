@@ -11,7 +11,7 @@
     const drawerSettings: DrawerSettings = {
       id: 'mobile-menu',
       position: 'right',
-      bgDrawer: 'bg-semi-transparent-tertiary  border-b-4  border-r-2 border-black',
+      bgDrawer: 'bg-semi-transparent-tertiary',
       width: 'w-[280px] md:w-[480px]',
       padding: 'p-4',
       rounded: 'rounded-xl',

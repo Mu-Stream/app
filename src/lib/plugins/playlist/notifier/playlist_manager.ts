@@ -10,7 +10,7 @@ export interface Song {
   artist: string;
   album: string;
   year: string;
-  img: MP3TagAPICFrame[];
+  img: any[];
 }
 
 export type PlaylistEventType =

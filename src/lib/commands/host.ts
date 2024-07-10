@@ -56,6 +56,7 @@ export class HostCommand extends Command<CoreAppContext> {
     this._peer.subscribe('USER_LIST', this._handleUserList(context));
     this._peer.subscribe('CLOSE', this._handleClose(context));
     this._peer.subscribe('TOAST', this._handleToast(context));
+    this._peer.subscribe('CURRENTLY_METADATA', this._handleCurrentMetadata(context));
 
     this._peer.proxy('CURRENTLY_PLAYING', context.audio_manager.bind);
 
@@ -121,4 +122,12 @@ export class HostCommand extends Command<CoreAppContext> {
       context.toaster.trigger(event);
       return Ok(null);
     };
+
+  private _handleCurrentMetadata: WrappedListener<
+    CoreAppContext,
+    WithPeerIentity<AudioManagerEvent['CURRENTLY_METADATA']>
+  > = context => async event => {
+    context.audio_manager.syncCurrentMetadata(event);
+    return Ok(null);
+  };
 }

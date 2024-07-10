@@ -7,6 +7,7 @@ import type { Song } from '../notifier/playlist_manager';
 import imageCompression from 'browser-image-compression';
 import { get } from 'svelte/store';
 import { compression_rate } from '$lib/stores/compression_rate';
+import { parseBlob } from 'music-metadata';
 
 export class AddToPlaylist extends Command<PlaylistPlugin['context']> {
   constructor(private _file: File) {
@@ -16,24 +17,21 @@ export class AddToPlaylist extends Command<PlaylistPlugin['context']> {
   public async execute(context: PlaylistPlugin['context']): Promise<Result<null, Error>> {
     const meta = new Completer<Song>();
 
+    const tags = await parseBlob(this._file);
+
     const reader = new FileReader();
 
     reader.onload = event => {
       const b = event.target?.result as ArrayBuffer;
-      const tags = new Mp3Tag(b);
-      tags.read();
-      console.log(tags.tags.v2?.APIC);
-      let title = tags.tags.title;
-      if (title === undefined || title === '') title = this._file.name.slice(0, this._file.name.lastIndexOf('.')!);
 
       meta.complete(
         Option({
           identity: context.room.client_peer?.id ?? 'host',
-          title,
-          artist: tags.tags.artist ?? '',
-          album: tags.tags.album ?? '',
-          year: tags.tags.year ?? '',
-          img: tags.tags.v2?.APIC ?? [],
+          title: tags.common.title ?? this._file.name.split('.')[0],
+          artist: tags.common.artist ?? '',
+          album: tags.common.album ?? '',
+          year: tags.common.year?.toString() ?? '',
+          img: tags.common.picture ?? [],
         })
       );
     };
