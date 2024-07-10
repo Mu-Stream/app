@@ -45,7 +45,7 @@
       <div
         id="message-{text_msg.uuid}"
         bind:this={lastMessage}
-        class={clsx('grid', 'grid-cols-[auto]', 'mb-1', text_msg.uuid === currentUuid && 'float-right', 'w-full')}
+        class={clsx('grid', 'grid-cols-[auto]', 'mb-1', text_msg.uuid === currentUuid && 'float-right', 'w-[90%]')}
       >
         <div
           class={clsx(

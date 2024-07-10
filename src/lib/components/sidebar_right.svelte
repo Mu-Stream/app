@@ -18,6 +18,7 @@
     'max-w-96',
     'w-96',
     'p-4',
+    'pt-0',
     'space-y-4'
   )}
   bind:this={App.instance.plugin_manager.sidebar_ref}
