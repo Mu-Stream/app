@@ -2,7 +2,6 @@ import { Command } from '$lib/commands/i_commands';
 import { Ok, Option, type Result } from 'bakutils-catcher';
 import type { PlaylistPlugin } from '../playlist';
 import { Completer } from '$lib/completer';
-import Mp3Tag from 'mp3tag.js';
 import type { Song } from '../notifier/playlist_manager';
 import imageCompression from 'browser-image-compression';
 import { get } from 'svelte/store';

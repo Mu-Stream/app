@@ -3,8 +3,6 @@ import { Err, Ok, type Result } from 'bakutils-catcher';
 import { App } from '$lib/app';
 import { Notifier, type Events } from './i_notifier';
 import { SyncCurrentlyPlaying } from '$lib/commands/sync_currently_playing';
-import Mp3Tag from 'mp3tag.js';
-import type { MP3TagAPICFrame } from 'mp3tag.js/types/id3v2/frames';
 import { SyncCurrentMetadata } from '$lib/commands/sync_current_metadata';
 import imageCompression from 'browser-image-compression';
 import { get } from 'svelte/store';
