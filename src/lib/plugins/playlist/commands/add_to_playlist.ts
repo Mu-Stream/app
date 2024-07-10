@@ -16,7 +16,15 @@ export class AddToPlaylist extends Command<PlaylistPlugin['context']> {
   public async execute(context: PlaylistPlugin['context']): Promise<Result<null, Error>> {
     const meta = new Completer<Song>();
 
-    const tags = await parseBlob(this._file);
+    let tags: {
+      common: { title?: string; artist?: string; album?: string; year?: number; picture?: { data: Uint8Array }[] };
+    };
+
+    try {
+      tags = await parseBlob(this._file);
+    } catch (e) {
+      tags = { common: {} };
+    }
 
     const reader = new FileReader();
 
