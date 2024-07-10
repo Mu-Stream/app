@@ -1,5 +1,4 @@
 import { Notifier, type Events, type Listener } from '$lib/notifier/i_notifier';
-import type { MP3TagAPICFrame } from 'mp3tag.js/types/id3v2/frames';
 import { App } from '$lib/app';
 import { Ok } from 'bakutils-catcher';
 import type { WithPeerIentity } from '$lib/notifier/peer';

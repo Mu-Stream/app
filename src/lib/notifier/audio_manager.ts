@@ -79,7 +79,15 @@ export class AudioManager extends Notifier<AudioManagerEventType, AudioManagerEv
     const reader = new FileReader();
     const buffer = new Completer<AudioBuffer>();
 
-    const tags = await parseBlob(file);
+    let tags: {
+      common: { title?: string; artist?: string; album?: string; year?: number; picture?: { data: Uint8Array }[] };
+    };
+
+    try {
+      tags = await parseBlob(file);
+    } catch (e) {
+      tags = { common: {} };
+    }
 
     reader.onload = async event => {
       const b = event.target?.result as ArrayBuffer;
