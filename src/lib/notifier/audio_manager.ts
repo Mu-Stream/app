@@ -9,6 +9,7 @@ import { SyncCurrentMetadata } from '$lib/commands/sync_current_metadata';
 import imageCompression from 'browser-image-compression';
 import { get } from 'svelte/store';
 import { compression_rate } from '$lib/stores/compression_rate';
+import { parseBlob } from 'music-metadata';
 
 type AudioManagerEventType = 'CURRENTLY_PLAYING' | 'CURRENTLY_METADATA';
 
@@ -27,7 +28,7 @@ export type AudioManagerEvent = Events<
       artist: string;
       album: string;
       year: string;
-      img: MP3TagAPICFrame[];
+      img: any[];
     };
   }
 >;
@@ -80,27 +81,21 @@ export class AudioManager extends Notifier<AudioManagerEventType, AudioManagerEv
     const reader = new FileReader();
     const buffer = new Completer<AudioBuffer>();
 
+    const tags = await parseBlob(file);
+
     reader.onload = async event => {
       const b = event.target?.result as ArrayBuffer;
-      const tags = new Mp3Tag(b, true);
-      tags.read();
-
-      let title = tags.tags.title;
-
-      if (title === undefined || title === '') title = file.name;
-
-      console.log({ title });
 
       const evt: AudioManagerEvent['CURRENTLY_METADATA'] = {
         type: 'CURRENTLY_METADATA',
-        title,
-        artist: tags.tags.artist ?? '',
-        album: tags.tags.album ?? '',
-        year: tags.tags.year ?? '',
-        img: tags.tags.v2?.APIC ?? [],
+        title: tags.common.title ?? file.name.split('.')[0],
+        artist: tags.common.artist ?? '',
+        album: tags.common.album ?? '',
+        year: tags.common.year?.toString() ?? '',
+        img: tags.common.picture ?? [],
       };
 
-      // compress image  to mak it go through webrtc and keep only the first one
+      // compress image to make it go through webrtc and keep only the first one
       if (evt.img.length !== 0) {
         var blob = new Blob([new Uint8Array(evt.img[0].data)], { type: evt.img[0].format });
         const compressed = await imageCompression(new File([blob], 'temp', { type: evt.img[0].format }), {
@@ -110,7 +105,6 @@ export class AudioManager extends Notifier<AudioManagerEventType, AudioManagerEv
         evt.img = evt.img.slice(0, 1);
       }
 
-      console.log({ evt });
       App.instance.executeCommand(new SyncCurrentMetadata(evt));
       return this._context?.decodeAudioData(b, b => buffer.completeValue(b));
     };
