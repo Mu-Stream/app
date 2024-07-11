@@ -36,7 +36,8 @@
     'h-full',
     'flex',
     'flex-col',
-    'overflow-y-hidden'
+    'overflow-y-hidden',
+    'shadow-lg'
   )}
 >
   <div class={clsx('text-xl', 'font-bold', 'text-center')}>Chat en direct</div>
@@ -75,7 +76,7 @@
       <form>
         <input
           bind:this={input}
-          class={clsx('input', 'w-full', 'h-8', 'px-4', 'text-black', 'bg-transparent-tertiary')}
+          class={clsx('input', 'w-full', 'h-12', 'px-4', 'text-black', 'bg-transparent-tertiary')}
           bind:value={text}
         />
         <button
@@ -84,16 +85,19 @@
             'right-1',
             'top-1',
             'btn-icon',
-            'w-6',
-            'h-6',
+            'w-8',
+            'h-8',
             'variant-filled-tertiary',
             'border-b-4',
-            'border-black'
+            'border-black',
+            'flex',
+            'items-center',
+            'justify-center'
           )}
           disabled={text?.length === 0 || text?.trim() === ''}
           on:click={sendMessage}
         >
-          <PaperPlaneOutline class={clsx('rotate-90')} size="sm" />
+          <PaperPlaneOutline class={clsx('rotate-90')} size="xs" />
         </button>
       </form>
     </div>

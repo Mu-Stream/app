@@ -30,7 +30,8 @@
     'text-white',
     'bg-transparent-tertiary',
     'rounded-3xl',
-    'm-4'
+    'm-4',
+    'shadow-lg'
   )}
 >
   <h1 class={clsx('text-2xl', 'font-bold')}>Mu Stream</h1>

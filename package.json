@@ -8,6 +8,7 @@
     "build": "vite build",
     "electron": "npm run build && npx cap open @capacitor-community/electron",
     "android": "npm run build && npx cap run android",
+    "preview": "vite preview",
     "test": "npm run test:integration && npm run test:unit",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
