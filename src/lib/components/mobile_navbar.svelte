@@ -14,7 +14,7 @@
     flex="flex-1 lg:flex-none"
     rounded=""
     border=""
-    class="bg-transparent-tertiary w-full rounded-3xl p-2"
+    class="bg-transparent-tertiary w-full rounded-3xl p-2 shadow-lg"
   >
     <Tab
       bind:group={$navigation}

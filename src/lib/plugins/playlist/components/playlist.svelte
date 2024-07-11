@@ -28,7 +28,8 @@
     'overflow-y-hidden',
     'h-full',
     'flex',
-    'flex-col'
+    'flex-col',
+    'shadow-lg'
   )}
 >
   <div class={clsx('flex', 'justify-between', 'items-center')}>
@@ -37,12 +38,12 @@
     <button
       type="button"
       on:click={onAddSongToPlaylist}
-      class={clsx('btn', 'btn-sm', 'variant-filled-tertiary', outline_style)}>+</button
+      class={clsx('btn', 'btn-sm', 'variant-filled-tertiary w-8 h-8', outline_style)}>+</button
     >
   </div>
-  <div class="overflow-y-auto grow flex flex-col">
-    {#each $queue.queue as song}
-      <PlaylistSong {song} />
+  <div class="overflow-y-auto grow flex flex-col space-y-2 my-4">
+    {#each $queue.queue as song, idx}
+      <PlaylistSong {song} currently_playing={idx === 0} />
     {/each}
   </div>
 </div>

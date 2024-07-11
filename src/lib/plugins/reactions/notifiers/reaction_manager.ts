@@ -29,7 +29,7 @@ export class ReactionManager extends Notifier<ReactionEventType, ReactionEvent> 
         },
       },
     });
-    this.subscribe('ADD_REACTION', this._onReaction);
+    this.subscribe('ADD_REACTION', this._onReaction as unknown as Listener<ReactionEvent['ADD_REACTION']>);
   }
 
   public addReaction(emoji: string) {
