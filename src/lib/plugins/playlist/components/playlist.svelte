@@ -12,9 +12,10 @@
   ).playlist.playlist_manager.readable('UPDATE_PLAYLIST');
 
   async function onAddSongToPlaylist() {
-    const test = await showOpenFilePicker();
-    const song = await test[0].getFile();
-    App.instance.executeCommand(new AddToPlaylist(song));
+    const handler = await showOpenFilePicker({ multiple: true });
+    for (const song of handler) {
+      App.instance.executeCommand(new AddToPlaylist(await song.getFile()));
+    }
   }
 </script>
 

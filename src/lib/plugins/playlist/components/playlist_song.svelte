@@ -1,5 +1,4 @@
 <script lang="ts">
-  import StyledCover from '$lib/components/styled_cover.svelte';
   import clsx from 'clsx';
   import { DotsVerticalOutline, FileMusicSolid } from 'flowbite-svelte-icons';
   import type { Song } from '../notifier/playlist_manager';
@@ -8,12 +7,11 @@
 
   const image = () => {
     if (song.img?.length === 0) return '';
-    var blob = new Blob([new Uint8Array(song.img[0].data)], { type: song.img[0].format });
+    var blob = new Blob([song.img[0].data], { type: song.img[0].format });
     return URL.createObjectURL(blob);
   };
 
   const user_list = App.instance.context.room.readable('USER_LIST');
-  console.log($user_list);
 
   const name = song.identity === 'host' ? 'hôte' : $user_list.users.find(p => p.id === song.identity)?.username;
 </script>

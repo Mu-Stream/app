@@ -12,9 +12,8 @@
   const current_meta = App.instance.context.audio_manager.readable('CURRENTLY_METADATA');
 
   const image = derived(current_meta, $current_meta => {
-    console.log($current_meta);
     if ($current_meta.img?.length === 0) return '';
-    var blob = new Blob([new Uint8Array($current_meta.img[0].data)], { type: $current_meta.img[0].format });
+    var blob = new Blob([$current_meta.img[0].data], { type: $current_meta.img[0].format });
     return URL.createObjectURL(blob);
   });
 </script>
