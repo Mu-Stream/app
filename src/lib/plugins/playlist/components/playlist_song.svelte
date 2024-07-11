@@ -6,11 +6,15 @@
   export let song: Song;
   export let currently_playing: boolean = false;
 
-  const image = () => {
+  const img = () => {
     if (song.img?.length === 0) return '';
     var blob = new Blob([song.img[0].data], { type: song.img[0].format });
     return URL.createObjectURL(blob);
   };
+
+  let image: string;
+
+  $: song && (image = img());
 
   const user_list = App.instance.context.room.readable('USER_LIST');
 
@@ -29,7 +33,7 @@
         <FileMusicSolid size="xl" />
       </div>
     {:else}
-      <img src={image()} alt={`cover-${song.title}`} class={clsx('w-16', 'h-16', 'rounded-2xl', 'shadow-lg')} />
+      <img src={image} alt={`cover-${song.title}`} class={clsx('w-16', 'h-16', 'rounded-2xl', 'shadow-lg')} />
     {/if}
     <div class={clsx('pr-2', 'w-full')}>
       <h5 class={clsx('font-bold', 'text-sm', 'text-ellipsis')}>{song.title}</h5>
