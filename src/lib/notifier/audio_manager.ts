@@ -204,6 +204,7 @@ export class AudioManager extends Notifier<AudioManagerEventType, AudioManagerEv
 
 		this._node!.onended = () => {
 			this._notify({ type: 'SONG_ENDED' });
+			App.instance.context.room.send({ type: 'SONG_ENDED' });
 			clearInterval(this._media_timer);
 		};
 	}

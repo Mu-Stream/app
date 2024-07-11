@@ -64,6 +64,7 @@ export class PlaylistManager extends Notifier<PlaylistEventType, PlaylistEvent> 
 	}
 
 	private _handleSongEnded: Listener<AudioManagerEvent['SONG_ENDED']> = async () => {
+		console.log('SONG_ENDED');
 		if (App.instance.context.room.is_client || this._queue.length === 0) return Ok(null);
 		App.instance.context.room.broadcast({ type: 'REMOVE_FROM_PLAYLIST', uuid: this._queue[0].uuid });
 		this._notify({ type: 'REMOVE_FROM_PLAYLIST', uuid: this._queue[0].uuid });
