@@ -3,7 +3,7 @@ import { ProxyNotifier, type Events } from './i_notifier';
 import { Peer, type PeerEventTypes, type PeerEvents } from './peer';
 import { Ok, type Result } from 'bakutils-catcher';
 
-export type RoomEventTypes = 'ROOM_ID' | 'NEW_PEER' | 'JOINED' | 'USER_LIST';
+export type RoomEventTypes = 'ROOM_ID' | 'NEW_PEER' | 'JOINED' | 'USER_LIST' | 'PEER_QUIT';
 
 export type RoomEvents = Events<
   RoomEventTypes,
@@ -12,6 +12,7 @@ export type RoomEvents = Events<
     NEW_PEER: { type: 'NEW_PEER'; peer: Peer };
     JOINED: { type: 'JOINED'; peer: Peer };
     USER_LIST: { type: 'USER_LIST'; users: { id: string; username: string }[] };
+    PEER_QUIT: { type: 'PEER_QUIT'; id: string };
   }
 >;
 
@@ -70,6 +71,7 @@ export class Room extends ProxyNotifier<RoomEventTypes, RoomEvents> {
 
   public removePeer(id: string) {
     this._members_peers = this._members_peers.filter(p => p.id !== id);
+    this._notify({ type: 'PEER_QUIT', id });
     this.notifyUserList();
   }
 
