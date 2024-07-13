@@ -81,9 +81,12 @@
         />
         <button
           class={clsx(
+            'top-0',
+            'right-0',
+            'translate-y-1/4',
+            'origin-center',
             'absolute',
             'right-1',
-            'top-1',
             'btn-icon',
             'w-8',
             'h-8',
