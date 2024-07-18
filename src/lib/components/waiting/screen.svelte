@@ -1,6 +1,6 @@
 <script lang="ts">
   import { Completer } from '$lib/completer';
-  import { ProgressRadial, getModalStore, getToastStore } from '@skeletonlabs/skeleton';
+  import { getModalStore, getToastStore, ProgressRadial } from '@skeletonlabs/skeleton';
   import clsx from 'clsx';
   import { outline_style } from '$lib/global_styles';
   import { JoinRoomCommand } from '$lib/commands/join';
@@ -35,7 +35,7 @@
     }
 
     const command = await App.instance.executeCommand(
-      new JoinRoomCommand(infos.unwrap().room_id, infos.unwrap().username)
+      new JoinRoomCommand(infos.unwrap().room_id, infos.unwrap().username),
     );
 
     command.match({
@@ -44,7 +44,8 @@
           message: e.message,
           background: 'variant-filled-error',
         }),
-      Ok: _ => {},
+      Ok: _ => {
+      },
     });
 
     App.instance.context.audio_manager.try_init_audio_context();
@@ -58,7 +59,8 @@
     const command = await App.instance.executeCommand(new HostCommand());
 
     command.match({
-      Ok: _ => {},
+      Ok: _ => {
+      },
       Err: err => {
         toastStore.trigger({
           message: err.toString(),
@@ -81,7 +83,7 @@
   function onTutorial() {
     const d = driver({
       showProgress: true,
-      progressText: "Etape {{current}} sur {{total}}" ,
+      progressText: 'Etape {{current}} sur {{total}}',
       nextBtnText: '→',
       prevBtnText: '←',
       doneBtnText: '✕',
@@ -92,14 +94,14 @@
           popover: {
             title: 'Créer une salle',
             description:
-              "Clique ici pour créer une salle.\nUn code seras créer, tu pourras le copier et le partager avec tes amis pour qu'il te rejoigne.",
+              "Cliquez ici pour créer une salle.\nUn code seras créer, vous pourrez le copier et le partager avec vos amis pour qu'il vous rejoignent.",
           },
         },
         {
           element: '#btn-join-room',
           popover: {
             title: 'Rejoindre une salle',
-            description: 'Clique ici pour rejoindre une salle.',
+            description: 'Cliquez ici pour rejoindre une salle.',
             onNextClick: () => {
               document.getElementById('btn-join-room')!.click();
               setTimeout(() => {
@@ -112,14 +114,14 @@
           element: '#username-input',
           popover: {
             title: 'Rejoindre une salle',
-            description: "Rensigne ton nom d'utilisateur ici",
+            description: "Renseignez votre nom d'utilisateur ici.",
           },
         },
         {
           element: '#code-input',
           popover: {
             title: 'Rejoindre une salle',
-            description: 'Rensigne le code de la salle ici',
+            description: 'Renseignez le code de la salle ici.',
           },
         },
         {
@@ -156,8 +158,10 @@
   >
     ?
   </button>
-  <div bind:this={bg_ref} class={clsx('absolute', 'bottom-0', 'left-0', 'w-full', 'z-[-1]', 'h-1/3')} />
-  <div class={clsx('w-full', 'h-full', 'flex', 'flex-col', 'items-center', 'justify-center', 'space-y-8', 'md:p-4')}>
+  <div bind:this={bg_ref}
+       class={clsx('absolute', 'bottom-0', 'left-0', 'w-full', 'z-[-1]', 'h-1/3')} />
+  <div
+    class={clsx('w-full', 'h-full', 'flex', 'flex-col', 'items-center', 'justify-center', 'space-y-8', 'md:p-4')}>
     <img src="/logo.svg" alt="logo" class={clsx('w-64', 'h-64', 'animate-pulse')} />
     <h1 class={clsx('text-6xl', 'text-center', 'nowrap')}>Mu Stream</h1>
     <h4 class="text-center">Partage des sessions d'écoute instense avec tes amis !</h4>

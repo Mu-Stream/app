@@ -22,7 +22,7 @@
           // element: '#btn-create-room',
           popover: {
             title: 'Bienvenue sur Mu Stream',
-            description: 'Voici un tutoriel pour vous aider à démarrer',
+            description: 'Voici un tutoriel pour vous aider à démarrer.',
           },
         },
         {
@@ -30,41 +30,41 @@
           popover: {
             title: 'Code de la salle',
             description:
-              "Tu peux partager ce code avec tes amis pour qu'ils rejoignent ta salle.L'oeil permet de l'afficher et licone copier de le copier directement dans ton presse papier !",
+              "Vous pouvez partager ce code avec vos amis pour qu'ils rejoignent votre salle. L'œil permet de l'afficher et l'icône copier de le copier directement dans votre presse-papier !",
           },
         },
         {
           element: '#btn-add-song',
           popover: {
             title: 'Ajouter un son',
-            description: 'Tu peux ajouter une musique à la salle en appuyant ici',
+            description: 'Vous pouvez ajouter une musique à la salle en appuyant ici.',
           },
         },
         {
           element: '#btn-add-reaction',
           popover: {
-            title: 'Ajouter une reaction',
-            description: 'Tu peux reagir a la musique !',
+            title: 'Ajouter une réaction',
+            description: 'Vous pouvez réagir à la musique !',
           },
         },
         {
           element: '#song-controls',
           popover: {
             title: 'Contrôles de la musique',
-            description: 'Tu peux contrôler avec les boutons ici',
+            description: 'Vous pouvez contrôler la musique avec les boutons ici.',
           },
         },
         {
           element: '#btn-leave-room',
           popover: {
             title: 'Quitter la salle',
-            description: 'Tu peux quitter ou dissoudre la salle en cliquant ici',
+            description: 'Vous pouvez quitter ou dissoudre la salle en cliquant ici.',
           },
         },
         {
           popover: {
-            title: 'Enjoy Sharing',
-            description: 'Et voila tu sais tout sur Mu Stream',
+            title: 'Amusez-vous bien !',
+            description: 'Et voilà, vous savez tout, vous êtes prêt à profiter pleinement de Mu Stream.',
           },
         },
       ],
