@@ -94,14 +94,14 @@
           popover: {
             title: 'Créer une salle',
             description:
-              "Cliquez ici pour créer une salle.\nUn code seras créer, vous pourrez le copier et le partager avec vos amis pour qu'il vous rejoignent.",
+              "Clique ici pour créer une salle. Un code sera créé, tu pourras le copier et le partager avec tes amis pour qu'ils te rejoignent.",
           },
         },
         {
           element: '#btn-join-room',
           popover: {
             title: 'Rejoindre une salle',
-            description: 'Cliquez ici pour rejoindre une salle.',
+            description: 'Clique ici pour rejoindre une salle.',
             onNextClick: () => {
               document.getElementById('btn-join-room')!.click();
               setTimeout(() => {
@@ -114,14 +114,14 @@
           element: '#username-input',
           popover: {
             title: 'Rejoindre une salle',
-            description: "Renseignez votre nom d'utilisateur ici.",
+            description: "Renseigne ton nom d'utilisateur ici.",
           },
         },
         {
           element: '#code-input',
           popover: {
             title: 'Rejoindre une salle',
-            description: 'Renseignez le code de la salle ici.',
+            description: 'Renseigne le code de la salle ici.',
           },
         },
         {
