@@ -5,6 +5,7 @@
   import { TextCommand } from '../commands/text';
   import type { TextChatPlugin } from '../text_chat';
   import { PaperPlaneOutline } from 'flowbite-svelte-icons';
+  import LL from '../../../../i18n/i18n-svelte';
 
   let text: string;
   const currentUuid = App.instance.context.room.client_peer?.id ?? '';
@@ -40,7 +41,8 @@
     'shadow-lg'
   )}
 >
-  <div class={clsx('text-xl', 'font-bold', 'text-center')}>Chat en direct</div>
+  <div class={clsx('text-xl', 'font-bold', 'text-center')}><span
+    class="hidden lg:inline">{$LL.roomScreen.chat()}</span></div>
   <div class="overflow-y-auto grow">
     {#each $chat_msgs.messages as text_msg}
       <div

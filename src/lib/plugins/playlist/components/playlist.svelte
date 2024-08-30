@@ -7,6 +7,8 @@
   import PlaylistSong from './playlist_song.svelte';
   import clsx from 'clsx';
   import { AddToPlaylist } from '../commands/add_to_playlist';
+  import LL from '../../../../i18n/i18n-svelte';
+
   const queue = (
     App.instance.context as unknown as PluginContext<'playlist', PlaylistPlugin>
   ).playlist.playlist_manager.readable('UPDATE_PLAYLIST');
@@ -34,11 +36,13 @@
 >
   <div class={clsx('flex', 'justify-between', 'items-center')}>
     <div />
-    <div class={clsx('text-xl', 'font-bold', 'text-center')}>Playlist</div>
+    <div class={clsx('text-xl', 'font-bold', 'text-center')}><span
+      class="hidden lg:inline">{$LL.roomScreen.playlist()}</span></div>
     <button
       type="button"
       on:click={onAddSongToPlaylist}
-      class={clsx('btn', 'btn-sm', 'variant-filled-tertiary w-8 h-8', outline_style)}>+</button
+      class={clsx('btn', 'btn-sm', 'variant-filled-tertiary w-8 h-8', outline_style)}>+
+    </button
     >
   </div>
   <div class="overflow-y-auto grow flex flex-col space-y-2 my-4">

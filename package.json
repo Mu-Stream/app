@@ -15,7 +15,8 @@
     "lint": "prettier --check . && eslint .",
     "format": "prettier --write .",
     "test:integration": "playwright test",
-    "test:unit": "vitest"
+    "test:unit": "vitest",
+    "typesafe-i18n": "typesafe-i18n"
   },
   "devDependencies": {
     "@capacitor/cli": "^6.1.0",
@@ -71,6 +72,7 @@
     "simple-peer": "^9.11.1",
     "tailwind-merge": "^2.2.1",
     "tailwind-variants": "^0.1.20",
+    "typesafe-i18n": "^5.26.2",
     "uuid": "^9.0.1"
   }
 }
