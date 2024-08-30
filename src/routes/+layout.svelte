@@ -1,13 +1,14 @@
 <script lang="ts">
   import {
     AppShell,
-    Modal,
-    initializeStores,
-    type ModalComponent,
-    Toast,
-    getToastStore,
     Drawer,
     getDrawerStore,
+    getToastStore,
+    initializeStores,
+    Modal,
+    type ModalComponent,
+    storePopup,
+    Toast,
   } from '@skeletonlabs/skeleton';
   import 'driver.js/dist/driver.css';
   import '../app.pcss';
@@ -21,10 +22,11 @@
   import { is_mobile } from '$lib/stores/is_mobile';
   import clsx from 'clsx';
   import { onMount } from 'svelte';
-  import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
-  import { storePopup } from '@skeletonlabs/skeleton';
+  import { arrow, autoUpdate, computePosition, flip, offset, shift } from '@floating-ui/dom';
   import DynamicBg from '$lib/components/dynamic_bg.svelte';
   import HeaderActions from '$lib/components/header_actions.svelte';
+  import LL from '../i18n/i18n-svelte';
+
   storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 
   initializeStores();
@@ -53,11 +55,10 @@
       autohide: false,
       background: 'bg-primary-100',
       action: {
-        label: 'Ne plus afficher',
+        label: $LL.warningPopup.quit(),
         response: persitWarningContentSeen,
       },
-      message:
-        "Mu Stream n'est pas resonsable du contenu audio diffusé par les participants, vous seul êtes responsable.",
+      message: $LL.warningPopup.description(),
     });
   });
 </script>
@@ -72,7 +73,8 @@
 
 <DynamicBg />
 
-<div bind:this={App.instance.plugin_manager.app_ref} class={clsx('w-full', 'h-full', 'overflow-hidden')}>
+<div bind:this={App.instance.plugin_manager.app_ref}
+     class={clsx('w-full', 'h-full', 'overflow-hidden')}>
   {#if $room_id.id}
     <AppShell>
       <svelte:fragment slot="header">

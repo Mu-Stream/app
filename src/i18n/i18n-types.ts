@@ -3,7 +3,7 @@
 import type { BaseTranslation as BaseTranslationType, LocalizedString, RequiredParams } from 'typesafe-i18n'
 
 export type BaseTranslation = BaseTranslationType
-export type BaseLocale = 'en'
+export type BaseLocale = 'fr'
 
 export type Locales =
 	| 'en'
@@ -20,101 +20,101 @@ type RootTranslation = {
 	title: string
 	waitingScreen: {
 		/**
-		 * S​h​a​r​e​ ​i​n​t​e​n​s​e​ ​l​i​s​t​e​n​i​n​g​ ​s​e​s​s​i​o​n​s​ ​w​i​t​h​ ​y​o​u​r​ ​f​r​i​e​n​d​s​!
+		 * P​a​r​t​a​g​e​ ​d​e​s​ ​s​e​s​s​i​o​n​s​ ​d​'​é​c​o​u​t​e​ ​i​n​s​t​e​n​s​e​ ​a​v​e​c​ ​t​e​s​ ​a​m​i​s​ ​!
 		 */
 		slogan: string
 		/**
-		 * C​r​e​a​t​e​ ​a​ ​R​o​o​m
+		 * C​r​é​e​r​ ​u​n​e​ ​s​a​l​l​e
 		 */
 		createRoomBtn: string
 		/**
-		 * J​o​i​n​ ​a​ ​R​o​o​m
+		 * R​e​j​o​i​n​d​r​e​ ​u​n​e​ ​s​a​l​l​e
 		 */
 		joinRoomBtn: string
 		/**
-		 * O​R
+		 * O​U
 		 */
 		roomChoiceSeparator: string
 		/**
-		 * R​o​o​m​ ​C​o​d​e
+		 * C​o​d​e​ ​d​e​ ​l​a​ ​s​a​l​l​e
 		 */
 		roomCodeInput: string
 	}
 	joinRoomPopup: {
 		/**
-		 * U​s​e​r​n​a​m​e
+		 * N​o​m​ ​d​'​u​t​i​l​i​s​a​t​e​u​r
 		 */
 		userName: string
 		/**
-		 * R​o​o​m​ ​C​o​d​e
+		 * C​o​d​e​ ​d​e​ ​l​a​ ​s​a​l​l​e
 		 */
 		roomCodeInput: string
 		/**
-		 * J​o​i​n
+		 * R​e​j​o​i​n​d​r​e
 		 */
 		joinBtn: string
 	}
 	waitingScreenTutorial: {
 		stepWelcome: {
 			/**
-			 * W​e​l​c​o​m​e​ ​t​o​ ​M​u​ ​S​t​r​e​a​m
+			 * B​i​e​n​v​e​n​u​e​ ​s​u​r​ ​M​u​ ​S​t​r​e​a​m
 			 */
 			title: string
 			/**
-			 * M​u​ ​S​t​r​e​a​m​ ​i​s​ ​a​n​ ​a​p​p​ ​t​h​a​t​ ​l​e​t​s​ ​y​o​u​ ​s​h​a​r​e​ ​l​i​s​t​e​n​i​n​g​ ​s​e​s​s​i​o​n​s​ ​w​i​t​h​ ​y​o​u​r​ ​f​r​i​e​n​d​s​.​ ​H​e​r​e​’​s​ ​a​ ​t​u​t​o​r​i​a​l​ ​t​o​ ​h​e​l​p​ ​y​o​u​ ​g​e​t​ ​s​t​a​r​t​e​d​.
+			 * M​u​ ​S​t​r​e​a​m​ ​e​s​t​ ​u​n​e​ ​a​p​p​l​i​c​a​t​i​o​n​ ​q​u​i​ ​t​e​ ​p​e​r​m​e​t​ ​d​e​ ​p​a​r​t​a​g​e​r​ ​d​e​s​ ​s​e​s​s​i​o​n​s​ ​d​'​é​c​o​u​t​e​ ​a​v​e​c​ ​t​e​s​ ​a​m​i​s​.​ ​V​o​i​c​i​ ​u​n​ ​t​u​t​o​ ​p​o​u​r​ ​t​'​a​i​d​e​r​ ​à​ ​d​é​m​a​r​r​e​r​.
 			 */
 			description: string
 		}
 		stepCreateRoom: {
 			/**
-			 * C​r​e​a​t​e​ ​a​ ​R​o​o​m
+			 * C​r​é​e​z​ ​u​n​e​ ​s​a​l​l​e
 			 */
 			title: string
 			/**
-			 * C​l​i​c​k​ ​h​e​r​e​ ​t​o​ ​c​r​e​a​t​e​ ​a​ ​r​o​o​m​.​ ​A​ ​c​o​d​e​ ​w​i​l​l​ ​b​e​ ​g​e​n​e​r​a​t​e​d​,​ ​a​n​d​ ​y​o​u​ ​c​a​n​ ​c​o​p​y​ ​a​n​d​ ​s​h​a​r​e​ ​i​t​ ​w​i​t​h​ ​y​o​u​r​ ​f​r​i​e​n​d​s​ ​s​o​ ​t​h​e​y​ ​c​a​n​ ​j​o​i​n​ ​y​o​u​.
+			 * C​l​i​q​u​e​ ​i​c​i​ ​p​o​u​r​ ​c​r​é​e​r​ ​u​n​e​ ​s​a​l​l​e​.​ ​U​n​ ​c​o​d​e​ ​s​e​r​a​ ​c​r​é​é​,​ ​t​u​ ​p​o​u​r​r​a​s​ ​l​e​ ​c​o​p​i​e​r​ ​e​t​ ​l​e​ ​p​a​r​t​a​g​e​r​ ​a​v​e​c​ ​t​e​s​ ​a​m​i​s​ ​p​o​u​r​ ​q​u​'​i​l​s​ ​t​e​ ​r​e​j​o​i​g​n​e​n​t​.
 			 */
 			description: string
 		}
 		stepJoinRoom: {
 			/**
-			 * J​o​i​n​ ​a​ ​R​o​o​m
+			 * R​e​j​o​i​n​d​r​e​ ​u​n​e​ ​s​a​l​l​e
 			 */
 			title: string
 			/**
-			 * C​l​i​c​k​ ​h​e​r​e​ ​t​o​ ​c​r​e​a​t​e​ ​a​ ​r​o​o​m​.​ ​A​ ​r​o​o​m​ ​c​o​d​e​ ​w​i​l​l​ ​b​e​ ​g​e​n​e​r​a​t​e​d​,​ ​a​n​d​ ​y​o​u​ ​c​a​n​ ​c​o​p​y​ ​a​n​d​ ​s​h​a​r​e​ ​i​t​ ​w​i​t​h​ ​y​o​u​r​ ​f​r​i​e​n​d​s​ ​s​o​ ​t​h​e​y​ ​c​a​n​ ​j​o​i​n​ ​y​o​u​.
+			 * C​l​i​q​u​e​ ​i​c​i​ ​p​o​u​r​ ​c​r​é​e​r​ ​u​n​e​ ​s​a​l​l​e​.​ ​U​n​ ​c​o​d​e​ ​d​e​ ​s​a​l​l​e​ ​s​e​r​a​s​ ​c​r​é​e​r​,​ ​t​u​ ​p​o​u​r​r​a​s​ ​l​e​ ​c​o​p​i​e​r​ ​e​t​ ​l​e​ ​p​a​r​t​a​g​e​r​ ​a​v​e​c​ ​t​e​s​ ​a​m​i​s​ ​p​o​u​r​ ​q​u​'​i​l​s​ ​p​u​i​s​s​e​n​t​ ​t​e​ ​r​e​j​o​i​n​d​r​e​.
 			 */
 			description: string
 			/**
-			 * C​l​i​c​k​ ​h​e​r​e​ ​t​o​ ​j​o​i​n​ ​a​ ​r​o​o​m​.
+			 * C​l​i​q​u​e​r​ ​i​c​i​ ​p​o​u​r​ ​r​e​j​o​i​n​d​r​e​ ​u​n​e​ ​s​a​l​l​e​.
 			 */
 			description1: string
 			/**
-			 * E​n​t​e​r​ ​y​o​u​r​ ​u​s​e​r​n​a​m​e​ ​h​e​r​e​.
+			 * R​e​n​s​e​i​g​n​e​r​ ​t​o​n​ ​n​o​m​ ​d​'​u​t​i​l​i​s​a​t​e​u​r​ ​i​c​i​.
 			 */
 			description2: string
 			/**
-			 * E​n​t​e​r​ ​t​h​e​ ​r​o​o​m​ ​c​o​d​e​ ​h​e​r​e​.
+			 * R​e​n​s​e​i​g​n​e​r​ ​l​e​ ​c​o​d​e​ ​d​e​ ​l​a​ ​s​a​l​l​e​ ​i​c​i​.
 			 */
 			description3: string
 			/**
-			 * A​n​d​ ​y​o​u​’​r​e​ ​g​o​o​d​ ​t​o​ ​g​o​!
+			 * E​s​t​ ​c​'​e​s​t​ ​p​a​r​t​i​ ​!
 			 */
 			description4: string
 		}
 	}
 	roomScreen: {
 		/**
-		 * C​o​d​e
+		 * c​o​d​e
 		 */
 		code: string
 		/**
-		 * D​e​l​e​t​e​ ​R​o​o​m
+		 * S​u​p​p​r​i​m​e​r​ ​l​a​ ​s​a​l​l​e
 		 */
 		deleteRoom: string
 		/**
-		 * L​o​g​ ​O​u​t
+		 * D​é​c​o​n​n​e​x​i​o​n
 		 */
-		deconexion: string
+		logOut: string
 		/**
 		 * P​a​r​t​i​c​i​p​a​n​t​s
 		 */
@@ -124,123 +124,123 @@ type RootTranslation = {
 		 */
 		playlist: string
 		/**
-		 * L​i​v​e​ ​C​h​a​t
+		 * C​h​a​t​ ​e​n​ ​d​i​r​e​c​t
 		 */
 		chat: string
 		/**
-		 * R​e​a​c​t
+		 * R​é​a​g​i​r
 		 */
 		react: string
 	}
 	warningPopup: {
 		/**
-		 * M​u​ ​S​t​r​e​a​m​ ​i​s​ ​n​o​t​ ​r​e​s​p​o​n​s​i​b​l​e​ ​f​o​r​ ​t​h​e​ ​a​u​d​i​o​ ​c​o​n​t​e​n​t​ ​s​h​a​r​e​d​ ​b​y​ ​p​a​r​t​i​c​i​p​a​n​t​s​.​ ​Y​o​u​ ​a​r​e​ ​s​o​l​e​l​y​ ​r​e​s​p​o​n​s​i​b​l​e​ ​f​o​r​ ​i​t​.
+		 * M​u​ ​S​t​r​e​a​m​ ​n​'​e​s​t​ ​p​a​s​ ​r​e​s​p​o​n​s​a​b​l​e​ ​d​u​ ​c​o​n​t​e​n​u​ ​a​u​d​i​o​ ​d​i​f​f​u​s​é​ ​p​a​r​ ​l​e​s​ ​p​a​r​t​i​c​i​p​a​n​t​s​.​ ​V​o​u​s​ ​e​n​ ​ê​t​e​s​ ​s​e​u​l​ ​r​e​s​p​o​n​s​a​b​l​e​.
 		 */
-		descritption: string
+		description: string
 		/**
-		 * D​o​ ​n​o​t​ ​s​h​o​w​ ​a​g​a​i​n
+		 * N​e​ ​p​l​u​s​ ​a​f​f​i​c​h​e​r
 		 */
 		quit: string
 	}
 	roomScreenTutorial: {
 		stepWelcome: {
 			/**
-			 * W​e​l​c​o​m​e​ ​t​o​ ​t​h​e​ ​R​o​o​m
+			 * B​i​e​n​v​e​n​u​e​ ​d​a​n​s​ ​c​e​t​t​e​ ​s​a​l​l​e
 			 */
 			title: string
 			/**
-			 * Y​o​u​’​r​e​ ​i​n​ ​a​ ​p​r​i​v​a​t​e​ ​m​u​s​i​c​ ​l​i​s​t​e​n​i​n​g​ ​r​o​o​m​.​ ​H​e​r​e​’​s​ ​a​ ​t​u​t​o​r​i​a​l​ ​t​o​ ​h​e​l​p​ ​y​o​u​ ​n​a​v​i​g​a​t​e​.
+			 * T​u​ ​e​s​ ​d​a​n​s​ ​u​n​e​ ​s​a​l​l​e​ ​d​`​'​é​c​o​u​t​e​ ​p​r​i​v​é​ ​d​e​ ​m​u​s​i​q​u​e​.​ ​V​o​i​c​i​ ​u​n​ ​t​u​t​o​ ​p​o​u​r​ ​t​'​a​i​d​e​r​ ​à​ ​n​a​v​i​g​u​e​r​.
 			 */
 			description: string
 		}
 		stepCode: {
 			/**
-			 * R​o​o​m​ ​C​o​d​e
+			 * C​o​d​e​ ​d​e​ ​l​a​ ​s​a​l​l​e
 			 */
 			title: string
 			/**
-			 * Y​o​u​ ​c​a​n​ ​s​h​a​r​e​ ​t​h​i​s​ ​c​o​d​e​ ​w​i​t​h​ ​y​o​u​r​ ​f​r​i​e​n​d​s​ ​s​o​ ​t​h​e​y​ ​c​a​n​ ​j​o​i​n​ ​y​o​u​r​ ​r​o​o​m​.​ ​T​h​e​ ​e​y​e​ ​i​c​o​n​ ​a​l​l​o​w​s​ ​y​o​u​ ​t​o​ ​v​i​e​w​ ​i​t​,​ ​a​n​d​ ​t​h​e​ ​c​o​p​y​ ​i​c​o​n​ ​l​e​t​s​ ​y​o​u​ ​c​o​p​y​ ​i​t​ ​d​i​r​e​c​t​l​y​ ​t​o​ ​y​o​u​r​ ​c​l​i​p​b​o​a​r​d​.
+			 * T​u​ ​p​e​u​x​ ​p​a​r​t​a​g​e​r​ ​c​e​ ​c​o​d​e​ ​a​v​e​c​ ​t​e​s​ ​a​m​i​s​ ​p​o​u​r​ ​q​u​'​i​l​s​ ​r​e​j​o​i​g​n​e​n​t​ ​t​a​ ​s​a​l​l​e​.​<​b​r​>​L​'​œ​i​l​ ​p​e​r​m​e​t​ ​d​e​ ​l​'​a​f​f​i​c​h​e​r​ ​e​t​ ​l​'​i​c​ô​n​e​ ​c​o​p​i​e​r​ ​d​e​ ​l​e​ ​c​o​p​i​e​r​ ​d​i​r​e​c​t​e​m​e​n​t​ ​d​a​n​s​ ​t​o​n​ ​p​r​e​s​s​e​-​p​a​p​i​e​r​.
 			 */
 			description: string
 		}
 		stepAddSong: {
 			/**
-			 * A​d​d​ ​a​ ​S​o​n​g
+			 * A​j​o​u​t​e​r​ ​u​n​ ​s​o​n
 			 */
 			title: string
 			/**
-			 * Y​o​u​ ​c​a​n​ ​a​d​d​ ​a​ ​s​o​n​g​ ​t​o​ ​t​h​e​ ​r​o​o​m​ ​b​y​ ​p​r​e​s​s​i​n​g​ ​h​e​r​e​.
+			 * T​u​ ​p​e​u​x​ ​a​j​o​u​t​e​r​ ​u​n​e​ ​m​u​s​i​q​u​e​ ​à​ ​l​a​ ​s​a​l​l​e​ ​e​n​ ​a​p​p​u​y​a​n​t​ ​i​c​i​.
 			 */
 			description: string
 		}
 		stepReact: {
 			/**
-			 * A​d​d​ ​a​ ​R​e​a​c​t​i​o​n
+			 * A​j​o​u​t​e​r​ ​u​n​e​ ​r​é​a​c​t​i​o​n
 			 */
 			title: string
 			/**
-			 * Y​o​u​ ​c​a​n​ ​r​e​a​c​t​ ​t​o​ ​t​h​e​ ​m​u​s​i​c​!
+			 * T​u​ ​p​e​u​x​ ​r​e​a​g​i​r​ ​a​ ​l​a​ ​m​u​s​i​q​u​e​ ​!
 			 */
 			description: string
 		}
 		stepMusicControl: {
 			/**
-			 * M​u​s​i​c​ ​C​o​n​t​r​o​l​s
+			 * C​o​n​t​r​ô​l​e​s​ ​d​e​ ​l​a​ ​m​u​s​i​q​u​e
 			 */
 			title: string
 			/**
-			 * Y​o​u​ ​c​a​n​ ​c​o​n​t​r​o​l​ ​t​h​e​ ​m​u​s​i​c​ ​u​s​i​n​g​ ​t​h​e​ ​b​u​t​t​o​n​s​ ​h​e​r​e​.
+			 * T​u​ ​p​e​u​x​ ​c​o​n​t​r​ô​l​e​r​ ​l​a​ ​m​u​s​i​q​u​e​ ​a​v​e​c​ ​l​e​s​ ​b​o​u​t​o​n​s​ ​i​c​i​.
 			 */
 			description: string
 		}
 		stepQuitRoom: {
 			/**
-			 * L​e​a​v​e​ ​t​h​e​ ​R​o​o​m
+			 * Q​u​i​t​t​e​r​ ​l​a​ ​s​a​l​l​e
 			 */
 			title: string
 			/**
-			 * Y​o​u​ ​c​a​n​ ​l​e​a​v​e​ ​o​r​ ​d​i​s​s​o​l​v​e​ ​t​h​e​ ​r​o​o​m​ ​b​y​ ​c​l​i​c​k​i​n​g​ ​h​e​r​e​.
+			 * T​u​ ​p​e​u​x​ ​q​u​i​t​t​e​r​ ​o​u​ ​d​i​s​s​o​u​d​r​e​ ​l​a​ ​s​a​l​l​e​ ​e​n​ ​c​l​i​q​u​a​n​t​ ​i​c​i​.
 			 */
 			description: string
 		}
 		stepFinal: {
 			/**
-			 * H​a​v​e​ ​F​u​n​!
+			 * A​m​u​s​e​-​t​o​i​ ​b​i​e​n​ ​!
 			 */
 			title: string
 			/**
-			 * T​h​a​t​’​s​ ​i​t​,​ ​y​o​u​ ​k​n​o​w​ ​e​v​e​r​y​t​h​i​n​g​,​ ​y​o​u​’​r​e​ ​r​e​a​d​y​ ​t​o​ ​f​u​l​l​y​ ​e​n​j​o​y​ ​M​u​ ​S​t​r​e​a​m​.
+			 * E​t​ ​v​o​i​l​à​,​ ​t​u​ ​s​a​i​s​ ​t​o​u​t​,​ ​t​u​ ​e​s​ ​p​r​ê​t​ ​à​ ​p​r​o​f​i​t​e​r​ ​p​l​e​i​n​e​m​e​n​t​ ​d​e​ ​M​u​ ​S​t​r​e​a​m​.
 			 */
 			description: string
 		}
 	}
 	common: {
 		/**
-		 * S​t​e​p​ ​{​c​u​r​r​e​n​t​}​ ​o​f​ ​{​t​o​t​a​l​}
-		 * @param {string} current
-		 * @param {string} total
+		 * E​t​a​p​e​ ​{​c​u​r​r​e​n​t​}​ ​s​u​r​ ​{​t​o​t​a​l​}
+		 * @param {unknown} current
+		 * @param {unknown} total
 		 */
 		tutorialStep: RequiredParams<'current' | 'total'>
 	}
 	alertToast: {
 		/**
-		 * {​n​a​m​e​}​ ​h​a​s​ ​j​o​i​n​e​d​ ​t​h​e​ ​r​o​o​m
-		 * @param {string} name
+		 * {​n​a​m​e​}​ ​a​ ​r​e​j​o​i​n​t​ ​l​a​ ​s​a​l​l​e
+		 * @param {unknown} name
 		 */
 		newParticipant: RequiredParams<'name'>
 		/**
-		 * {​n​a​m​e​}​ ​h​a​s​ ​l​e​f​t​ ​t​h​e​ ​r​o​o​m
-		 * @param {string} name
+		 * {​n​a​m​e​}​ ​a​ ​q​u​i​t​t​é​ ​l​a​ ​s​a​l​l​e
+		 * @param {unknown} name
 		 */
 		participantLeft: RequiredParams<'name'>
 		/**
-		 * C​o​d​e​ ​c​o​p​i​e​d​ ​t​o​ ​c​l​i​p​b​o​a​r​d
+		 * C​o​d​e​ ​c​o​p​i​é​ ​d​a​n​s​ ​l​e​ ​p​r​e​s​s​e​ ​p​a​p​i​e​r
 		 */
 		copiedRoomCode: string
 	}
 	settingsPopup: {
 		/**
-		 * L​a​n​g​u​a​g​e
+		 * L​a​n​g​u​e
 		 */
 		language: string
 	}
@@ -253,101 +253,101 @@ export type TranslationFunctions = {
 	title: () => LocalizedString
 	waitingScreen: {
 		/**
-		 * Share intense listening sessions with your friends!
+		 * Partage des sessions d'écoute instense avec tes amis !
 		 */
 		slogan: () => LocalizedString
 		/**
-		 * Create a Room
+		 * Créer une salle
 		 */
 		createRoomBtn: () => LocalizedString
 		/**
-		 * Join a Room
+		 * Rejoindre une salle
 		 */
 		joinRoomBtn: () => LocalizedString
 		/**
-		 * OR
+		 * OU
 		 */
 		roomChoiceSeparator: () => LocalizedString
 		/**
-		 * Room Code
+		 * Code de la salle
 		 */
 		roomCodeInput: () => LocalizedString
 	}
 	joinRoomPopup: {
 		/**
-		 * Username
+		 * Nom d'utilisateur
 		 */
 		userName: () => LocalizedString
 		/**
-		 * Room Code
+		 * Code de la salle
 		 */
 		roomCodeInput: () => LocalizedString
 		/**
-		 * Join
+		 * Rejoindre
 		 */
 		joinBtn: () => LocalizedString
 	}
 	waitingScreenTutorial: {
 		stepWelcome: {
 			/**
-			 * Welcome to Mu Stream
+			 * Bienvenue sur Mu Stream
 			 */
 			title: () => LocalizedString
 			/**
-			 * Mu Stream is an app that lets you share listening sessions with your friends. Here’s a tutorial to help you get started.
+			 * Mu Stream est une application qui te permet de partager des sessions d'écoute avec tes amis. Voici un tuto pour t'aider à démarrer.
 			 */
 			description: () => LocalizedString
 		}
 		stepCreateRoom: {
 			/**
-			 * Create a Room
+			 * Créez une salle
 			 */
 			title: () => LocalizedString
 			/**
-			 * Click here to create a room. A code will be generated, and you can copy and share it with your friends so they can join you.
+			 * Clique ici pour créer une salle. Un code sera créé, tu pourras le copier et le partager avec tes amis pour qu'ils te rejoignent.
 			 */
 			description: () => LocalizedString
 		}
 		stepJoinRoom: {
 			/**
-			 * Join a Room
+			 * Rejoindre une salle
 			 */
 			title: () => LocalizedString
 			/**
-			 * Click here to create a room. A room code will be generated, and you can copy and share it with your friends so they can join you.
+			 * Clique ici pour créer une salle. Un code de salle seras créer, tu pourras le copier et le partager avec tes amis pour qu'ils puissent te rejoindre.
 			 */
 			description: () => LocalizedString
 			/**
-			 * Click here to join a room.
+			 * Cliquer ici pour rejoindre une salle.
 			 */
 			description1: () => LocalizedString
 			/**
-			 * Enter your username here.
+			 * Renseigner ton nom d'utilisateur ici.
 			 */
 			description2: () => LocalizedString
 			/**
-			 * Enter the room code here.
+			 * Renseigner le code de la salle ici.
 			 */
 			description3: () => LocalizedString
 			/**
-			 * And you’re good to go!
+			 * Est c'est parti !
 			 */
 			description4: () => LocalizedString
 		}
 	}
 	roomScreen: {
 		/**
-		 * Code
+		 * code
 		 */
 		code: () => LocalizedString
 		/**
-		 * Delete Room
+		 * Supprimer la salle
 		 */
 		deleteRoom: () => LocalizedString
 		/**
-		 * Log Out
+		 * Déconnexion
 		 */
-		deconexion: () => LocalizedString
+		logOut: () => LocalizedString
 		/**
 		 * Participants
 		 */
@@ -357,119 +357,119 @@ export type TranslationFunctions = {
 		 */
 		playlist: () => LocalizedString
 		/**
-		 * Live Chat
+		 * Chat en direct
 		 */
 		chat: () => LocalizedString
 		/**
-		 * React
+		 * Réagir
 		 */
 		react: () => LocalizedString
 	}
 	warningPopup: {
 		/**
-		 * Mu Stream is not responsible for the audio content shared by participants. You are solely responsible for it.
+		 * Mu Stream n'est pas responsable du contenu audio diffusé par les participants. Vous en êtes seul responsable.
 		 */
-		descritption: () => LocalizedString
+		description: () => LocalizedString
 		/**
-		 * Do not show again
+		 * Ne plus afficher
 		 */
 		quit: () => LocalizedString
 	}
 	roomScreenTutorial: {
 		stepWelcome: {
 			/**
-			 * Welcome to the Room
+			 * Bienvenue dans cette salle
 			 */
 			title: () => LocalizedString
 			/**
-			 * You’re in a private music listening room. Here’s a tutorial to help you navigate.
+			 * Tu es dans une salle d`'écoute privé de musique. Voici un tuto pour t'aider à naviguer.
 			 */
 			description: () => LocalizedString
 		}
 		stepCode: {
 			/**
-			 * Room Code
+			 * Code de la salle
 			 */
 			title: () => LocalizedString
 			/**
-			 * You can share this code with your friends so they can join your room. The eye icon allows you to view it, and the copy icon lets you copy it directly to your clipboard.
+			 * Tu peux partager ce code avec tes amis pour qu'ils rejoignent ta salle.<br>L'œil permet de l'afficher et l'icône copier de le copier directement dans ton presse-papier.
 			 */
 			description: () => LocalizedString
 		}
 		stepAddSong: {
 			/**
-			 * Add a Song
+			 * Ajouter un son
 			 */
 			title: () => LocalizedString
 			/**
-			 * You can add a song to the room by pressing here.
+			 * Tu peux ajouter une musique à la salle en appuyant ici.
 			 */
 			description: () => LocalizedString
 		}
 		stepReact: {
 			/**
-			 * Add a Reaction
+			 * Ajouter une réaction
 			 */
 			title: () => LocalizedString
 			/**
-			 * You can react to the music!
+			 * Tu peux reagir a la musique !
 			 */
 			description: () => LocalizedString
 		}
 		stepMusicControl: {
 			/**
-			 * Music Controls
+			 * Contrôles de la musique
 			 */
 			title: () => LocalizedString
 			/**
-			 * You can control the music using the buttons here.
+			 * Tu peux contrôler la musique avec les boutons ici.
 			 */
 			description: () => LocalizedString
 		}
 		stepQuitRoom: {
 			/**
-			 * Leave the Room
+			 * Quitter la salle
 			 */
 			title: () => LocalizedString
 			/**
-			 * You can leave or dissolve the room by clicking here.
+			 * Tu peux quitter ou dissoudre la salle en cliquant ici.
 			 */
 			description: () => LocalizedString
 		}
 		stepFinal: {
 			/**
-			 * Have Fun!
+			 * Amuse-toi bien !
 			 */
 			title: () => LocalizedString
 			/**
-			 * That’s it, you know everything, you’re ready to fully enjoy Mu Stream.
+			 * Et voilà, tu sais tout, tu es prêt à profiter pleinement de Mu Stream.
 			 */
 			description: () => LocalizedString
 		}
 	}
 	common: {
 		/**
-		 * Step {current} of {total}
+		 * Etape {current} sur {total}
 		 */
-		tutorialStep: (arg: { current: string, total: string }) => LocalizedString
+		tutorialStep: (arg: { current: unknown, total: unknown }) => LocalizedString
 	}
 	alertToast: {
 		/**
-		 * {name} has joined the room
+		 * {name} a rejoint la salle
 		 */
-		newParticipant: (arg: { name: string }) => LocalizedString
+		newParticipant: (arg: { name: unknown }) => LocalizedString
 		/**
-		 * {name} has left the room
+		 * {name} a quitté la salle
 		 */
-		participantLeft: (arg: { name: string }) => LocalizedString
+		participantLeft: (arg: { name: unknown }) => LocalizedString
 		/**
-		 * Code copied to clipboard
+		 * Code copié dans le presse papier
 		 */
 		copiedRoomCode: () => LocalizedString
 	}
 	settingsPopup: {
 		/**
-		 * Language
+		 * Langue
 		 */
 		language: () => LocalizedString
 	}

@@ -35,14 +35,14 @@ const fr = {
   roomScreen: {
     code: 'code',
     deleteRoom: 'Supprimer la salle',
-    deconexion: 'Déconnexion',
+    logOut: 'Déconnexion',
     participants: 'Participants',
     playlist: 'Playlist',
     chat: 'Chat en direct',
     react: 'Réagir',
   },
   warningPopup: {
-    descritption: 'Mu Stream n\'est pas responsable du contenu audio diffusé par les participants. Vous en êtes seul responsable.',
+    description: 'Mu Stream n\'est pas responsable du contenu audio diffusé par les participants. Vous en êtes seul responsable.',
     quit: 'Ne plus afficher',
   },
   roomScreenTutorial: {

@@ -175,6 +175,7 @@
   const chooseLocale = async (locale: Locales) => {
     await loadLocaleAsync(locale);
     setLocale(locale);
+    localStorage.setItem('lang', locale);
   };
 
   let localeToSelect = 'fr' as Locales;

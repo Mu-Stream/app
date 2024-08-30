@@ -82,7 +82,7 @@
   <button id="btn-leave-room"
           class={clsx('btn', 'btn-md', 'variant-filled-tertiary', outline_style)} on:click={onQuit}>
     {#if App.instance.context.room.is_client}
-      {$LL.roomScreen.deconexion()}
+      {$LL.roomScreen.logOut()}
     {:else}
       {$LL.roomScreen.deleteRoom()}
     {/if}
