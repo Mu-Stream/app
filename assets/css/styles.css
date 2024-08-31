@@ -29,6 +29,7 @@ body, html {
   z-index: 2;
   margin: 0;
   padding: 0;
+  overflow: hidden;
 }
 
 #blur-overlay{
