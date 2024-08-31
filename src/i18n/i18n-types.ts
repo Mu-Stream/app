@@ -241,6 +241,10 @@ type RootTranslation = {
      * L​a​n​g​u​e
      */
     language: string;
+    /**
+     * E​x​t​e​n​s​i​o​n​s
+     */
+    plugins: string;
   };
 };
 
@@ -470,6 +474,10 @@ export type TranslationFunctions = {
      * Langue
      */
     language: () => LocalizedString;
+    /**
+     * Extensions
+     */
+    plugins: () => LocalizedString;
   };
 };
 

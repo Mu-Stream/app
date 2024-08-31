@@ -52,17 +52,5 @@
     >
       <UsersGroupSolid {size} />
     </Tab>
-    <Tab
-      bind:group={$navigation}
-      value={'SETTINGS'}
-      name="settings"
-      flex={clsx(
-        'items-center justify-center btn-icon btn-sm',
-        $navigation === 'SETTINGS' && 'border-b-4',
-        'border-black'
-      )}
-    >
-      <CogSolid {size} />
-    </Tab>
   </TabGroup>
 </div>

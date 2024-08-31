@@ -65,6 +65,7 @@
       step={0.1}
       ticked
       on:change={e => (App.instance.context.audio_manager.gain = e.target.value)}
+      accent="accent-tertiary-500"
     />
   </div>
 </div>
