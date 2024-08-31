@@ -17,15 +17,18 @@ const en = {
   waitingScreenTutorial: {
     stepWelcome: {
       title: 'Welcome to Mu Stream',
-      description: 'Mu Stream is an app that lets you share listening sessions with your friends. Here’s a tutorial to help you get started.',
+      description:
+        'Mu Stream is an app that lets you share listening sessions with your friends. Here’s a tutorial to help you get started.',
     },
     stepCreateRoom: {
       title: 'Create a Room',
-      description: 'Click here to create a room. A code will be generated, and you can copy and share it with your friends so they can join you.',
+      description:
+        'Click here to create a room. A code will be generated, and you can copy and share it with your friends so they can join you.',
     },
     stepJoinRoom: {
       title: 'Join a Room',
-      description: 'Click here to create a room. A room code will be generated, and you can copy and share it with your friends so they can join you.',
+      description:
+        'Click here to create a room. A room code will be generated, and you can copy and share it with your friends so they can join you.',
       description1: 'Click here to join a room.',
       description2: 'Enter your username here.',
       description3: 'Enter the room code here.',
@@ -42,7 +45,8 @@ const en = {
     react: 'React',
   },
   warningPopup: {
-    description: 'Mu Stream is not responsible for the audio content shared by participants. You are solely responsible for it.',
+    description:
+      'Mu Stream is not responsible for the audio content shared by participants. You are solely responsible for it.',
     quit: 'Do not show again',
   },
   roomScreenTutorial: {
@@ -52,7 +56,8 @@ const en = {
     },
     stepCode: {
       title: 'Room Code',
-      description: 'You can share this code with your friends so they can join your room. The eye icon allows you to view it, and the copy icon lets you copy it directly to your clipboard.',
+      description:
+        'You can share this code with your friends so they can join your room. The eye icon allows you to view it, and the copy icon lets you copy it directly to your clipboard.',
     },
     stepAddSong: {
       title: 'Add a Song',
@@ -86,7 +91,6 @@ const en = {
   settingsPopup: {
     language: 'Language',
   },
-
 } satisfies BaseTranslation;
 
 export default en;
