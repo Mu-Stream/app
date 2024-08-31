@@ -1,13 +1,14 @@
 <script lang="ts">
   import {
     AppShell,
-    Modal,
-    initializeStores,
-    type ModalComponent,
-    Toast,
-    getToastStore,
     Drawer,
     getDrawerStore,
+    getToastStore,
+    initializeStores,
+    Modal,
+    type ModalComponent,
+    storePopup,
+    Toast,
   } from '@skeletonlabs/skeleton';
   import 'driver.js/dist/driver.css';
   import '../app.pcss';
@@ -20,11 +21,14 @@
   import { App } from '$lib/app';
   import { is_mobile } from '$lib/stores/is_mobile';
   import clsx from 'clsx';
-  import { onMount } from 'svelte';
-  import { computePosition, autoUpdate, offset, shift, flip, arrow } from '@floating-ui/dom';
-  import { storePopup } from '@skeletonlabs/skeleton';
+  import { afterUpdate, onMount } from 'svelte';
+  import { arrow, autoUpdate, computePosition, flip, offset, shift } from '@floating-ui/dom';
   import DynamicBg from '$lib/components/dynamic_bg.svelte';
   import HeaderActions from '$lib/components/header_actions.svelte';
+  import LL from '../i18n/i18n-svelte';
+  import { get } from 'svelte/store';
+  import { initI18nSvelte } from 'typesafe-i18n/svelte';
+
   storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 
   initializeStores();
@@ -46,19 +50,24 @@
   }
 
   onMount(() => {
+    console.log($LL);
+    console.log(get(LL));
     if (localStorage.getItem('warningContentSeen') === 'true') {
       return;
     }
-    toast_store.trigger({
-      autohide: false,
-      background: 'bg-primary-100',
-      action: {
-        label: 'Ne plus afficher',
-        response: persitWarningContentSeen,
-      },
-      message:
-        "Mu Stream n'est pas resonsable du contenu audio diffusé par les participants, vous seul êtes responsable.",
-    });
+    setTimeout(
+      () =>
+        toast_store.trigger({
+          autohide: false,
+          background: 'bg-primary-100',
+          action: {
+            label: get(LL).warningPopup.quit(),
+            response: persitWarningContentSeen,
+          },
+          message: get(LL).warningPopup.description(),
+        }),
+      1000
+    );
   });
 </script>
 
