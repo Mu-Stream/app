@@ -90,6 +90,7 @@ const en = {
   },
   settingsPopup: {
     language: 'Language',
+    plugins: 'Plugins',
   },
 } satisfies BaseTranslation;
 

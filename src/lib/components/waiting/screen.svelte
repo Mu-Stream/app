@@ -18,6 +18,7 @@
 
   const modalStore = getModalStore();
   const toastStore = getToastStore();
+  const plugins = App.instance.plugin_manager.plugins;
   let loading: boolean = false;
 
   async function join(): Promise<void> {
@@ -199,7 +200,7 @@
     <CogOutline />
   </button>
 
-  <div class="card p-4 w-60 shadow-xl text-black" data-popup="popupFeatured">
+  <div class="card p-4 w-60 shadow-xl text-black space-y-2" data-popup="popupFeatured">
     <label class="flex justify-between items-center">
       {$LL.settingsPopup.language()}
       <select
@@ -219,6 +220,14 @@
         {/each}
       </select>
     </label>
+    <span class="flex justify-between items-center">
+      {$LL.settingsPopup.plugins()}
+    </span>
+    {#each plugins as plugin}
+      <div class="flex space-x-1 py-1">
+        <p class="chip variant-filled-tertiary">{plugin.name} - v{plugin.version}</p>
+      </div>
+    {/each}
   </div>
 
   <button

@@ -11,6 +11,10 @@ export type PluginContext<N extends string, T extends Plugin<N>> = Record<N, T['
 export class PluginManager {
   private _plugins: Plugin<string>[] = [];
 
+  public get plugins() {
+    return this._plugins;
+  }
+
   private _context: CoreAppContext & { [key: string]: Record<string, unknown> };
 
   public user_actions_shortcut_ref!: HTMLDivElement;

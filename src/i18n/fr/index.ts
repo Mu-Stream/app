@@ -90,6 +90,7 @@ const fr = {
   },
   settingsPopup: {
     language: 'Langue',
+    plugins: 'Extensions',
   },
 } satisfies Translation;
 
