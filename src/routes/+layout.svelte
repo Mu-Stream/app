@@ -21,11 +21,13 @@
   import { App } from '$lib/app';
   import { is_mobile } from '$lib/stores/is_mobile';
   import clsx from 'clsx';
-  import { onMount } from 'svelte';
+  import { afterUpdate, onMount } from 'svelte';
   import { arrow, autoUpdate, computePosition, flip, offset, shift } from '@floating-ui/dom';
   import DynamicBg from '$lib/components/dynamic_bg.svelte';
   import HeaderActions from '$lib/components/header_actions.svelte';
   import LL from '../i18n/i18n-svelte';
+  import { get } from 'svelte/store';
+  import { initI18nSvelte } from 'typesafe-i18n/svelte';
 
   storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow });
 
@@ -48,18 +50,24 @@
   }
 
   onMount(() => {
+    console.log($LL);
+    console.log(get(LL));
     if (localStorage.getItem('warningContentSeen') === 'true') {
       return;
     }
-    toast_store.trigger({
-      autohide: false,
-      background: 'bg-primary-100',
-      action: {
-        label: $LL.warningPopup.quit(),
-        response: persitWarningContentSeen,
-      },
-      message: $LL.warningPopup.description(),
-    });
+    setTimeout(
+      () =>
+        toast_store.trigger({
+          autohide: false,
+          background: 'bg-primary-100',
+          action: {
+            label: get(LL).warningPopup.quit(),
+            response: persitWarningContentSeen,
+          },
+          message: get(LL).warningPopup.description(),
+        }),
+      1000
+    );
   });
 </script>
 
@@ -73,8 +81,7 @@
 
 <DynamicBg />
 
-<div bind:this={App.instance.plugin_manager.app_ref}
-     class={clsx('w-full', 'h-full', 'overflow-hidden')}>
+<div bind:this={App.instance.plugin_manager.app_ref} class={clsx('w-full', 'h-full', 'overflow-hidden')}>
   {#if $room_id.id}
     <AppShell>
       <svelte:fragment slot="header">
