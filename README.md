@@ -45,4 +45,3 @@ You can preview the production build with `npm run preview`.
 
 Contributions are welcome! Please submit a pull request or open an issue to discuss the changes you
 wish to make.
-
