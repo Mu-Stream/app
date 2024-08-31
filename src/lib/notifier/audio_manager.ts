@@ -9,215 +9,228 @@ import { get } from 'svelte/store';
 import { compression_rate } from '$lib/stores/compression_rate';
 import { parseBlob } from 'music-metadata';
 
-type AudioManagerEventType = 'CURRENTLY_PLAYING' | 'CURRENTLY_METADATA' | 'SONG_ENDED';
+type AudioManagerEventType = 'CURRENTLY_PLAYING' | 'CURRENTLY_METADATA' | 'SONG_ENDED' | 'VOLUME';
 
 export type AudioManagerEvent = Events<
-	AudioManagerEventType,
-	{
-		CURRENTLY_PLAYING: {
-			type: 'CURRENTLY_PLAYING';
-			total_time: number;
-			current_time: number;
-			status: 'PLAYING' | 'PAUSED';
-		};
-		CURRENTLY_METADATA: {
-			type: 'CURRENTLY_METADATA';
-			title: string;
-			artist: string;
-			album: string;
-			year: string;
-			img: { data: Uint8Array; format: string }[];
-		};
-		SONG_ENDED: { type: 'SONG_ENDED' };
-	}
+  AudioManagerEventType,
+  {
+    CURRENTLY_PLAYING: {
+      type: 'CURRENTLY_PLAYING';
+      total_time: number;
+      current_time: number;
+      status: 'PLAYING' | 'PAUSED';
+    };
+    CURRENTLY_METADATA: {
+      type: 'CURRENTLY_METADATA';
+      title: string;
+      artist: string;
+      album: string;
+      year: string;
+      img: { data: Uint8Array; format: string }[];
+    };
+    SONG_ENDED: { type: 'SONG_ENDED' };
+    VOLUME: { type: 'VOLUME'; value: number };
+  }
 >;
 
 export class AudioManager extends Notifier<AudioManagerEventType, AudioManagerEvent> {
-	private _context!: AudioContext;
-	private _audio = new Audio();
-	/// both of those are used when it's you that is streaming the current song
-	private _node?: AudioBufferSourceNode;
-	private _destination?: MediaStreamAudioDestinationNode;
+  private _context!: AudioContext;
+  private _gain!: GainNode;
+  private _audio = new Audio();
+  /// both of those are used when it's you that is streaming the current song
+  private _node?: AudioBufferSourceNode;
+  private _destination?: MediaStreamAudioDestinationNode;
 
-	/// this one is used to store the stream recived from host that the host rebroadcast to others
-	private _remote?: MediaStreamAudioSourceNode;
+  /// this one is used to store the stream recived from host that the host rebroadcast to others
+  private _remote?: MediaStreamAudioSourceNode;
 
-	private _current_time = 0;
-	private _media_timer: NodeJS.Timeout | undefined = undefined;
+  private _current_time = 0;
+  private _media_timer: NodeJS.Timeout | undefined = undefined;
 
-	/// getter to get the current stream playing either if its you that created it or got by a remote
-	get stream() {
-		return this._destination?.stream ?? this._remote?.mediaStream;
-	}
+  set gain(value: number) {
+    console.log('setting gain to', value);
+    this._gain.gain.value = value;
+    this._audio.volume = value;
+    this._notify({ type: 'VOLUME', value });
+  }
 
-	try_init_audio_context() {
-		this._context ??= new AudioContext();
-	}
+  /// getter to get the current stream playing either if its you that created it or got by a remote
+  get stream() {
+    return this._destination?.stream ?? this._remote?.mediaStream;
+  }
 
-	constructor() {
-		super({
-			readable_default_values: {
-				CURRENTLY_PLAYING: {
-					type: 'CURRENTLY_PLAYING',
-					total_time: 0,
-					current_time: 0,
-					status: 'PAUSED',
-				},
-				CURRENTLY_METADATA: {
-					type: 'CURRENTLY_METADATA',
-					title: '',
-					artist: '',
-					album: '',
-					year: '',
-					img: [],
-				},
-			},
-		});
-	}
+  try_init_audio_context() {
+    this._context ??= new AudioContext();
+    this._gain ??= this._context.createGain();
+  }
 
-	public async _prepareLocalStream(file: File): Promise<Result<null, Error>> {
-		const reader = new FileReader();
-		const buffer = new Completer<AudioBuffer>();
+  constructor() {
+    super({
+      readable_default_values: {
+        CURRENTLY_PLAYING: {
+          type: 'CURRENTLY_PLAYING',
+          total_time: 0,
+          current_time: 0,
+          status: 'PAUSED',
+        },
+        CURRENTLY_METADATA: {
+          type: 'CURRENTLY_METADATA',
+          title: '',
+          artist: '',
+          album: '',
+          year: '',
+          img: [],
+        },
+        VOLUME: { type: 'VOLUME', value: 1 },
+      },
+    });
+  }
 
-		let tags: {
-			common: {
-				title?: string;
-				artist?: string;
-				album?: string;
-				year?: number;
-				picture?: {
-					data: Uint8Array,
-					format: string
-				}[]
-			};
-		};
+  public async _prepareLocalStream(file: File): Promise<Result<null, Error>> {
+    const reader = new FileReader();
+    const buffer = new Completer<AudioBuffer>();
 
-		try {
-			tags = await parseBlob(file);
-		} catch (e) {
-			tags = { common: {} };
-		}
+    let tags: {
+      common: {
+        title?: string;
+        artist?: string;
+        album?: string;
+        year?: number;
+        picture?: {
+          data: Uint8Array;
+          format: string;
+        }[];
+      };
+    };
 
-		reader.onload = async event => {
-			const b = event.target?.result as ArrayBuffer;
+    try {
+      tags = await parseBlob(file);
+    } catch (e) {
+      tags = { common: {} };
+    }
 
-			const evt: AudioManagerEvent['CURRENTLY_METADATA'] = {
-				type: 'CURRENTLY_METADATA',
-				title: tags.common.title ?? file.name.split('.')[0],
-				artist: tags.common.artist ?? '',
-				album: tags.common.album ?? '',
-				year: tags.common.year?.toString() ?? '',
-				img: tags.common.picture ?? [],
-			};
+    reader.onload = async event => {
+      const b = event.target?.result as ArrayBuffer;
 
-			// compress image to make it go through webrtc and keep only the first one
-			if (evt.img.length !== 0) {
-				var blob = new Blob([new Uint8Array(evt.img[0].data)], { type: evt.img[0].format });
-				const compressed = await imageCompression(new File([blob], 'temp', { type: evt.img[0].format }), {
-					maxSizeMB: get(compression_rate),
-				});
-				evt.img[0].data = new Uint8Array(await compressed.arrayBuffer());
-				evt.img = evt.img.slice(0, 1);
-			}
+      const evt: AudioManagerEvent['CURRENTLY_METADATA'] = {
+        type: 'CURRENTLY_METADATA',
+        title: tags.common.title ?? file.name.split('.')[0],
+        artist: tags.common.artist ?? '',
+        album: tags.common.album ?? '',
+        year: tags.common.year?.toString() ?? '',
+        img: tags.common.picture ?? [],
+      };
 
-			App.instance.executeCommand(new SyncCurrentMetadata(evt));
-			return this._context?.decodeAudioData(b, b => buffer.completeValue(b));
-		};
+      // compress image to make it go through webrtc and keep only the first one
+      if (evt.img.length !== 0) {
+        var blob = new Blob([new Uint8Array(evt.img[0].data)], { type: evt.img[0].format });
+        const compressed = await imageCompression(new File([blob], 'temp', { type: evt.img[0].format }), {
+          maxSizeMB: get(compression_rate),
+        });
+        evt.img[0].data = new Uint8Array(await compressed.arrayBuffer());
+        evt.img = evt.img.slice(0, 1);
+      }
 
-		reader.readAsArrayBuffer(file);
-		this._node = this._context.createBufferSource();
-		const buf = await buffer.future;
-		if (buf.isNone()) return Err(Error('unable to create audio buffer from file'));
-		this._node.buffer = buf.unwrap();
-		this._destination = this._context.createMediaStreamDestination();
-		this._node.connect(this._context.destination);
-		this._node.connect(this._destination);
-		return Ok(null);
-	}
+      App.instance.executeCommand(new SyncCurrentMetadata(evt));
+      return this._context?.decodeAudioData(b, b => buffer.completeValue(b));
+    };
 
-	public stop() {
-		try {
-			this._remote?.disconnect();
-			this._node?.stop();
-			this._node?.stop();
-			this._destination?.disconnect();
-			this._node = undefined;
-			this._destination = undefined;
-		} catch (e) {
-			console.error(e);
-		}
-	}
+    reader.readAsArrayBuffer(file);
+    this._node = this._context.createBufferSource();
+    const buf = await buffer.future;
+    if (buf.isNone()) return Err(Error('unable to create audio buffer from file'));
+    this._node.buffer = buf.unwrap();
+    this._destination = this._context.createMediaStreamDestination();
+    this._node.connect(this._gain);
+    this._gain.connect(this._context.destination);
+    this._node.connect(this._destination);
+    return Ok(null);
+  }
 
-	public playRemote(stream: MediaStream) {
-		this._current_time = 0;
-		this.stop();
-		this._remote = this._context.createMediaStreamSource(stream);
-		this._remote.connect(this._context!.destination);
-		this._audio.srcObject = this._remote.mediaStream;
-	}
+  public stop() {
+    try {
+      this._remote?.disconnect();
+      this._node?.stop();
+      this._node?.stop();
+      this._destination?.disconnect();
+      this._node = undefined;
+      this._destination = undefined;
+    } catch (e) {
+      console.error(e);
+    }
+  }
 
-	public async resume() {
-		if (!this._node) return;
-		await this._context.resume();
-		const event: AudioManagerEvent['CURRENTLY_PLAYING'] = {
-			type: 'CURRENTLY_PLAYING',
-			total_time: this._node!.buffer!.duration,
-			current_time: this._current_time,
-			status: 'PLAYING',
-		};
-		App.instance.executeCommand(new SyncCurrentlyPlaying(event));
-		this._notify(event);
-		this._setupCurrentlyPlayingPeriodicPing();
-	}
+  public playRemote(stream: MediaStream) {
+    this._current_time = 0;
+    this.stop();
+    this._remote = this._context.createMediaStreamSource(stream);
+    this._remote.connect(this._gain);
+    this._gain.connect(this._context.destination);
+    this._audio.srcObject = this._remote.mediaStream;
+  }
 
-	public async pause() {
-		if (!this._node) return;
+  public async resume() {
+    if (!this._node) return;
+    await this._context.resume();
+    const event: AudioManagerEvent['CURRENTLY_PLAYING'] = {
+      type: 'CURRENTLY_PLAYING',
+      total_time: this._node!.buffer!.duration,
+      current_time: this._current_time,
+      status: 'PLAYING',
+    };
+    App.instance.executeCommand(new SyncCurrentlyPlaying(event));
+    this._notify(event);
+    this._setupCurrentlyPlayingPeriodicPing();
+  }
 
-		await this._context.suspend();
-		const event: AudioManagerEvent['CURRENTLY_PLAYING'] = {
-			type: 'CURRENTLY_PLAYING',
-			total_time: this._node!.buffer!.duration,
-			current_time: this._current_time,
-			status: 'PAUSED',
-		};
-		App.instance.executeCommand(new SyncCurrentlyPlaying(event));
-		this._notify(event);
-		clearInterval(this._media_timer);
-	}
+  public async pause() {
+    if (!this._node) return;
 
-	public syncCurrentMetadata(metadata: AudioManagerEvent['CURRENTLY_METADATA']) {
-		this._notify(metadata);
-	}
+    await this._context.suspend();
+    const event: AudioManagerEvent['CURRENTLY_PLAYING'] = {
+      type: 'CURRENTLY_PLAYING',
+      total_time: this._node!.buffer!.duration,
+      current_time: this._current_time,
+      status: 'PAUSED',
+    };
+    App.instance.executeCommand(new SyncCurrentlyPlaying(event));
+    this._notify(event);
+    clearInterval(this._media_timer);
+  }
 
-	private _setupCurrentlyPlayingPeriodicPing() {
-		clearInterval(this._media_timer);
-		this._media_timer = setInterval(() => {
-			const event: AudioManagerEvent['CURRENTLY_PLAYING'] = {
-				type: 'CURRENTLY_PLAYING',
-				total_time: this._node!.buffer!.duration,
-				current_time: ++this._current_time,
-				status: 'PLAYING',
-			};
-			this._notify(event);
-			App.instance.executeCommand(new SyncCurrentlyPlaying(event));
-		}, 1000);
+  public syncCurrentMetadata(metadata: AudioManagerEvent['CURRENTLY_METADATA']) {
+    this._notify(metadata);
+  }
 
-		this._node!.onended = () => {
-			this._notify({ type: 'SONG_ENDED' });
-			App.instance.context.room.send({ type: 'SONG_ENDED' });
-			clearInterval(this._media_timer);
-		};
-	}
+  private _setupCurrentlyPlayingPeriodicPing() {
+    clearInterval(this._media_timer);
+    this._media_timer = setInterval(() => {
+      const event: AudioManagerEvent['CURRENTLY_PLAYING'] = {
+        type: 'CURRENTLY_PLAYING',
+        total_time: this._node!.buffer!.duration,
+        current_time: ++this._current_time,
+        status: 'PLAYING',
+      };
+      this._notify(event);
+      App.instance.executeCommand(new SyncCurrentlyPlaying(event));
+    }, 1000);
 
-	public async playLocal(file: File) {
-		this._current_time = 0;
-		this.stop();
+    this._node!.onended = () => {
+      this._notify({ type: 'SONG_ENDED' });
+      App.instance.context.room.send({ type: 'SONG_ENDED' });
+      clearInterval(this._media_timer);
+    };
+  }
 
-		await this._prepareLocalStream(file);
-		this._node!.start();
+  public async playLocal(file: File) {
+    this._current_time = 0;
+    this.stop();
 
-		this._setupCurrentlyPlayingPeriodicPing();
+    await this._prepareLocalStream(file);
+    this._node!.start();
 
-		return;
-	}
+    this._setupCurrentlyPlayingPeriodicPing();
+
+    return;
+  }
 }
