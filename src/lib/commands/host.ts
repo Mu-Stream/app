@@ -7,6 +7,7 @@ import type { CoreAppContext } from '$lib/app';
 import { prettyError } from '$lib/logging_utils';
 import type { AudioManagerEvent } from '$lib/notifier/audio_manager';
 import { get } from 'svelte/store';
+import LL from '../../i18n/i18n-svelte';
 
 export class HostCommand extends Command<CoreAppContext> {
   private _peer!: Peer;
@@ -64,7 +65,7 @@ export class HostCommand extends Command<CoreAppContext> {
     const new_peer_toast: PeerEvents['TOAST'] = {
       type: 'TOAST',
       severity: 'success',
-      message: this._peer.username + ' a rejoint la salle',
+      message: get(LL).alertToast.newParticipant({ name: this._peer.username }),
     };
     context.room.broadcast(new_peer_toast);
     context.toaster.trigger(new_peer_toast);
@@ -112,7 +113,7 @@ export class HostCommand extends Command<CoreAppContext> {
     const payload: PeerEvents['TOAST'] = {
       type: 'TOAST',
       severity: 'success',
-      message: this._peer.username + ' a quitté la salle',
+      message: get(LL).alertToast.participantLeft({ name: this._peer.username }),
     };
     context.toaster.trigger(payload);
     context.room.broadcast(payload);

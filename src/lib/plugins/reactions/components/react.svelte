@@ -5,6 +5,7 @@
   import clsx from 'clsx';
   import type { PopupSettings } from '@skeletonlabs/skeleton';
   import { popup } from '@skeletonlabs/skeleton';
+  import LL from '../../../../i18n/i18n-svelte';
 
   let emojis = [
     '😁',
@@ -45,9 +46,10 @@
   };
 </script>
 
-<button id="btn-add-reaction" class={clsx('btn', 'variant-filled-tertiary', outline_style)} use:popup={popupFeatured}>
+<button id="btn-add-reaction" class={clsx('btn', 'variant-filled-tertiary', outline_style)}
+        use:popup={popupFeatured}>
   <span>😁</span>
-  <span class="hidden lg:inline">réagir</span>
+  <span class="hidden lg:inline">{$LL.roomScreen.react()}</span>
 </button>
 
 <div class="card p-4 w-72 shadow-xl" data-popup="popupFeatured">
