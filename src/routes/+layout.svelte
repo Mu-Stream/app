@@ -50,8 +50,6 @@
   }
 
   onMount(() => {
-    console.log($LL);
-    console.log(get(LL));
     if (localStorage.getItem('warningContentSeen') === 'true') {
       return;
     }
@@ -81,7 +79,7 @@
 
 <DynamicBg />
 
-<div bind:this={App.instance.plugin_manager.app_ref} class={clsx('w-full', 'h-full', 'overflow-hidden')}>
+<div bind:this={App.instance.plugin_manager.app_ref} class={clsx('w-screen', 'h-screen', 'overflow-hidden')}>
   {#if $room_id.id}
     <AppShell>
       <svelte:fragment slot="header">

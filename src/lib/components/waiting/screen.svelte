@@ -1,12 +1,6 @@
 <script lang="ts">
   import { Completer } from '$lib/completer';
-  import {
-    getModalStore,
-    getToastStore,
-    popup,
-    type PopupSettings,
-    ProgressRadial,
-  } from '@skeletonlabs/skeleton';
+  import { getModalStore, getToastStore, popup, type PopupSettings, ProgressRadial } from '@skeletonlabs/skeleton';
   import clsx from 'clsx';
   import { outline_style } from '$lib/global_styles';
   import { JoinRoomCommand } from '$lib/commands/join';
@@ -48,7 +42,7 @@
     }
 
     const command = await App.instance.executeCommand(
-      new JoinRoomCommand(infos.unwrap().room_id, infos.unwrap().username),
+      new JoinRoomCommand(infos.unwrap().room_id, infos.unwrap().username)
     );
 
     command.match({
@@ -57,8 +51,7 @@
           message: e.message,
           background: 'variant-filled-error',
         }),
-      Ok: _ => {
-      },
+      Ok: _ => {},
     });
 
     App.instance.context.audio_manager.try_init_audio_context();
@@ -72,8 +65,7 @@
     const command = await App.instance.executeCommand(new HostCommand());
 
     command.match({
-      Ok: _ => {
-      },
+      Ok: _ => {},
       Err: err => {
         toastStore.trigger({
           message: err.toString(),
@@ -187,12 +179,9 @@
     en: 'English',
     fr: 'Français',
   };
-
-
 </script>
 
 <div class={clsx('h-full', 'w-full', 'flex', 'flex-col', 'relative', 'text-white')}>
-
   <button
     class={clsx(
       'absolute',
@@ -213,22 +202,24 @@
   <div class="card p-4 w-60 shadow-xl text-black" data-popup="popupFeatured">
     <label class="flex justify-between items-center">
       {$LL.settingsPopup.language()}
-      <select bind:value={localeToSelect} class={clsx(
-        'bg-gray-200',
-        'border',
-        'rounded',
-        'focus:border-blue-500',
-        'focus:outline-none',
-        'focus:ring-2',
-        'focus:ring-blue-200'
-              )}>
+      <select
+        bind:value={localeToSelect}
+        class={clsx(
+          'bg-gray-200',
+          'border',
+          'rounded',
+          'focus:border-blue-500',
+          'focus:outline-none',
+          'focus:ring-2',
+          'focus:ring-blue-200'
+        )}
+      >
         {#each locales as locale}
           <option value={locale}>{localeAliases[locale]}</option>
         {/each}
       </select>
     </label>
   </div>
-
 
   <button
     on:click={onTutorial}
@@ -245,10 +236,8 @@
   >
     ?
   </button>
-  <div bind:this={bg_ref}
-       class={clsx('absolute', 'bottom-0', 'left-0', 'w-full', 'z-[-1]', 'h-1/3')} />
-  <div
-    class={clsx('w-full', 'h-full', 'flex', 'flex-col', 'items-center', 'justify-center', 'space-y-8', 'md:p-4')}>
+  <div bind:this={bg_ref} class={clsx('absolute', 'bottom-0', 'left-0', 'w-full', 'z-[-1]', 'h-1/3')} />
+  <div class={clsx('w-full', 'h-full', 'flex', 'flex-col', 'items-center', 'justify-center', 'space-y-8')}>
     <img src="/logo.svg" alt="logo" class={clsx('w-64', 'h-64', 'animate-pulse')} />
     <h1 class={clsx('text-6xl', 'text-center', 'nowrap')}>{$LL.title()}</h1>
     <h4 class="text-center">{$LL.waitingScreen.slogan()}</h4>
