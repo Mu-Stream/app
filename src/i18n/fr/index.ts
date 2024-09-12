@@ -3,7 +3,7 @@ import type { Translation } from '../i18n-types';
 const fr = {
   title: 'Mu Stream',
   waitingScreen: {
-    slogan: "Partage des sessions d'écoute instense avec tes amis !",
+    slogan: "Partage des sessions d'écoute intense avec tes amis !",
     createRoomBtn: 'Créer une salle',
     joinRoomBtn: 'Rejoindre une salle',
     roomChoiceSeparator: 'OU',
