@@ -1,5 +1,5 @@
-import {describe, expect, it} from 'vitest';
-import {Style} from '../../src/lib/logging_utils';
+import { describe, expect, it } from 'vitest';
+import { Style } from '../../src/lib/logging_utils';
 
 describe('Style', () => {
   it('should set color correctly', () => {
@@ -41,5 +41,4 @@ describe('Style', () => {
     const style = new Style().lower();
     expect(style.build()).toBe('text-transform: lowercase;');
   });
-
 });

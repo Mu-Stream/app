@@ -72,8 +72,11 @@ export class HostCommand extends Command<CoreAppContext> {
 
     context.room.addPeer(this._peer);
 
-    const meta_payload = get(context.audio_manager.readable('CURRENTLY_METADATA'));
+    const { localImg, ...meta_payload } = get(context.audio_manager.readable('CURRENTLY_METADATA'));
     this._peer.send(meta_payload);
+    if (localImg) {
+      this._peer.sendFile(localImg, 'current-metadata');
+    }
 
     return Ok(null);
   };
@@ -130,6 +133,9 @@ export class HostCommand extends Command<CoreAppContext> {
     CoreAppContext,
     WithPeerIentity<AudioManagerEvent['CURRENTLY_METADATA']>
   > = context => async event => {
+    if (event.hasImg && !event.localImg) {
+      event.localImg = (await context.room.reciveFile('current-metadata', event.identity)).unwrap();
+    }
     context.audio_manager.syncCurrentMetadata(event);
     return Ok(null);
   };

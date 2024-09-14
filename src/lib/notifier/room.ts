@@ -75,7 +75,31 @@ export class Room extends ProxyNotifier<RoomEventTypes, RoomEvents> {
     this.notifyUserList();
   }
 
-  /** send a payload has a client to the host */
+  public sendFile(file: File, id: string) {
+    this._client_peer?.sendFile(file, id);
+    return Ok(null);
+  }
+
+  public async broadcastFile(file: File, id: string, { excluded_ids }: { excluded_ids?: string[] } = {}) {
+    for (const peer of this._members_peers) {
+      if (!excluded_ids?.includes(peer.id)) {
+        const res = await peer.sendFile(file, id);
+        if (res.isNone()) {
+          // this._members_peers = this._members_peers.filter(p => p.id !== peer.id);
+          // this.notifyUserList();
+        }
+      }
+    }
+  }
+
+  public async reciveFile(file_id: string, peer_id?: string) {
+    if (this._client_peer) {
+      return this._client_peer.receiveFile(file_id);
+    }
+    return this._members_peers.find(p => p.id === peer_id)!.receiveFile(file_id);
+  }
+
+  /** send a payload as a client to the host */
   public send<E extends { type: string } & Record<string, any>>(
     event: PeerEvents[PeerEventTypes] | E
   ): Result<null, Error> {
@@ -90,10 +114,10 @@ export class Room extends ProxyNotifier<RoomEventTypes, RoomEvents> {
     for (const peer of this._members_peers) {
       if (!excluded_ids?.includes(peer.id)) {
         const res = peer.send(event as PeerEvents[PeerEventTypes]);
-        // failing means disconnect (for now)
         if (res.isErr()) {
-          this._members_peers = this._members_peers.filter(p => p.id !== peer.id);
-          this.notifyUserList();
+          console.log(res.error);
+          // this._members_peers = this._members_peers.filter(p => p.id !== peer.id);
+          // this.notifyUserList();
         }
       }
     }

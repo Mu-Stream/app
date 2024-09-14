@@ -3,6 +3,7 @@ import { App } from '$lib/app';
 import { Ok } from 'bakutils-catcher';
 import type { AudioManagerEvent } from '$lib/notifier/audio_manager';
 import type { RoomEvents } from '$lib/notifier/room';
+import type { WithPeerIentity } from '$lib/notifier/peer';
 
 export interface Song {
   identity: string;
@@ -11,7 +12,8 @@ export interface Song {
   artist: string;
   album: string;
   year: string;
-  img: { data: Uint8Array; format: string }[];
+  hasImg: boolean;
+  localImg: File | null;
 }
 
 export type PlaylistEventType =
@@ -59,7 +61,7 @@ export class PlaylistManager extends Notifier<PlaylistEventType, PlaylistEvent> 
       },
     });
     App.instance.context.audio_manager.subscribe('SONG_ENDED', this._handleSongEnded);
-    this.subscribe('ADD_TO_PLAYLIST', this._handleAddToPlaylist);
+    this.subscribe('ADD_TO_PLAYLIST', this._handleAddToPlaylist as Listener<any>); // FUCK TS SOMETIMES
     this.subscribe('PLAY_SONG_IN_PLAYLIST', this._handlePlaySongInPlaylist);
     this.subscribe('REMOVE_FROM_PLAYLIST', this._handleRemoveFromPlaylist);
   }
@@ -74,19 +76,47 @@ export class PlaylistManager extends Notifier<PlaylistEventType, PlaylistEvent> 
     return Ok(null);
   };
 
+  _initPlyalistPeer: Listener<RoomEvents['NEW_PEER']> = async event => {
+    for (const s of this._queue) {
+      const { localImg, ...song } = s;
+      const payload: PlaylistEvent['ADD_TO_PLAYLIST'] = {
+        type: 'ADD_TO_PLAYLIST',
+        song: { ...song, localImg: null },
+      };
+      event.peer.send(payload);
+      if (localImg) {
+        event.peer.sendFile(localImg, song.uuid);
+      }
+    }
+    return Ok(null);
+  };
+
   private _local_media_queue: { file: File; uuid: string }[] = [];
 
   private _queue: Song[] = [];
 
-  public addSongToPlaylist(song: Song, file: File) {
+  public addSongToPlaylist(song: Song, file: File, img: File | null) {
     this._local_media_queue.push({ file, uuid: song.uuid });
     const payload: PlaylistEvent['ADD_TO_PLAYLIST'] = { type: 'ADD_TO_PLAYLIST', song };
-    this._notify(payload);
     App.instance.context.room.broadcast(payload);
     App.instance.context.room.send(payload);
+    if (img) {
+      if (App.instance.context.room.is_client) {
+        App.instance.context.room.sendFile(img, song.uuid);
+      } else {
+        App.instance.context.room.broadcastFile(img, song.uuid);
+      }
+    }
+    this._notify({ ...payload, song: { ...song, localImg: img } });
   }
 
-  public _handleAddToPlaylist: Listener<PlaylistEvent['ADD_TO_PLAYLIST']> = async payload => {
+  public _handleAddToPlaylist: Listener<WithPeerIentity<PlaylistEvent['ADD_TO_PLAYLIST']>> = async payload => {
+    if (payload.song.hasImg && !payload.song.localImg) {
+      const img = await App.instance.context.room.reciveFile(payload.song.uuid, payload.identity);
+      if (img) {
+        payload.song.localImg = img.unwrap();
+      }
+    }
     this._queue.push(payload.song);
     this._notify({ type: 'UPDATE_PLAYLIST', queue: this._queue });
 

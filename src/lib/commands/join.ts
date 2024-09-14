@@ -24,6 +24,16 @@ export class JoinRoomCommand extends Command<CoreAppContext> {
 
     this._peer = new Peer({ initiator: true, username: this.username });
 
+    this._peer.proxy('CURRENTLY_PLAYING', context.audio_manager.bind);
+
+    this._peer.subscribe('ADD_STREAM', this._handleStream(context));
+    this._peer.subscribe('PAUSE', this._handlePause(context));
+    this._peer.subscribe('RESUME', this._handleResume(context));
+    this._peer.subscribe('USER_LIST', context.room.bind);
+    this._peer.subscribe('CURRENTLY_METADATA', this._handleCurrentMetadata(context));
+    this._peer.subscribe('TOAST', this._handleToast(context));
+    this._peer.subscribe('CLOSE', this._handleClose(context));
+
     const own_signal = (await this._peer.initial_signal).unwrap();
     context.signaling_server.send({
       type: 'JOIN_HOST',
@@ -38,16 +48,6 @@ export class JoinRoomCommand extends Command<CoreAppContext> {
     const init_room_res = (await this._peer.once('INIT_ROOM')).unwrap();
     context.room.id = init_room_res.room_id;
     this._peer.id = init_room_res.peer_id;
-
-    this._peer.proxy('CURRENTLY_PLAYING', context.audio_manager.bind);
-
-    this._peer.subscribe('ADD_STREAM', this._handleStream(context));
-    this._peer.subscribe('PAUSE', this._handlePause(context));
-    this._peer.subscribe('RESUME', this._handleResume(context));
-    this._peer.subscribe('USER_LIST', context.room.bind);
-    this._peer.subscribe('CURRENTLY_METADATA', this._handleCurrentMetadata(context));
-    this._peer.subscribe('TOAST', this._handleToast(context));
-    this._peer.subscribe('CLOSE', this._handleClose(context));
 
     context.room.client_peer = this._peer;
 
@@ -78,6 +78,9 @@ export class JoinRoomCommand extends Command<CoreAppContext> {
     CoreAppContext,
     WithPeerIentity<AudioManagerEvent['CURRENTLY_METADATA']>
   > = context => async event => {
+    if (event.hasImg && !event.localImg) {
+      event.localImg = (await context.room.reciveFile('current-metadata', event.identity)).unwrap();
+    }
     context.audio_manager.syncCurrentMetadata(event);
     return Ok(null);
   };

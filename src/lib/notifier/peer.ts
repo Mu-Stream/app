@@ -1,9 +1,10 @@
 import { Completer } from '$lib/completer';
 import { v4 } from 'uuid';
 import SimplePeer from 'simple-peer';
-import { Err, Ok, type Result } from 'bakutils-catcher';
+import { Err, None, Ok, Option, type Result } from 'bakutils-catcher';
 import { ProxyNotifier, type Events, type Listener, type Subscription } from './i_notifier';
 import type { Binder } from '$lib/plugins/i_plugin';
+import SimplePeerFiles from 'simple-peer-files';
 
 export type WithPeerIentity<E extends Record<string, unknown>> = E & {
   identity: string;
@@ -60,6 +61,7 @@ export class Peer extends ProxyNotifier<PeerEventTypes, PeerEvents> {
   private _id = v4();
   private _username: string;
   private _peer: SimplePeer.Instance;
+  private _peer_files: any;
 
   private _initial_signal: Completer<SimplePeer.SignalData> = new Completer();
   private _link_done: Completer<true> = new Completer();
@@ -88,6 +90,7 @@ export class Peer extends ProxyNotifier<PeerEventTypes, PeerEvents> {
     super();
     this._username = username;
     this._peer = new SimplePeer({ initiator, trickle: false });
+    this._peer_files = new SimplePeerFiles();
     this._peer.once('signal', singal => this._initial_signal.completeValue(singal));
     this._peer.once('connect', () => this._link_done.completeValue(true));
 
@@ -154,11 +157,26 @@ export class Peer extends ProxyNotifier<PeerEventTypes, PeerEvents> {
         this._peer.addStream(payload.stream);
         return Ok(null);
       }
-      this._peer!.send(JSON.stringify({ ...payload, indentity: this.id }));
+      this._peer!.send(JSON.stringify({ ...payload, identity: this.id }));
       return Ok(null);
     } catch (err) {
       return Err(err as Error);
     }
+  }
+
+  public async sendFile(file: File, id: string): Promise<Option<null>> {
+    const transfert = await this._peer_files.send(this._peer, id, file);
+    transfert.start();
+    const transfert_done = new Completer<null>();
+    transfert.on('done', () => transfert_done.completeValue(null));
+    return await transfert_done.future;
+  }
+
+  public async receiveFile(id: string): Promise<Option<File>> {
+    const transfert = await this._peer_files.receive(this._peer, id);
+    const file = new Completer<File>();
+    transfert.on('done', (f: File) => file.completeValue(f));
+    return await file.future;
   }
 
   public proxy<T extends PeerEventTypes | string>(key: T, listener: Listener<any>): void {

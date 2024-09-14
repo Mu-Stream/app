@@ -2,6 +2,7 @@ import { Completer } from '$lib/completer';
 import { Stylize, blueLabel, greenLabel, orangeLabel, redLabel } from '$lib/logging_utils';
 import { Err, Ok, type Result } from 'bakutils-catcher';
 import { readable, type Readable } from 'svelte/store';
+import type { WithPeerIentity } from './peer';
 
 type Event<K extends string> = Record<K, { type: K }>;
 export type Events<K extends string, E extends Event<K>> = E;

@@ -1,5 +1,5 @@
-import {describe, expect, it, vi} from 'vitest';
-import {QuitCommand} from '../../../src/lib/commands/quit';
+import { describe, expect, it, vi } from 'vitest';
+import { QuitCommand } from '../../../src/lib/commands/quit';
 
 describe('QuitCommand', () => {
   it('should execute and quit room if client', async () => {

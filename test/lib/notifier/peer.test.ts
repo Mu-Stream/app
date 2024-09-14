@@ -1,6 +1,6 @@
-import {beforeEach, describe, expect, it, vi} from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import SimplePeer from 'simple-peer';
-import {Peer} from '../../../src/lib/notifier/peer';
+import { Peer } from '../../../src/lib/notifier/peer';
 
 vi.mock('uuid', () => ({
   v4: vi.fn().mockReturnValue('mocked-uuid'),
@@ -53,7 +53,7 @@ describe('Peer', () => {
   it('should send payload correctly', () => {
     const payload = { type: 'TEST_EVENT', data: 'test' };
     const result = peer.send(payload);
-    expect(peer['_peer'].send).toHaveBeenCalledWith(JSON.stringify({ ...payload, indentity: 'mocked-uuid' }));
+    expect(peer['_peer'].send).toHaveBeenCalledWith(JSON.stringify({ ...payload, identity: 'mocked-uuid' }));
     expect(result.isOk()).toBe(true);
   });
 

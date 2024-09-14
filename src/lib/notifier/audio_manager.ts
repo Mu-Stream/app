@@ -4,9 +4,6 @@ import { App } from '$lib/app';
 import { Notifier, type Events } from './i_notifier';
 import { SyncCurrentlyPlaying } from '$lib/commands/sync_currently_playing';
 import { SyncCurrentMetadata } from '$lib/commands/sync_current_metadata';
-import imageCompression from 'browser-image-compression';
-import { get } from 'svelte/store';
-import { compression_rate } from '$lib/stores/compression_rate';
 import { parseBlob } from 'music-metadata';
 
 type AudioManagerEventType = 'CURRENTLY_PLAYING' | 'CURRENTLY_METADATA' | 'SONG_ENDED' | 'VOLUME';
@@ -26,7 +23,8 @@ export type AudioManagerEvent = Events<
       artist: string;
       album: string;
       year: string;
-      img: { data: Uint8Array; format: string }[];
+      hasImg: boolean;
+      localImg: File | null;
     };
     SONG_ENDED: { type: 'SONG_ENDED' };
     VOLUME: { type: 'VOLUME'; value: number };
@@ -48,7 +46,6 @@ export class AudioManager extends Notifier<AudioManagerEventType, AudioManagerEv
   private _media_timer: NodeJS.Timeout | undefined = undefined;
 
   set gain(value: number) {
-    console.log('setting gain to', value);
     this._gain.gain.value = value;
     this._audio.volume = value;
     this._notify({ type: 'VOLUME', value });
@@ -79,7 +76,8 @@ export class AudioManager extends Notifier<AudioManagerEventType, AudioManagerEv
           artist: '',
           album: '',
           year: '',
-          img: [],
+          hasImg: false,
+          localImg: null,
         },
         VOLUME: { type: 'VOLUME', value: 1 },
       },
@@ -118,18 +116,14 @@ export class AudioManager extends Notifier<AudioManagerEventType, AudioManagerEv
         artist: tags.common.artist ?? '',
         album: tags.common.album ?? '',
         year: tags.common.year?.toString() ?? '',
-        img: tags.common.picture ?? [],
+        hasImg: !!tags.common.picture && tags.common.picture!.length !== 0,
+        localImg: null,
       };
 
-      // compress image to make it go through webrtc and keep only the first one
-      if (evt.img.length !== 0) {
-        var blob = new Blob([new Uint8Array(evt.img[0].data)], { type: evt.img[0].format });
-        const compressed = await imageCompression(new File([blob], 'temp', { type: evt.img[0].format }), {
-          maxSizeMB: get(compression_rate),
-        });
-        evt.img[0].data = new Uint8Array(await compressed.arrayBuffer());
-        evt.img = evt.img.slice(0, 1);
-      }
+      let img = evt.hasImg ? tags.common.picture![0] : null;
+      evt.localImg = img
+        ? new File([new Blob([new Uint8Array(img!.data)], { type: img!.format })], `${evt.title}`)
+        : null;
 
       App.instance.executeCommand(new SyncCurrentMetadata(evt));
       return this._context?.decodeAudioData(b, b => buffer.completeValue(b));

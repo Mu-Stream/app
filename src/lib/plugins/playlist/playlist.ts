@@ -2,10 +2,6 @@ import { Plugin, type Binder } from '$lib/plugins/i_plugin';
 import { Ok, type Result } from 'bakutils-catcher';
 import { PlaylistManager } from './notifier/playlist_manager';
 import Playlist from './components/playlist.svelte';
-import { App, type CoreAppContext } from '$lib/app';
-import type { WrappedListener } from '$lib/commands/i_commands';
-import type { PeerEvents, WithPeerIentity } from '$lib/notifier/peer';
-import type { RoomEvents } from '$lib/notifier/room';
 
 export class PlaylistPlugin extends Plugin<'playlist'> {
   name: 'playlist' = 'playlist';
@@ -25,6 +21,7 @@ export class PlaylistPlugin extends Plugin<'playlist'> {
 
   async init(): Promise<Result<null, Error>> {
     this.context.room.subscribe('PEER_QUIT', this.plugin_context.playlist_manager._handlePeerQuited);
+    this.context.room.subscribe('NEW_PEER', this.plugin_context.playlist_manager._initPlyalistPeer);
     return Ok(null);
   }
 

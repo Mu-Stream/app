@@ -4,6 +4,7 @@
   //@ts-ignore
   import ColorThief from 'colorthief';
   import { onMount } from 'svelte';
+  import { get } from 'svelte/store';
 
   const thief = new ColorThief();
 
@@ -62,25 +63,7 @@
 
   $: bg_colors && (random_moving_bg_size = randomMovingBGSize());
 
-  let latest_meta: any | undefined = undefined;
-
-  const unsub = current_meta.subscribe(async meta => {
-    if (meta === latest_meta) return;
-
-    setTimeout(async () => {
-      if (meta.img.length !== 0) {
-        const cover = document.getElementById('main-cover');
-        if (cover) {
-          const color = await thief.getPalette(cover, [COLOR_TO_PICK_COUNT]);
-          bg_colors = color.map((c: number[]) => rgbToHex(c[0], c[1], c[2]));
-        }
-      } else {
-        bg_colors = ['#BDB8E3', '#e2bbf2'];
-      }
-    }, 300);
-
-    latest_meta = meta;
-  });
+  let last_meta_id: string | null = null;
 
   onMount(() => {
     const width = window.innerWidth;
@@ -92,11 +75,29 @@
       moving_positions = randomBGNewPos(width, height);
     }, MOVE_DURATION_MS - 1000);
 
-    return () => {
-      if (unsub) {
-        unsub();
+    async function getCoverColors(cover: HTMLImageElement) {
+      const meta_id = get(App.instance.context.audio_manager.readable('CURRENTLY_METADATA')).title;
+      if (meta_id == last_meta_id) return;
+      last_meta_id = meta_id;
+      const color = await thief.getPalette(cover, [COLOR_TO_PICK_COUNT]);
+      bg_colors = color.map((c: number[]) => rgbToHex(c[0], c[1], c[2]));
+    }
+
+    const interval_colors = setInterval(() => {
+      const cover: HTMLImageElement | null = document.getElementById('main-cover') as HTMLImageElement | null;
+      if (!cover) return;
+
+      if (!cover.complete) {
+        bg_colors = ['#BDB8E3', '#e2bbf2'];
+        cover.addEventListener('load', () => getCoverColors(cover));
+      } else {
+        getCoverColors(cover);
       }
+    }, 1000);
+
+    return () => {
       clearInterval(interval);
+      clearInterval(interval_colors);
     };
   });
 </script>
