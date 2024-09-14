@@ -5,6 +5,9 @@ import { Peer, type PeerEvents, type WithPeerIentity } from '$lib/notifier/peer'
 import type { SignalingEvent } from '$lib/notifier/signaling';
 import type { CoreAppContext } from '$lib/app';
 import { prettyError } from '$lib/logging_utils';
+import type { AudioManagerEvent } from '$lib/notifier/audio_manager';
+import { get } from 'svelte/store';
+import LL from '../../i18n/i18n-svelte';
 
 export class HostCommand extends Command<CoreAppContext> {
   private _peer!: Peer;
@@ -38,7 +41,7 @@ export class HostCommand extends Command<CoreAppContext> {
 
     if ((await this._peer.link_done).isNone()) return Err(new UnableToRetrivePeerSignal());
 
-    this._peer.send({ type: 'INIT_ROOM', room_id: context.room.id! });
+    this._peer.send({ type: 'INIT_ROOM', room_id: context.room.id!, peer_id: this._peer.id });
 
     const current_stream = context.audio_manager.stream;
 
@@ -52,10 +55,28 @@ export class HostCommand extends Command<CoreAppContext> {
     this._peer.subscribe('RESUME', this._handleResume(context));
     this._peer.subscribe('CURRENTLY_PLAYING', this._handleSongProgressPeer(context));
     this._peer.subscribe('USER_LIST', this._handleUserList(context));
+    this._peer.subscribe('CLOSE', this._handleClose(context));
+    this._peer.subscribe('TOAST', this._handleToast(context));
+    this._peer.subscribe('CURRENTLY_METADATA', this._handleCurrentMetadata(context));
 
     this._peer.proxy('CURRENTLY_PLAYING', context.audio_manager.bind);
+    this._peer.proxy('SONG_ENDED', context.audio_manager.bind);
+
+    const new_peer_toast: PeerEvents['TOAST'] = {
+      type: 'TOAST',
+      severity: 'success',
+      message: get(LL).alertToast.newParticipant({ name: this._peer.username }),
+    };
+    context.room.broadcast(new_peer_toast);
+    context.toaster.trigger(new_peer_toast);
 
     context.room.addPeer(this._peer);
+
+    const { localImg, ...meta_payload } = get(context.audio_manager.readable('CURRENTLY_METADATA'));
+    this._peer.send(meta_payload);
+    if (localImg) {
+      this._peer.sendFile(localImg, 'current-metadata');
+    }
 
     return Ok(null);
   };
@@ -78,14 +99,44 @@ export class HostCommand extends Command<CoreAppContext> {
     return Ok(null);
   };
 
-  private _handleSongProgressPeer: WrappedListener<CoreAppContext, PeerEvents['CURRENTLY_PLAYING']> =
+  private _handleSongProgressPeer: WrappedListener<CoreAppContext, AudioManagerEvent['CURRENTLY_PLAYING']> =
     context => async payload => {
       context.room.broadcast(payload, { excluded_ids: [this._peer.id] });
       return Ok(null);
     };
+
   private _handleUserList: WrappedListener<CoreAppContext, WithPeerIentity<PeerEvents['USER_LIST']>> =
     context => async _ => {
       context.room.notifyUserList();
       return Ok(null);
     };
+
+  private _handleClose: WrappedListener<CoreAppContext, WithPeerIentity<PeerEvents['CLOSE']>> = context => async _ => {
+    context.room.removePeer(this._peer.id);
+    const payload: PeerEvents['TOAST'] = {
+      type: 'TOAST',
+      severity: 'success',
+      message: get(LL).alertToast.participantLeft({ name: this._peer.username }),
+    };
+    context.toaster.trigger(payload);
+    context.room.broadcast(payload);
+    return Ok(null);
+  };
+
+  private _handleToast: WrappedListener<CoreAppContext, WithPeerIentity<PeerEvents['TOAST']>> =
+    context => async event => {
+      context.toaster.trigger(event);
+      return Ok(null);
+    };
+
+  private _handleCurrentMetadata: WrappedListener<
+    CoreAppContext,
+    WithPeerIentity<AudioManagerEvent['CURRENTLY_METADATA']>
+  > = context => async event => {
+    if (event.hasImg && !event.localImg) {
+      event.localImg = (await context.room.reciveFile('current-metadata', event.identity)).unwrap();
+    }
+    context.audio_manager.syncCurrentMetadata(event);
+    return Ok(null);
+  };
 }

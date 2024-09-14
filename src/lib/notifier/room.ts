@@ -3,7 +3,7 @@ import { ProxyNotifier, type Events } from './i_notifier';
 import { Peer, type PeerEventTypes, type PeerEvents } from './peer';
 import { Ok, type Result } from 'bakutils-catcher';
 
-export type RoomEventTypes = 'ROOM_ID' | 'NEW_PEER' | 'JOINED' | 'USER_LIST';
+export type RoomEventTypes = 'ROOM_ID' | 'NEW_PEER' | 'JOINED' | 'USER_LIST' | 'PEER_QUIT';
 
 export type RoomEvents = Events<
   RoomEventTypes,
@@ -12,6 +12,7 @@ export type RoomEvents = Events<
     NEW_PEER: { type: 'NEW_PEER'; peer: Peer };
     JOINED: { type: 'JOINED'; peer: Peer };
     USER_LIST: { type: 'USER_LIST'; users: { id: string; username: string }[] };
+    PEER_QUIT: { type: 'PEER_QUIT'; id: string };
   }
 >;
 
@@ -24,7 +25,7 @@ export class Room extends ProxyNotifier<RoomEventTypes, RoomEvents> {
     super({
       readable_default_values: {
         ROOM_ID: { type: 'ROOM_ID', id: undefined },
-        USER_LIST: { type: 'USER_LIST', users: [] },
+        USER_LIST: { type: 'USER_LIST', users: [{ id: 'host', username: 'host' }] },
       },
     });
   }
@@ -43,8 +44,16 @@ export class Room extends ProxyNotifier<RoomEventTypes, RoomEvents> {
     this._notify({ type: 'JOINED', peer: peer! });
   }
 
+  public get client_peer() {
+    return this._client_peer;
+  }
+
   public get members_peers() {
     return this._members_peers;
+  }
+
+  public get is_client() {
+    return this._client_peer !== undefined;
   }
 
   public notifyUserList() {
@@ -60,7 +69,37 @@ export class Room extends ProxyNotifier<RoomEventTypes, RoomEvents> {
     this.notifyUserList();
   }
 
-  /** send a payload has a client to the host */
+  public removePeer(id: string) {
+    this._members_peers = this._members_peers.filter(p => p.id !== id);
+    this._notify({ type: 'PEER_QUIT', id });
+    this.notifyUserList();
+  }
+
+  public sendFile(file: File, id: string) {
+    this._client_peer?.sendFile(file, id);
+    return Ok(null);
+  }
+
+  public async broadcastFile(file: File, id: string, { excluded_ids }: { excluded_ids?: string[] } = {}) {
+    for (const peer of this._members_peers) {
+      if (!excluded_ids?.includes(peer.id)) {
+        const res = await peer.sendFile(file, id);
+        if (res.isNone()) {
+          // this._members_peers = this._members_peers.filter(p => p.id !== peer.id);
+          // this.notifyUserList();
+        }
+      }
+    }
+  }
+
+  public async reciveFile(file_id: string, peer_id?: string) {
+    if (this._client_peer) {
+      return this._client_peer.receiveFile(file_id);
+    }
+    return this._members_peers.find(p => p.id === peer_id)!.receiveFile(file_id);
+  }
+
+  /** send a payload as a client to the host */
   public send<E extends { type: string } & Record<string, any>>(
     event: PeerEvents[PeerEventTypes] | E
   ): Result<null, Error> {
@@ -75,10 +114,10 @@ export class Room extends ProxyNotifier<RoomEventTypes, RoomEvents> {
     for (const peer of this._members_peers) {
       if (!excluded_ids?.includes(peer.id)) {
         const res = peer.send(event as PeerEvents[PeerEventTypes]);
-        // failing means disconnect (for now)
         if (res.isErr()) {
-          this._members_peers = this._members_peers.filter(p => p.id !== peer.id);
-          this.notifyUserList();
+          console.log(res.error);
+          // this._members_peers = this._members_peers.filter(p => p.id !== peer.id);
+          // this.notifyUserList();
         }
       }
     }
@@ -100,5 +139,16 @@ export class Room extends ProxyNotifier<RoomEventTypes, RoomEvents> {
       /// we are the 'host', broadcast stream to all clients
       this.broadcast(event);
     }
+  }
+
+  public async quit() {
+    if (!this._client_peer) return;
+    this._client_peer.quit();
+  }
+
+  public async delete() {
+    if (this._client_peer) return;
+    this._members_peers.forEach(p => p.quit());
+    this._members_peers = [];
   }
 }
