@@ -17,9 +17,8 @@
   export let currently_playing: boolean = false;
 
   const img = () => {
-    if (song.img?.length === 0) return '';
-    var blob = new Blob([song.img[0].data], { type: song.img[0].format });
-    return URL.createObjectURL(blob);
+    if (!song.localImg) return '';
+    return URL.createObjectURL(song.localImg as Blob);
   };
 
   let image: string;
@@ -53,7 +52,7 @@
       <PlayOutline size="md" />
     </div>
   {/if}
-  {#if song.img?.length === 0}
+  {#if !song.localImg}
     <div class={clsx('w-28', 'h-16', 'flex', 'items-center', 'justify-center')}>
       <FileMusicSolid size="xl" />
     </div>
