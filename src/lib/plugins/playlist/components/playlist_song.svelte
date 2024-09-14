@@ -2,19 +2,22 @@
   import clsx from 'clsx';
   import {
     ArrowDownOutline,
+    ArrowUpOutline,
     DotsVerticalOutline,
     FileMusicSolid,
     PlayOutline,
     TrashBinSolid,
   } from 'flowbite-svelte-icons';
-  import type { Song } from '../notifier/playlist_manager';
-  import { App } from '$lib/app';
-  import type { PopupSettings } from '@skeletonlabs/skeleton';
-  import { popup } from '@skeletonlabs/skeleton';
-  import { ArrowUpOutline } from 'flowbite-svelte-icons';
-  import { RemoveSong } from '../commands/remove_song';
+  import type {Song} from '../notifier/playlist_manager';
+  import {App} from '$lib/app';
+  import {RemoveSong} from '../commands/remove_song';
+  import {MoveSongDown} from "$lib/plugins/playlist/commands/move_song_down";
+  import {MoveSongUp} from "$lib/plugins/playlist/commands/move_song_up";
+
   export let song: Song;
   export let currently_playing: boolean = false;
+  export let isFirst: boolean = false;
+  export let isLast: boolean = false;
 
   const img = () => {
     if (!song.localImg) return '';
@@ -34,11 +37,13 @@
   let options_open = false;
 
   function moveUp() {
-    // App.instance.executeCommand();
+    App.instance.executeCommand(new MoveSongUp(song.uuid));
+    options_open = false;
   }
 
   function moveDown() {
-    // App.instance.executeCommand();
+    App.instance.executeCommand(new MoveSongDown(song.uuid));
+    options_open = false;
   }
 
   function remove() {
@@ -74,10 +79,10 @@
       'overflow-hidden transition-all ease-out flex flex-row space-x-2 items-center justify-center'
     )}
   >
-    <button class="btn btn-icon variant-filled-tertiary border-b-4 border-black" on:click={moveUp} disabled>
+    <button class="btn btn-icon variant-filled-tertiary border-b-4 border-black" on:click={moveUp} disabled={isFirst}>
       <ArrowUpOutline size="md" />
     </button>
-    <button class="btn btn-icon variant-filled-tertiary border-b-4 border-black" on:click={moveDown} disabled>
+    <button class="btn btn-icon variant-filled-tertiary border-b-4 border-black" on:click={moveDown} disabled={isLast}>
       <ArrowDownOutline size="md" />
     </button>
     <button class="btn btn-icon variant-filled-tertiary border-b-4 border-black" on:click={remove}>
