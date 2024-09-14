@@ -11,6 +11,6 @@ export default defineConfig({
     global: 'window',
   },
   test: {
-    include: ['src/**/*.{test,spec}.{js,ts}'],
+    include: ['test/**/*.{test,spec}.{js,ts}'],
   },
 });

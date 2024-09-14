@@ -1,12 +1,9 @@
 <script lang="ts">
-  //	import type { SvelteComponent } from "svelte";
-
   import { getModalStore } from '@skeletonlabs/skeleton';
   import { PinInput, Toggle } from 'bits-ui';
   import clsx from 'clsx';
   import { EyeOutline, EyeSlashOutline } from 'flowbite-svelte-icons';
-
-  // export let parent: SvelteComponent;
+  import LL from "../../../i18n/i18n-svelte";
 
   const modal_store = getModalStore();
 
@@ -34,11 +31,11 @@
     <div class={clsx('card', 'p-12', 'space-y-4', 'rounded-3xl', 'min-w-96')}>
       <section class={clsx('flex', 'justify-center', 'align-center', 'flex-col', 'space-y-4')}>
         <div id="username-input">
-          <label for="username" class={clsx('text-lg', 'mb-2')}> Nom d'utilisateur </label>
+          <label for="username" class={clsx('text-lg', 'mb-2')}> {$LL.joinRoomPopup.userName()} </label>
           <input type="text" class={clsx('input', 'w-full', 'h-12', 'px-4')} bind:value={username} />
         </div>
         <div class="flex flex-col items-center">
-          <label for="code" class={clsx('text-lg', 'mb-2', 'self-start')}>Code de salle</label>
+          <label for="code" class={clsx('text-lg', 'mb-2', 'self-start')}>{$LL.joinRoomPopup.roomCodeInput()}</label>
           <PinInput.Root
             id="code-input"
             bind:value={values}
@@ -69,7 +66,7 @@
           on:click={submit}
           disabled={values?.join('').length !== 4 || !username}
         >
-          Rejoindre
+          {$LL.joinRoomPopup.joinBtn()}
         </button>
       </footer>
     </div>

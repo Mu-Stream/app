@@ -1,7 +1,7 @@
-import {Command} from '$lib/commands/i_commands';
-import {Ok, type Result} from 'bakutils-catcher';
-import type {TextChatPlugin} from '../text_chat';
-import type {TextChatEvent} from '../notifiers/text_chat_manager';
+import { Command } from '$lib/commands/i_commands';
+import { Ok, type Result } from 'bakutils-catcher';
+import type { TextChatPlugin } from '../text_chat';
+import type { TextChatEvent } from '../notifiers/text_chat_manager';
 
 export class TextCommand extends Command<TextChatPlugin['context']> {
   constructor(private text: string) {

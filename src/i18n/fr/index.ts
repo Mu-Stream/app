@@ -3,7 +3,7 @@ import type { Translation } from '../i18n-types';
 const fr = {
   title: 'Mu Stream',
   waitingScreen: {
-    slogan: "Partage des sessions d'écoute instense avec tes amis !",
+    slogan: "Partage des sessions d'écoute intense avec tes amis !",
     createRoomBtn: 'Créer une salle',
     joinRoomBtn: 'Rejoindre une salle',
     roomChoiceSeparator: 'OU',
@@ -21,22 +21,22 @@ const fr = {
         "Mu Stream est une application qui te permet de partager des sessions d'écoute avec tes amis. Voici un tuto pour t'aider à démarrer.",
     },
     stepCreateRoom: {
-      title: 'Créez une salle',
+      title: 'Créer une salle',
       description:
         "Clique ici pour créer une salle. Un code sera créé, tu pourras le copier et le partager avec tes amis pour qu'ils te rejoignent.",
     },
     stepJoinRoom: {
       title: 'Rejoindre une salle',
       description:
-        "Clique ici pour créer une salle. Un code de salle seras créer, tu pourras le copier et le partager avec tes amis pour qu'ils puissent te rejoindre.",
-      description1: 'Cliquer ici pour rejoindre une salle.',
-      description2: "Renseigner ton nom d'utilisateur ici.",
-      description3: 'Renseigner le code de la salle ici.',
-      description4: "Est c'est parti !",
+        "Clique ici pour rejoindre une salle. Un code de salle sera créé, tu pourras le copier et le partager avec tes amis pour qu'ils puissent te rejoindre.",
+      description1: 'Clique ici pour rejoindre une salle.',
+      description2: "Renseigne ton nom d'utilisateur ici.",
+      description3: 'Renseigne le code de la salle ici.',
+      description4: "Et c'est parti !",
     },
   },
   roomScreen: {
-    code: 'code',
+    code: 'Code',
     deleteRoom: 'Supprimer la salle',
     logOut: 'Déconnexion',
     participants: 'Participants',
@@ -52,7 +52,7 @@ const fr = {
   roomScreenTutorial: {
     stepWelcome: {
       title: 'Bienvenue dans cette salle',
-      description: "Tu es dans une salle d`'écoute privé de musique. Voici un tuto pour t'aider à naviguer.",
+      description: "Tu es dans une salle d'écoute privée de musique. Voici un tuto pour t'aider à naviguer.",
     },
     stepCode: {
       title: 'Code de la salle',
@@ -65,7 +65,7 @@ const fr = {
     },
     stepReact: {
       title: 'Ajouter une réaction',
-      description: 'Tu peux reagir a la musique !',
+      description: 'Tu peux réagir à la musique !',
     },
     stepMusicControl: {
       title: 'Contrôles de la musique',
@@ -81,12 +81,12 @@ const fr = {
     },
   },
   common: {
-    tutorialStep: 'Etape {current} sur {total}',
+    tutorialStep: 'Étape {current} sur {total}',
   },
   alertToast: {
     newParticipant: '{name} a rejoint la salle',
     participantLeft: '{name} a quitté la salle',
-    copiedRoomCode: 'Code copié dans le presse papier',
+    copiedRoomCode: 'Code copié dans le presse-papier',
   },
   settingsPopup: {
     language: 'Langue',
