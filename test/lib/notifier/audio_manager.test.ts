@@ -1,5 +1,5 @@
-import {beforeEach, describe, expect, it, vi} from 'vitest';
-import {AudioManager} from "../../../src/lib/notifier/audio_manager";
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { AudioManager } from '../../../src/lib/notifier/audio_manager';
 
 vi.mock('browser-image-compression');
 vi.mock('music-metadata');
@@ -50,7 +50,8 @@ describe('AudioManager', () => {
         artist: '',
         album: '',
         year: '',
-        img: [],
+        hasImg: false,
+        localImg: null,
       },
       VOLUME: { type: 'VOLUME', value: 1 },
     });
@@ -61,5 +62,4 @@ describe('AudioManager', () => {
     expect(audioManager['_node']).toBeUndefined();
     expect(audioManager['_destination']).toBeUndefined();
   });
-
 });

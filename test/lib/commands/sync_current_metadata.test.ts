@@ -1,8 +1,7 @@
-import {describe, expect, it, vi} from 'vitest';
-import {Ok} from 'bakutils-catcher';
-import {SyncCurrentMetadata} from '../../../src/lib/commands/sync_current_metadata';
-import type {AudioManagerEvent} from "../../../src/lib/notifier/audio_manager";
-
+import { describe, expect, it, vi } from 'vitest';
+import { Ok } from 'bakutils-catcher';
+import { SyncCurrentMetadata } from '../../../src/lib/commands/sync_current_metadata';
+import type { AudioManagerEvent } from '../../../src/lib/notifier/audio_manager';
 
 describe('SyncCurrentMetadata', () => {
   it('should execute and sync current metadata correctly', async () => {
@@ -12,7 +11,7 @@ describe('SyncCurrentMetadata', () => {
       artist: '',
       album: '',
       year: '',
-      img: []
+      img: [],
     };
     const mockContext = {
       room: {

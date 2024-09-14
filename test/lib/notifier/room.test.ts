@@ -1,8 +1,8 @@
-import {beforeEach, describe, expect, it, vi} from 'vitest';
-import {Room} from '../../../src/lib/notifier/room';
-import {Peer} from '../../../src/lib/notifier/peer';
-import {App} from '../../../src/lib/app';
-import {Ok} from 'bakutils-catcher';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { Room } from '../../../src/lib/notifier/room';
+import { Peer } from '../../../src/lib/notifier/peer';
+import { App } from '../../../src/lib/app';
+import { Ok } from 'bakutils-catcher';
 
 vi.mock('$lib/app', () => ({
   App: {
@@ -59,11 +59,17 @@ describe('Room', () => {
     room.notifyUserList();
     expect(notifySpy).toHaveBeenCalledWith({
       type: 'USER_LIST',
-      users: [{ id: 'peer1', username: 'user1' }, { id: 'host', username: 'host' }],
+      users: [
+        { id: 'peer1', username: 'user1' },
+        { id: 'host', username: 'host' },
+      ],
     });
     expect(broadcastSpy).toHaveBeenCalledWith({
       type: 'USER_LIST',
-      users: [{ id: 'peer1', username: 'user1' }, { id: 'host', username: 'host' }],
+      users: [
+        { id: 'peer1', username: 'user1' },
+        { id: 'host', username: 'host' },
+      ],
     });
   });
 

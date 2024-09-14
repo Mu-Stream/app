@@ -1,6 +1,6 @@
-import {describe, expect, it, vi} from 'vitest';
-import {Ok} from 'bakutils-catcher';
-import {ResumeCommand} from '../../../src/lib/commands/resume';
+import { describe, expect, it, vi } from 'vitest';
+import { Ok } from 'bakutils-catcher';
+import { ResumeCommand } from '../../../src/lib/commands/resume';
 
 describe('ResumeCommand', () => {
   it('should execute and send resume command correctly', async () => {

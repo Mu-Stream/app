@@ -1,6 +1,6 @@
-import {describe, expect, it, vi} from 'vitest';
-import {Ok} from 'bakutils-catcher';
-import {JoinRoomCommand} from "../../../src/lib/commands/join";
+import { describe, expect, it, vi } from 'vitest';
+import { Ok } from 'bakutils-catcher';
+import { JoinRoomCommand } from '../../../src/lib/commands/join';
 
 describe('JoinRoomCommand', () => {
   const mockContext = {
@@ -31,7 +31,6 @@ describe('JoinRoomCommand', () => {
       trigger: vi.fn(),
     },
   };
-
 
   it('should initialize with correct room_id and username', () => {
     const command = new JoinRoomCommand('room1', 'user1');

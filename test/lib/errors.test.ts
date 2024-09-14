@@ -1,9 +1,5 @@
-import {describe, expect, it} from 'vitest';
-import {
-  EventTimeout,
-  SignalingServerNotReady,
-  UnableToRetrivePeerSignal
-} from '../../src/lib/errors';
+import { describe, expect, it } from 'vitest';
+import { EventTimeout, SignalingServerNotReady, UnableToRetrivePeerSignal } from '../../src/lib/errors';
 
 describe('Error Classes', () => {
   it('should create SignalingServerNotReady error with correct message', () => {

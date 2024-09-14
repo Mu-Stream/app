@@ -1,7 +1,6 @@
-import {beforeEach, describe, expect, it, vi} from 'vitest';
-import {getToastStore} from '@skeletonlabs/skeleton';
-import {Toaster} from "../../../src/lib/notifier/toaster";
-
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { getToastStore } from '@skeletonlabs/skeleton';
+import { Toaster } from '../../../src/lib/notifier/toaster';
 
 vi.mock('@skeletonlabs/skeleton', () => ({
   getToastStore: vi.fn(() => ({

@@ -1,4 +1,4 @@
-import type {Translation} from '../i18n-types';
+import type { Translation } from '../i18n-types';
 
 const fr = {
   title: 'Mu Stream',
@@ -18,17 +18,17 @@ const fr = {
     stepWelcome: {
       title: 'Bienvenue sur Mu Stream',
       description:
-          "Mu Stream est une application qui te permet de partager des sessions d'écoute avec tes amis. Voici un tuto pour t'aider à démarrer.",
+        "Mu Stream est une application qui te permet de partager des sessions d'écoute avec tes amis. Voici un tuto pour t'aider à démarrer.",
     },
     stepCreateRoom: {
       title: 'Créer une salle',
       description:
-          "Clique ici pour créer une salle. Un code sera créé, tu pourras le copier et le partager avec tes amis pour qu'ils te rejoignent.",
+        "Clique ici pour créer une salle. Un code sera créé, tu pourras le copier et le partager avec tes amis pour qu'ils te rejoignent.",
     },
     stepJoinRoom: {
       title: 'Rejoindre une salle',
       description:
-          "Clique ici pour rejoindre une salle. Un code de salle sera créé, tu pourras le copier et le partager avec tes amis pour qu'ils puissent te rejoindre.",
+        "Clique ici pour rejoindre une salle. Un code de salle sera créé, tu pourras le copier et le partager avec tes amis pour qu'ils puissent te rejoindre.",
       description1: 'Clique ici pour rejoindre une salle.',
       description2: "Renseigne ton nom d'utilisateur ici.",
       description3: 'Renseigne le code de la salle ici.',
@@ -46,7 +46,7 @@ const fr = {
   },
   warningPopup: {
     description:
-        "Mu Stream n'est pas responsable du contenu audio diffusé par les participants. Vous en êtes seul responsable.",
+      "Mu Stream n'est pas responsable du contenu audio diffusé par les participants. Vous en êtes seul responsable.",
     quit: 'Ne plus afficher',
   },
   roomScreenTutorial: {
@@ -57,7 +57,7 @@ const fr = {
     stepCode: {
       title: 'Code de la salle',
       description:
-          "Tu peux partager ce code avec tes amis pour qu'ils rejoignent ta salle.<br>L'œil permet de l'afficher et l'icône copier de le copier directement dans ton presse-papier.",
+        "Tu peux partager ce code avec tes amis pour qu'ils rejoignent ta salle.<br>L'œil permet de l'afficher et l'icône copier de le copier directement dans ton presse-papier.",
     },
     stepAddSong: {
       title: 'Ajouter un son',

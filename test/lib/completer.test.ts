@@ -1,6 +1,6 @@
-import {describe, expect, it} from 'vitest';
-import {None, Option, Some} from 'bakutils-catcher';
-import {Completer} from "../../src/lib/completer";
+import { describe, expect, it } from 'vitest';
+import { None, Option, Some } from 'bakutils-catcher';
+import { Completer } from '../../src/lib/completer';
 
 describe('Completer', () => {
   it('should resolve with the correct value using complete method', async () => {

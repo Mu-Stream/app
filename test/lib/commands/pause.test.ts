@@ -1,6 +1,6 @@
-import {Ok} from 'bakutils-catcher';
-import {describe, expect, it, vi} from 'vitest';
-import {PauseCommand} from "../../../src/lib/commands/pause";
+import { Ok } from 'bakutils-catcher';
+import { describe, expect, it, vi } from 'vitest';
+import { PauseCommand } from '../../../src/lib/commands/pause';
 
 describe('PauseCommand', () => {
   it('should execute and send pause command correctly', async () => {

@@ -1,7 +1,7 @@
-import {beforeEach, describe, expect, it, vi} from 'vitest';
-import type {CoreAppContext} from '../../../src/lib/app';
-import {Ok, type Result} from 'bakutils-catcher';
-import {type Binder, Plugin} from "../../../src/lib/plugins/i_plugin";
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import type { CoreAppContext } from '../../../src/lib/app';
+import { Ok, type Result } from 'bakutils-catcher';
+import { type Binder, Plugin } from '../../../src/lib/plugins/i_plugin';
 
 class TestPlugin extends Plugin<'test'> {
   name = 'test';
@@ -41,9 +41,11 @@ describe('Plugin', () => {
   });
 
   function resultsAreEqual<T, E>(actual: Result<T, E>, expected: Result<T, E>): boolean {
-    return actual.isOk() === expected.isOk() &&
-        actual.isErr() === expected.isErr() &&
-        JSON.stringify(actual?.value) === JSON.stringify(expected?.value);
+    return (
+      actual.isOk() === expected.isOk() &&
+      actual.isErr() === expected.isErr() &&
+      JSON.stringify(actual?.value) === JSON.stringify(expected?.value)
+    );
   }
 
   it('should initialize correctly', async () => {
@@ -55,5 +57,4 @@ describe('Plugin', () => {
     const result = await plugin.dispose();
     expect(resultsAreEqual(result, Ok(null))).toBe(true);
   });
-
 });

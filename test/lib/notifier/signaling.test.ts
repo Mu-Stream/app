@@ -1,6 +1,6 @@
-import {beforeEach, describe, expect, it, vi} from 'vitest';
-import {SignalingServer} from '../../../src/lib/notifier/signaling';
-import {App} from '../../../src/lib/app';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { SignalingServer } from '../../../src/lib/notifier/signaling';
+import { App } from '../../../src/lib/app';
 
 vi.mock('$lib/app', () => ({
   App: {
@@ -40,8 +40,7 @@ describe('SignalingServer', () => {
 
   it('should set up WebSocket and handle events correctly in init', async () => {
     signalingServer.init();
-    expect(global.WebSocket).toHaveBeenCalledWith("ws://mocked-url");
-
+    expect(global.WebSocket).toHaveBeenCalledWith('ws://mocked-url');
   });
 
   it('should attempt to reconnect and update state correctly', async () => {
