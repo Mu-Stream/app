@@ -11,7 +11,6 @@ export class SyncCurrentMetadata extends Command<CoreAppContext> {
 	public async execute(context: CoreAppContext): Promise<Result<null, Error>> {
 		context.audio_manager.syncCurrentMetadata(this.event);
 		const { localImg, ...evt } = this.event;
-		console.log('why')
 		context.room.send(evt);
 		context.room.broadcast(evt);
 		if (localImg) {
