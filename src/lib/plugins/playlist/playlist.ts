@@ -1,4 +1,4 @@
-import { Plugin, type Binder } from '$lib/plugins/i_plugin';
+import { type Binder, Plugin } from '$lib/plugins/i_plugin';
 import { Ok, type Result } from 'bakutils-catcher';
 import { PlaylistManager } from './notifier/playlist_manager';
 import Playlist from './components/playlist.svelte';
@@ -16,12 +16,13 @@ export class PlaylistPlugin extends Plugin<'playlist'> {
     binder('ADD_TO_PLAYLIST', this.plugin_context.playlist_manager._handleAddToPlaylist);
     binder('PLAY_SONG_IN_PLAYLIST', this.plugin_context.playlist_manager._handlePlaySongInPlaylist);
     binder('REMOVE_FROM_PLAYLIST', this.plugin_context.playlist_manager._handleRemoveFromPlaylist);
+    binder('SWAP_IN_PLAYLIST', this.plugin_context.playlist_manager._handleSwapInPlaylist);
     return Ok(null);
   }
 
   async init(): Promise<Result<null, Error>> {
     this.context.room.subscribe('PEER_QUIT', this.plugin_context.playlist_manager._handlePeerQuited);
-    this.context.room.subscribe('NEW_PEER', this.plugin_context.playlist_manager._initPlyalistPeer);
+    this.context.room.subscribe('NEW_PEER', this.plugin_context.playlist_manager._initPlaylistPeer);
     return Ok(null);
   }
 

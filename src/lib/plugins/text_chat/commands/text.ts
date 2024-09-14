@@ -10,7 +10,7 @@ export class TextCommand extends Command<TextChatPlugin['context']> {
 
   public async execute(context: TextChatPlugin['context']): Promise<Result<null, Error>> {
     let uuid = '';
-    let username = 'admin';
+    let username = 'host';
     if (context.room.client_peer) {
       username = context.room.client_peer.username;
       uuid = context.room.client_peer.id;

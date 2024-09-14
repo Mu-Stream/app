@@ -1,12 +1,12 @@
 <script lang="ts">
-  import { App } from '$lib/app';
-  import { outline_style } from '$lib/global_styles';
-  import type { PluginContext } from '$lib/plugins/plugin_manager';
-  import type { PlaylistPlugin } from '../playlist';
-  import { showOpenFilePicker } from 'file-system-access';
+  import {App} from '$lib/app';
+  import {outline_style} from '$lib/global_styles';
+  import type {PluginContext} from '$lib/plugins/plugin_manager';
+  import type {PlaylistPlugin} from '../playlist';
+  import {showOpenFilePicker} from 'file-system-access';
   import PlaylistSong from './playlist_song.svelte';
   import clsx from 'clsx';
-  import { AddToPlaylist } from '../commands/add_to_playlist';
+  import {AddToPlaylist} from '../commands/add_to_playlist';
   import LL from '../../../../i18n/i18n-svelte';
 
   const queue = (
@@ -47,7 +47,7 @@
   </div>
   <div class="overflow-y-auto grow flex flex-col space-y-2 my-4">
     {#each $queue.queue as song, idx}
-      <PlaylistSong {song} currently_playing={idx === 0} />
+      <PlaylistSong {song} currently_playing={idx === 0} isFirst={idx === 1} isLast={idx === $queue.queue.length - 1} />
     {/each}
   </div>
 </div>

@@ -1,4 +1,4 @@
-import { Notifier, type Events, type Listener } from '$lib/notifier/i_notifier';
+import { type Events, type Listener, Notifier } from '$lib/notifier/i_notifier';
 import { App } from '$lib/app';
 import { Ok } from 'bakutils-catcher';
 import type { AudioManagerEvent } from '$lib/notifier/audio_manager';
@@ -76,7 +76,7 @@ export class PlaylistManager extends Notifier<PlaylistEventType, PlaylistEvent> 
     return Ok(null);
   };
 
-  _initPlyalistPeer: Listener<RoomEvents['NEW_PEER']> = async event => {
+  _initPlaylistPeer: Listener<RoomEvents['NEW_PEER']> = async event => {
     for (const s of this._queue) {
       const { localImg, ...song } = s;
       const payload: PlaylistEvent['ADD_TO_PLAYLIST'] = {
@@ -157,9 +157,44 @@ export class PlaylistManager extends Notifier<PlaylistEventType, PlaylistEvent> 
     return Ok(null);
   };
 
+  public _handleSwapInPlaylist: Listener<PlaylistEvent['SWAP_IN_PLAYLIST']> = async payload => {
+    const indexA = this._queue.findIndex(s => s.uuid === payload.uuid_a);
+    const indexB = this._queue.findIndex(s => s.uuid === payload.uuid_b);
+    if (indexA === -1 || indexB === -1 || indexA === indexB) return Ok(null);
+    const temp = this._queue[indexA];
+    this._queue[indexA] = this._queue[indexB];
+    this._queue[indexB] = temp;
+    this._notify({ type: 'UPDATE_PLAYLIST', queue: this._queue });
+    return Ok(null);
+  };
+
   public removeSong(uuid: string) {
     const payload: PlaylistEvent['REMOVE_FROM_PLAYLIST'] = { type: 'REMOVE_FROM_PLAYLIST', uuid };
     this._notify(payload);
+    App.instance.context.room.broadcast(payload);
+    App.instance.context.room.send(payload);
+  }
+
+  public moveSongUp(uuid: string) {
+    const index = this._queue.findIndex(s => s.uuid === uuid);
+    if (index === 0) return;
+    const temp = this._queue[index - 1];
+    this._queue[index - 1] = this._queue[index];
+    this._queue[index] = temp;
+    const payload: PlaylistEvent['SWAP_IN_PLAYLIST'] = { type: 'SWAP_IN_PLAYLIST', uuid_a: uuid, uuid_b: temp.uuid };
+    this._notify({ type: 'UPDATE_PLAYLIST', queue: this._queue }); // Update locally
+    App.instance.context.room.broadcast(payload);
+    App.instance.context.room.send(payload);
+  }
+
+  public moveSongDown(uuid: string) {
+    const index = this._queue.findIndex(s => s.uuid === uuid);
+    if (index === this._queue.length - 1) return;
+    const temp = this._queue[index + 1];
+    this._queue[index + 1] = this._queue[index];
+    this._queue[index] = temp;
+    const payload: PlaylistEvent['SWAP_IN_PLAYLIST'] = { type: 'SWAP_IN_PLAYLIST', uuid_a: uuid, uuid_b: temp.uuid };
+    this._notify({ type: 'UPDATE_PLAYLIST', queue: this._queue }); // Update locally
     App.instance.context.room.broadcast(payload);
     App.instance.context.room.send(payload);
   }
