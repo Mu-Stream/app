@@ -1,16 +1,16 @@
 <script lang="ts">
-  import { App } from '$lib/app';
-  import { PauseCommand } from '$lib/commands/pause';
-  import { ResumeCommand } from '$lib/commands/resume';
-  import { getToastStore, RangeSlider } from '@skeletonlabs/skeleton';
+  import {App} from '$lib/app';
+  import {PauseCommand} from '$lib/commands/pause';
+  import {ResumeCommand} from '$lib/commands/resume';
+  import {getToastStore, RangeSlider} from '@skeletonlabs/skeleton';
   import clsx from 'clsx';
   import {
-    CaretLeftOutline,
     CaretRightOutline,
     PauseOutline,
     PlayOutline,
     VolumeDownOutline,
   } from 'flowbite-svelte-icons';
+  import {SkipCommand} from "$lib/commands/skip";
 
   const toastStore = getToastStore();
 
@@ -27,6 +27,13 @@
 
   async function resume() {
     const res = await App.instance.executeCommand(new ResumeCommand());
+    res.match({
+      Ok: () => {},
+      Err: e => toastStore.trigger({ message: e.message }),
+    });
+  }
+  async function skip() {
+    const res = await App.instance.executeCommand(new SkipCommand());
     res.match({
       Ok: () => {},
       Err: e => toastStore.trigger({ message: e.message }),
@@ -52,7 +59,7 @@
       <PlayOutline size="xl" />
     </button>
   {/if}
-  <button type="button" class={clsx('btn-icon', '!bg-transparent')} disabled>
+  <button on:click={skip} type="button" class={clsx('btn-icon', '!bg-transparent')} >
     <CaretRightOutline size="xl" />
   </button>
 

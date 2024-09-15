@@ -1,12 +1,12 @@
-import { DefaultCatch, Err, Ok, type Result } from 'bakutils-catcher';
-import { Command, type WrappedListener } from './i_commands';
-import { UnableToRetrivePeerSignal } from '../errors';
-import { Peer, type PeerEvents, type WithPeerIentity } from '$lib/notifier/peer';
-import type { SignalingEvent } from '$lib/notifier/signaling';
-import type { CoreAppContext } from '$lib/app';
-import { prettyError } from '$lib/logging_utils';
-import type { AudioManagerEvent } from '$lib/notifier/audio_manager';
-import { get } from 'svelte/store';
+import {DefaultCatch, Err, Ok, type Result} from 'bakutils-catcher';
+import {Command, type WrappedListener} from './i_commands';
+import {UnableToRetrivePeerSignal} from '../errors';
+import {Peer, type PeerEvents, type WithPeerIentity} from '$lib/notifier/peer';
+import type {SignalingEvent} from '$lib/notifier/signaling';
+import type {CoreAppContext} from '$lib/app';
+import {prettyError} from '$lib/logging_utils';
+import type {AudioManagerEvent} from '$lib/notifier/audio_manager';
+import {get} from 'svelte/store';
 import LL from '../../i18n/i18n-svelte';
 
 export class HostCommand extends Command<CoreAppContext> {
@@ -61,6 +61,7 @@ export class HostCommand extends Command<CoreAppContext> {
 
     this._peer.proxy('CURRENTLY_PLAYING', context.audio_manager.bind);
     this._peer.proxy('SONG_ENDED', context.audio_manager.bind);
+    this._peer.proxy('SKIP_SONG', context.audio_manager.bind);
 
     const new_peer_toast: PeerEvents['TOAST'] = {
       type: 'TOAST',

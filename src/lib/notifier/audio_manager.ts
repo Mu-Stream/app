@@ -1,12 +1,12 @@
-import { Completer } from '$lib/completer';
-import { Err, Ok, type Result } from 'bakutils-catcher';
-import { App } from '$lib/app';
-import { Notifier, type Events } from './i_notifier';
-import { SyncCurrentlyPlaying } from '$lib/commands/sync_currently_playing';
-import { SyncCurrentMetadata } from '$lib/commands/sync_current_metadata';
-import { parseBlob } from 'music-metadata';
+import {Completer} from '$lib/completer';
+import {Err, Ok, type Result} from 'bakutils-catcher';
+import {App} from '$lib/app';
+import {type Events, Notifier} from './i_notifier';
+import {SyncCurrentlyPlaying} from '$lib/commands/sync_currently_playing';
+import {SyncCurrentMetadata} from '$lib/commands/sync_current_metadata';
+import {parseBlob} from 'music-metadata';
 
-type AudioManagerEventType = 'CURRENTLY_PLAYING' | 'CURRENTLY_METADATA' | 'SONG_ENDED' | 'VOLUME';
+type AudioManagerEventType = 'CURRENTLY_PLAYING' | 'CURRENTLY_METADATA' | 'SONG_ENDED' | 'VOLUME' | 'SKIP_SONG';
 
 export type AudioManagerEvent = Events<
   AudioManagerEventType,
@@ -28,6 +28,7 @@ export type AudioManagerEvent = Events<
     };
     SONG_ENDED: { type: 'SONG_ENDED' };
     VOLUME: { type: 'VOLUME'; value: number };
+    SKIP_SONG: { type: 'SKIP_SONG' };
   }
 >;
 
@@ -226,5 +227,10 @@ export class AudioManager extends Notifier<AudioManagerEventType, AudioManagerEv
     this._setupCurrentlyPlayingPeriodicPing();
 
     return;
+  }
+
+  public skipToNext() {
+    this._notify({ type: 'SKIP_SONG' });
+    App.instance.context.room.broadcast({ type: 'SKIP_SONG' });
   }
 }

@@ -1,9 +1,9 @@
-import { type Events, type Listener, Notifier } from '$lib/notifier/i_notifier';
-import { App } from '$lib/app';
-import { Ok } from 'bakutils-catcher';
-import type { AudioManagerEvent } from '$lib/notifier/audio_manager';
-import type { RoomEvents } from '$lib/notifier/room';
-import type { WithPeerIentity } from '$lib/notifier/peer';
+import {type Events, type Listener, Notifier} from '$lib/notifier/i_notifier';
+import {App} from '$lib/app';
+import {Ok} from 'bakutils-catcher';
+import type {AudioManagerEvent} from '$lib/notifier/audio_manager';
+import type {RoomEvents} from '$lib/notifier/room';
+import type {WithPeerIentity} from '$lib/notifier/peer';
 
 export interface Song {
   identity: string;
@@ -61,6 +61,7 @@ export class PlaylistManager extends Notifier<PlaylistEventType, PlaylistEvent> 
       },
     });
     App.instance.context.audio_manager.subscribe('SONG_ENDED', this._handleSongEnded);
+    App.instance.context.audio_manager.subscribe('SKIP_SONG', this._handleSkipSong);
     this.subscribe('ADD_TO_PLAYLIST', this._handleAddToPlaylist as Listener<any>); // FUCK TS SOMETIMES
     this.subscribe('PLAY_SONG_IN_PLAYLIST', this._handlePlaySongInPlaylist);
     this.subscribe('REMOVE_FROM_PLAYLIST', this._handleRemoveFromPlaylist);
@@ -75,6 +76,16 @@ export class PlaylistManager extends Notifier<PlaylistEventType, PlaylistEvent> 
     this._notify({ type: 'PLAY_SONG_IN_PLAYLIST', uuid: this._queue[0].uuid });
     return Ok(null);
   };
+
+  private _handleSkipSong: Listener<AudioManagerEvent['SKIP_SONG']> = async () => {
+    if (this._queue.length === 0) return Ok(null);
+    App.instance.context.room.broadcast({ type: 'REMOVE_FROM_PLAYLIST', uuid: this._queue[0].uuid });
+    this._notify({ type: 'REMOVE_FROM_PLAYLIST', uuid: this._queue[0].uuid });
+    App.instance.context.room.broadcast({ type: 'PLAY_SONG_IN_PLAYLIST', uuid: this._queue[0].uuid });
+    this._notify({ type: 'PLAY_SONG_IN_PLAYLIST', uuid: this._queue[0].uuid });
+    return Ok(null);
+  };
+
 
   _initPlaylistPeer: Listener<RoomEvents['NEW_PEER']> = async event => {
     for (const s of this._queue) {
