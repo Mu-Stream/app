@@ -73,8 +73,102 @@ function updateBubblePositions() {
   });
 }
 
+function getPlatform() {
+  const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+  if (/android/i.test(userAgent)) {
+    return "Android";
+  }
+
+  if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
+    return "iOS";
+  }
+
+  if (/windows phone/i.test(userAgent)) {
+    return "Windows";
+  }
+
+  if (/win/i.test(userAgent)) {
+    return "Windows";
+  }
+
+  if (/macintosh|mac os x/i.test(userAgent)) {
+    return "Mac";
+  }
+
+  if (/linux/i.test(userAgent)) {
+    return "Linux";
+  }
+  if (window.innerWidth > 768) {
+    return "Desktop";
+  }
+  return "Mobile";
+}
+
+async function getLatestRelease() {
+  const response = await fetch('https://api.github.com/repos/Mu-Stream/app/releases/latest');
+  const data = await response.json();
+  return data.tag_name;
+}
+
+async function getDownloadLink(platform) {
+  const version = await getLatestRelease();
+  const baseUrl = `https://github.com/Mu-Stream/app/releases/download/${version}/MuStream`;
+
+  switch (platform) {
+    case 'Windows':
+      return `${baseUrl}.Setup.${version}.exe`;
+    case 'Linux':
+      return `${baseUrl}-${version}.AppImage`;
+    case 'Android':
+      return `${baseUrl}.apk`;
+    default:
+      return 'https://github.com/Mu-Stream/app/releases/latest';
+  }
+}
+
+async function setDownloadButton() {
+  const platform = getPlatform();
+  const buttonContainer = document.querySelector('.button-container');
+  const downloadLink = await getDownloadLink(platform);
+  let buttonText;
+
+  switch (platform) {
+    case 'Windows':
+      buttonText = 'Télécharger pour Windows';
+      break;
+    case 'Linux':
+      buttonText = 'Télécharger pour Linux';
+      break;
+    case 'Android':
+      buttonText = 'Télécharger pour Android';
+      break;
+    case 'Desktop':
+      buttonText = 'Télécharger pour Windows';
+      buttonContainer.innerHTML += `
+        <a href="${await getDownloadLink('Linux')}" target="_blank">
+          <button type="button" class="btn btn-lg variant-filled-tertiary">Télécharger pour Linux</button>
+        </a>
+      `;
+      break;
+    case 'Mobile':
+      buttonText = 'Télécharger pour Android';
+      break;
+    default:
+      buttonText = 'Télécharger';
+  }
+
+  buttonContainer.innerHTML += `
+    <a href="${downloadLink}" target="_blank">
+      <button type="button" class="btn btn-lg variant-filled-tertiary">${buttonText}</button>
+    </a>
+  `;
+}
+
+
 window.onload = () => {
   createStaticBG();
   createDynamicBubbles();
   setInterval(updateBubblePositions, MOVE_DURATION_MS - 1000);
+  setDownloadButton();
+  getLatestRelease()
 };
